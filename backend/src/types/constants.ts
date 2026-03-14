@@ -1,0 +1,82 @@
+export const UserRole = {
+    PATIENT: 'patient',
+    DOCTOR: 'doctor',
+    ADMIN: 'admin',
+} as const;
+
+export type UserRole = (typeof UserRole)[keyof typeof UserRole];
+
+export const Gender = {
+    MALE: 'male',
+    FEMALE: 'female',
+    OTHER: 'other',
+} as const;
+
+export type Gender = (typeof Gender)[keyof typeof Gender];
+
+export const AppointmentStatus = {
+    SCHEDULED: 'scheduled',
+    CONFIRMED: 'confirmed',
+    CANCELLED: 'cancelled',
+    COMPLETED: 'completed',
+    NO_SHOW: 'no_show',
+} as const;
+
+export type AppointmentStatus = (typeof AppointmentStatus)[keyof typeof AppointmentStatus];
+
+export const MedicalRecordType = {
+    CONSULTATION: 'consultation',
+    DIAGNOSIS: 'diagnosis',
+    LAB_RESULT: 'lab_result',
+    PRESCRIPTION: 'prescription',
+} as const;
+
+export type MedicalRecordType = (typeof MedicalRecordType)[keyof typeof MedicalRecordType];
+
+export const DayOfWeek = {
+    MONDAY: 'monday',
+    TUESDAY: 'tuesday',
+    WEDNESDAY: 'wednesday',
+    THURSDAY: 'thursday',
+    FRIDAY: 'friday',
+    SATURDAY: 'saturday',
+    SUNDAY: 'sunday',
+} as const;
+
+export type DayOfWeek = (typeof DayOfWeek)[keyof typeof DayOfWeek];
+
+export const NotificationType = {
+    APPOINTMENT_REMINDER: 'appointment_reminder',
+    APPOINTMENT_CANCELLED: 'appointment_cancelled',
+    APPOINTMENT_CONFIRMED: 'appointment_confirmed',
+    NEW_MESSAGE: 'new_message',
+} as const;
+
+export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType];
+
+export const InsuranceStatus = {
+    PENDING: 'pending',
+    VERIFIED: 'verified',
+    REJECTED: 'rejected',
+    EXPIRED: 'expired',
+} as const;
+
+export type InsuranceStatus = (typeof InsuranceStatus)[keyof typeof InsuranceStatus];
+
+export const PaymentStatus = {
+    PENDING: 'pending',
+    COMPLETED: 'completed',
+    FAILED: 'failed',
+    REFUNDED: 'refunded',
+} as const;
+
+export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus];
+
+export const PaymentMethod = {
+    STRIPE: 'stripe',
+    PAYPAL: 'paypal',
+    INSURANCE: 'insurance',
+    CASH: 'cash',
+} as const;
+
+export type PaymentMethod = (typeof PaymentMethod)[keyof typeof PaymentMethod];

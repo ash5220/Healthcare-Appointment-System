@@ -1,0 +1,10 @@
+export { userRepository } from './user.repository';
+export { patientRepository } from './patient.repository';
+export { doctorRepository } from './doctor.repository';
+export { appointmentRepository } from './appointment.repository';
+export { availabilityRepository } from './availability.repository';
+export { notificationRepository } from './notification.repository';
+export { medicalRecordRepository } from './medical-record.repository';
+export { messageRepository } from './message.repository';
+export { insuranceRepository } from './insurance.repository';
+export { paymentRepository } from './payment.repository';

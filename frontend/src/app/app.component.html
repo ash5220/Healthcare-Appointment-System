@@ -1,0 +1,36 @@
+<!--
+  App Component Template
+  
+  Main application layout with:
+  - Navbar at the top (sticky)
+  - Main content area with router outlet
+  - Footer at the bottom
+  - Toast notification container (fixed position)
+-->
+
+<!-- Navigation Bar -->
+<app-navbar></app-navbar>
+
+<!-- Main Content Area -->
+<main class="main-content">
+    <router-outlet></router-outlet>
+</main>
+
+<!-- Footer -->
+<app-footer></app-footer>
+
+<!-- Toast Notification Container -->
+<div class="toast-container" aria-live="polite" aria-atomic="true">
+    @for (toast of notificationService.toasts(); track toast.id) {
+    <div class="toast show" [ngClass]="getToastClass(toast.type)" role="alert">
+        <div class="toast-header">
+            <i class="bi me-2" [ngClass]="getToastIcon(toast.type)"></i>
+            <strong class="me-auto">{{ toast.title }}</strong>
+            <button type="button" class="btn-close" (click)="dismissToast(toast)" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            {{ toast.message }}
+        </div>
+    </div>
+    }
+</div>

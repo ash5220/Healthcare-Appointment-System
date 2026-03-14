@@ -1,0 +1,79 @@
+# name: Healthcare Appointment System CI
+# 
+# on:
+#   push:
+#     branches: [ "main", "master" ]
+#   pull_request:
+#     branches: [ "main", "master" ]
+# 
+# jobs:
+#   backend-ci:
+#     name: Backend CI
+#     runs-on: ubuntu-latest
+#     defaults:
+#       run:
+#         working-directory: ./backend
+# 
+#     steps:
+#     - uses: actions/checkout@v4
+# 
+#     - name: Use Node.js
+#       uses: actions/setup-node@v4
+#       with:
+#         node-version: '20.x'
+#         cache: 'npm'
+#         cache-dependency-path: backend/package-lock.json
+# 
+#     - name: Install Dependencies
+#       run: npm ci
+# 
+#     - name: Lint
+#       run: npm run lint
+# 
+#     - name: Test
+#       run: npm test
+# 
+#     - name: Build
+#       run: npm run build
+# 
+#     - name: Upload Build Artifact
+#       uses: actions/upload-artifact@v4
+#       with:
+#         name: backend-build
+#         path: backend/dist
+# 
+#   frontend-ci:
+#     name: Frontend CI
+#     runs-on: ubuntu-latest
+#     defaults:
+#       run:
+#         working-directory: ./frontend
+# 
+#     steps:
+#     - uses: actions/checkout@v4
+# 
+#     - name: Use Node.js
+#       uses: actions/setup-node@v4
+#       with:
+#         node-version: '20.x'
+#         cache: 'npm'
+#         cache-dependency-path: frontend/package-lock.json
+# 
+#     - name: Install Dependencies
+#       run: npm ci
+# 
+#     - name: Lint
+#       run: npm run lint
+# 
+#     - name: Test (Headless)
+#       run: npm run test -- --watch=false --browsers=ChromeHeadless
+# 
+#     - name: Build
+#       run: npm run build
+# 
+#     - name: Upload Build Artifact
+#       uses: actions/upload-artifact@v4
+#       with:
+#         name: frontend-build
+#         path: frontend/dist
+

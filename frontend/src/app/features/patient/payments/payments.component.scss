@@ -1,0 +1,36 @@
+.summary-card {
+    transition: transform 0.2s ease;
+
+    &:hover {
+        transform: translateY(-2px);
+    }
+}
+
+.icon-box {
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.payment-row {
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.detail-row td {
+    animation: expandIn 0.2s ease-out;
+}
+
+@keyframes expandIn {
+    from {
+        opacity: 0;
+        max-height: 0;
+    }
+
+    to {
+        opacity: 1;
+        max-height: 200px;
+    }
+}

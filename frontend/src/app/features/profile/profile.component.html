@@ -1,0 +1,104 @@
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+                <!-- Header Section -->
+                <div class="bg-primary p-4 text-white text-center position-relative">
+                    <div
+                        class="avatar-lg bg-white text-primary mx-auto mb-3 d-flex align-items-center justify-content-center rounded-circle fs-1 fw-bold shadow">
+                        {{ userInitials }}
+                    </div>
+                    <h3 class="fw-bold mb-0">{{ displayName }}</h3>
+                    <p class="mb-0 opacity-75">{{ user()?.role | titlecase }} Account</p>
+                </div>
+
+                <!-- Content Section -->
+                <div class="card-body p-4 p-md-5">
+                    @if (isLoading()) {
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                    } @else if (user()) {
+                    <div class="profile-info-grid">
+                        <div class="info-item mb-4">
+                            <label class="text-muted small text-uppercase fw-semibold mb-1 d-block">Full Name</label>
+                            <div class="fs-5 fw-medium">{{ user()?.firstName }} {{ user()?.lastName }}</div>
+                        </div>
+
+                        <div class="info-item mb-4">
+                            <label class="text-muted small text-uppercase fw-semibold mb-1 d-block">Email
+                                Address</label>
+                            <div class="fs-5 fw-medium d-flex align-items-center gap-2">
+                                {{ user()?.email }}
+                                @if (user()?.isEmailVerified) {
+                                <span
+                                    class="badge bg-success-subtle text-success border border-success-subtle rounded-pill fw-normal px-2">Verified</span>
+                                } @else {
+                                <span
+                                    class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill fw-normal px-2">Unverified</span>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="info-item mb-4">
+                            <label class="text-muted small text-uppercase fw-semibold mb-1 d-block">Account
+                                Status</label>
+                            <div class="fs-5 fw-medium">
+                                @if (user()?.isActive) {
+                                <span class="text-success d-flex align-items-center gap-1">
+                                    <i class="bi bi-patch-check-fill"></i> Active
+                                </span>
+                                } @else {
+                                <span class="text-danger d-flex align-items-center gap-1">
+                                    <i class="bi bi-dash-circle-fill"></i> Inactive
+                                </span>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="info-item mb-4">
+                            <label class="text-muted small text-uppercase fw-semibold mb-1 d-block">Joined Date</label>
+                            <div class="fs-5 fw-medium">{{ user()?.createdAt | date:'longDate' }}</div>
+                        </div>
+
+                        <!-- Patient Emergency Contact -->
+                        @if (user()?.role === 'patient' && user()?.patientProfile) {
+                        <div class="info-item mb-4">
+                            <label class="text-muted small text-uppercase fw-semibold mb-1 d-block text-danger">
+                                <i class="bi bi-heart-pulse me-1"></i> Emergency Contact
+                            </label>
+                            @if (user()?.patientProfile?.emergencyContactName || user()?.patientProfile?.emergencyContactPhone) {
+                                <div class="fs-5 fw-medium">{{ user()?.patientProfile?.emergencyContactName || 'Not Provided' }}</div>
+                                <div class="text-muted"><i class="bi bi-telephone me-1"></i> {{ user()?.patientProfile?.emergencyContactPhone || 'Not Provided' }}</div>
+                            } @else {
+                                <div class="text-muted fst-italic">No emergency contact information provided.</div>
+                            }
+                        </div>
+                        }
+                    </div>
+
+                    <hr class="my-4 opacity-10">
+
+                    <div class="d-grid gap-3">
+                        <button
+                            class="btn btn-outline-primary rounded-pill d-flex align-items-center justify-content-center gap-2"
+                            (click)="goToMfa()">
+                            <i class="bi bi-shield-lock"></i> Configure Security (MFA)
+                        </button>
+                        <button class="btn btn-light rounded-pill" (click)="goBack()">
+                            Back to Dashboard
+                        </button>
+                    </div>
+                    } @else {
+                    <div class="text-center py-5">
+                        <p class="text-muted">Could not load profile information.</p>
+                        <button class="btn btn-primary" (click)="loadProfile()">Try Again</button>
+                    </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

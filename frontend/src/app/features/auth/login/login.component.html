@@ -1,0 +1,182 @@
+<!--
+  Login Component Template
+  
+  Layout:
+  - Centered card with login form
+  - Email and password inputs with validation
+  - Demo account quick-fill buttons
+  - Links to register and forgot password
+  
+  Accessibility:
+  - All inputs have associated labels
+  - Error messages are properly associated with inputs
+  - Button states indicate loading/disabled
+-->
+
+<div class="login-container">
+    <div class="container">
+        <div class="row justify-content-center align-items-center min-vh-100">
+            <div class="col-md-5 col-lg-4">
+                <!-- Login Card -->
+                <div class="card border-0 shadow-lg rounded-4">
+                    <div class="card-body p-4 p-md-5">
+                        <!-- Header -->
+                        <div class="text-center mb-4">
+                            <div class="brand-icon mb-3">
+                                <i class="bi bi-heart-pulse text-primary"></i>
+                            </div>
+                            <h2 class="fw-bold mb-1">Welcome Back</h2>
+                            <p class="text-muted">Sign in to your account</p>
+                        </div>
+
+                        <!-- Login Form -->
+                        @if (!mfaPending()) {
+                        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+                            <!-- Email Field -->
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email Address</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-envelope"></i>
+                                    </span>
+                                    <input type="email" id="email" class="form-control"
+                                        [class]="getValidationClass('email')" formControlName="email"
+                                        placeholder="Enter your email" autocomplete="email">
+                                </div>
+                                @if (hasError('email', 'required')) {
+                                <div class="invalid-feedback d-block">
+                                    Email is required
+                                </div>
+                                }
+                                @if (hasError('email', 'email')) {
+                                <div class="invalid-feedback d-block">
+                                    Please enter a valid email address
+                                </div>
+                                }
+                            </div>
+
+                            <!-- Password Field -->
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <label for="password" class="form-label">Password</label>
+                                    <a routerLink="/auth/forgot-password" class="small text-decoration-none">
+                                        Forgot password?
+                                    </a>
+                                </div>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-lock"></i>
+                                    </span>
+                                    <input [type]="showPassword() ? 'text' : 'password'" id="password"
+                                        class="form-control" [class]="getValidationClass('password')"
+                                        formControlName="password" placeholder="Enter your password"
+                                        autocomplete="current-password">
+                                    <button type="button" class="btn btn-outline-secondary"
+                                        (click)="togglePasswordVisibility()"
+                                        [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'">
+                                        <i class="bi" [ngClass]="showPassword() ? 'bi-eye-slash' : 'bi-eye'"></i>
+                                    </button>
+                                </div>
+                                @if (hasError('password', 'required')) {
+                                <div class="invalid-feedback d-block">
+                                    Password is required
+                                </div>
+                                }
+                                @if (hasError('password', 'minlength')) {
+                                <div class="invalid-feedback d-block">
+                                    Password must be at least 8 characters
+                                </div>
+                                }
+                            </div>
+
+                            <!-- Remember Me Checkbox -->
+                            <div class="mb-4">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="rememberMe"
+                                        formControlName="rememberMe">
+                                    <label class="form-check-label" for="rememberMe">
+                                        Remember me
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <button type="submit" class="btn btn-primary w-100 py-2" [disabled]="isLoading()">
+                                @if (isLoading()) {
+                                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                Signing in...
+                                } @else {
+                                Sign In
+                                }
+                            </button>
+                        </form>
+                        } @else {
+                        <!-- MFA Verification Form -->
+                        <form [formGroup]="mfaForm" (ngSubmit)="onVerifyMfa()">
+                            <p class="text-center mb-4">Please enter the 6-digit code from your authenticator app.</p>
+                            <div class="mb-3">
+                                <label for="mfaCode" class="form-label">Authenticator Code</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-shield-lock"></i>
+                                    </span>
+                                    <input type="text" id="mfaCode" class="form-control text-center"
+                                        [class]="getValidationClass('code', 'mfa')" formControlName="code"
+                                        placeholder="000000" maxlength="6" autocomplete="one-time-code">
+                                </div>
+                                @if (hasError('code', 'required', 'mfa')) {
+                                <div class="invalid-feedback d-block">
+                                    Code is required
+                                </div>
+                                }
+                                @if (hasError('code', 'minlength', 'mfa') || hasError('code', 'maxlength', 'mfa')) {
+                                <div class="invalid-feedback d-block">
+                                    Code must be 6 digits
+                                </div>
+                                }
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 py-2 mt-2" [disabled]="isLoading()">
+                                @if (isLoading()) {
+                                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                Verifying...
+                                } @else {
+                                Verify & Sign In
+                                }
+                            </button>
+                            <div class="text-center mt-3">
+                                <button type="button" class="btn btn-link text-decoration-none" (click)="mfaPending.set(false)">
+                                    Back to Login
+                                </button>
+                            </div>
+                        </form>
+                        }
+
+                        <!-- Register Link -->
+                        <p class="text-center mt-4 mb-0">
+                            Don't have an account?
+                            <a routerLink="/auth/register" class="text-decoration-none fw-semibold">
+                                Sign up
+                            </a>
+                        </p>
+
+                        <!-- Demo Accounts Section -->
+                        <div class="mt-4 pt-4 border-top">
+                            <p class="text-center text-muted small mb-3">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Try demo accounts:
+                            </p>
+                            <div class="d-flex flex-wrap gap-2 justify-content-center">
+                                @for (account of demoAccounts; track account.email) {
+                                <button type="button" class="btn btn-sm btn-outline-secondary"
+                                    (click)="useDemoAccount(account)" [title]="account.description">
+                                    {{ account.role }}
+                                </button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

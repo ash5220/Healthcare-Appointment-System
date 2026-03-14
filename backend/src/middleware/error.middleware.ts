@@ -17,6 +17,15 @@ export {
   ValidationError,
 } from '../shared/errors';
 
+interface SequelizeValidationErrorItem {
+  path: string;
+  message: string;
+}
+
+interface SequelizeError extends Error {
+  errors?: SequelizeValidationErrorItem[];
+}
+
 // Global error handler
 export const errorMiddleware = (
   err: Error,
@@ -28,7 +37,7 @@ export const errorMiddleware = (
   const errAny = err as AppError;
   logger.error('Error:', {
     message: err.message,
-    stack: err.stack,
+    stack: isProduction() ? undefined : err.stack,
     statusCode: errAny.statusCode,
   });
 
@@ -46,13 +55,13 @@ export const errorMiddleware = (
   // Handle Sequelize validation errors
   if (err.name === 'SequelizeValidationError') {
     const validationErrors: Record<string, string[]> = {};
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (err as any).errors?.forEach((e: any) => {
-      const field = e.path as string;
+    const seqErr = err as SequelizeError;
+    seqErr.errors?.forEach((e: SequelizeValidationErrorItem) => {
+      const field = e.path;
       if (!validationErrors[field]) {
         validationErrors[field] = [];
       }
-      validationErrors[field].push(e.message as string);
+      validationErrors[field].push(e.message);
     });
     errorResponse(res, 'Validation error', 422, validationErrors);
     return;

@@ -26,7 +26,8 @@ import { RouterModule, Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
-import { UserRole, Gender } from '../../../core/models';
+import { LoggerService } from '../../../core/services/logger.service';
+import { UserRole, Gender, RegisterData, PatientRegisterData, DoctorRegisterData } from '../../../core/models';
 import {
   MIN_PASSWORD_LENGTH,
   MAX_PASSWORD_LENGTH,
@@ -73,6 +74,7 @@ export class RegisterComponent {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly notificationService = inject(NotificationService);
+  private readonly logger = inject(LoggerService);
 
   /** Current step in the registration wizard (1-indexed) */
   protected readonly currentStep = signal(1);
@@ -210,10 +212,10 @@ export class RegisterComponent {
     const registrationData = this.buildRegistrationData();
     let registrationObservable;
 
-    if (registrationData.role === UserRole.PATIENT) {
-      registrationObservable = this.authService.registerPatient(registrationData);
-    } else if (registrationData.role === UserRole.DOCTOR) {
-      registrationObservable = this.authService.registerDoctor(registrationData);
+    if ('role' in registrationData && registrationData.role === UserRole.PATIENT) {
+      registrationObservable = this.authService.registerPatient(registrationData as PatientRegisterData);
+    } else if ('role' in registrationData && registrationData.role === UserRole.DOCTOR) {
+      registrationObservable = this.authService.registerDoctor(registrationData as DoctorRegisterData);
     } else {
       registrationObservable = this.authService.register(registrationData);
     }
@@ -229,7 +231,7 @@ export class RegisterComponent {
       },
       error: (error) => {
         this.isLoading.set(false);
-        console.error('Registration failed:', error);
+        this.logger.error('Registration failed:', error);
 
         const errorMessage = error.error?.message || 'Registration failed. Please try again.';
         this.notificationService.error(
@@ -242,9 +244,9 @@ export class RegisterComponent {
 
   /**
    * Build the registration data object from all form values.
-   * Returns a generic object that will be sent to the API.
+   * Returns a strongly typed object that will be sent to the API.
    */
-  private buildRegistrationData(): any {
+  private buildRegistrationData(): RegisterData {
     const account = this.accountForm.getRawValue();
     const personal = this.personalForm.getRawValue();
     const roleSpecific = this.roleSpecificForm.getRawValue();
@@ -268,6 +270,7 @@ export class RegisterComponent {
     if (account.role === UserRole.PATIENT) {
       return {
         ...baseData,
+        role: 'patient',
         bloodGroup: roleSpecific.bloodType,
         allergies: roleSpecific.allergies ? roleSpecific.allergies.split(',').map(a => a.trim()) : [],
         emergencyContactName: roleSpecific.emergencyContactName,
@@ -276,6 +279,7 @@ export class RegisterComponent {
     } else {
       return {
         ...baseData,
+        role: 'doctor',
         specialization: roleSpecific.specialization,
         licenseNumber: roleSpecific.licenseNumber,
         yearsOfExperience: roleSpecific.yearsOfExperience,

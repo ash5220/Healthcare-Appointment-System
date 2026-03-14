@@ -4,13 +4,9 @@ import { UserRole, Gender, AppointmentStatus, MedicalRecordType, DayOfWeek } fro
 
 const seedDatabase = async () => {
     try {
-        console.log('Initializing associations...');
         initializeAssociations();
 
-        console.log('Syncing database...');
         await sequelize.sync({ force: true });
-
-        console.log('Seeding Users...');
 
         const admin = await User.create({
             email: 'admin@test.com',
@@ -36,8 +32,6 @@ const seedDatabase = async () => {
             lastName: 'Smith'
         });
 
-        console.log('Seeding Profiles...');
-
         const doctor = await Doctor.create({
             userId: doctorUser.id,
             specialization: 'General Practice',
@@ -56,7 +50,6 @@ const seedDatabase = async () => {
             emergencyContactPhone: '555-0100',
         });
 
-        console.log('Seeding Doctor Availability...');
         const days = Object.values(DayOfWeek);
         const effectiveFrom = new Date();
         const effectiveTo = new Date();
@@ -68,13 +61,12 @@ const seedDatabase = async () => {
                 dayOfWeek: day,
                 startTime: '09:00:00',
                 endTime: '17:00:00',
-                isAvailable: ([DayOfWeek.SATURDAY, DayOfWeek.SUNDAY] as DayOfWeek[]).includes(day) ? false : true,
+                slotDuration: 30,
+                isActive: ([DayOfWeek.SATURDAY, DayOfWeek.SUNDAY] as DayOfWeek[]).includes(day) ? false : true,
                 effectiveFrom,
                 effectiveTo,
-            } as any);
+            });
         }
-
-        console.log('Seeding Appointments...');
 
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
@@ -102,8 +94,6 @@ const seedDatabase = async () => {
             reasonForVisit: 'Flu symptoms'
         });
 
-        console.log('Seeding Medical Records...');
-
         await MedicalRecord.create({
             patientId: patient.id,
             doctorId: doctor.id,
@@ -123,10 +113,8 @@ const seedDatabase = async () => {
             isConfidential: false
         });
 
-        console.log('Database seeding completed successfully.');
         process.exit(0);
     } catch (error) {
-        console.error('Error seeding database:', error);
         process.exit(1);
     }
 };

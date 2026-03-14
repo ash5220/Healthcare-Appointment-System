@@ -3,7 +3,6 @@ import { UserRole, DayOfWeek } from '../src/types/constants';
 
 const addDoctors = async () => {
     try {
-        console.log('Adding more doctors...');
         initializeAssociations();
 
         const doctorsData = [
@@ -83,7 +82,6 @@ const addDoctors = async () => {
             }
         }
 
-        console.log('Doctors for missing specializations added successfully.');
         process.exit(0);
     } catch (error) {
         console.error('Error adding doctors:', error);

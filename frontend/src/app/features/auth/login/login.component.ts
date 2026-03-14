@@ -21,6 +21,7 @@ import { RouterModule, Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import { LoggerService } from '../../../core/services/logger.service';
 import { MIN_PASSWORD_LENGTH } from '../../../core/constants';
 
 /**
@@ -46,6 +47,7 @@ export class LoginComponent {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly notificationService = inject(NotificationService);
+  private readonly logger = inject(LoggerService);
 
   /** Track whether the login request is in progress */
   protected readonly isLoading = signal(false);
@@ -173,7 +175,7 @@ export class LoginComponent {
 
         // Error notification is handled by the error interceptor
         // but we can add form-specific handling here if needed
-        console.error('Login failed:', error);
+        this.logger.error('Login failed:', error);
       },
     });
   }
@@ -204,7 +206,7 @@ export class LoginComponent {
       },
       error: (error) => {
         this.isLoading.set(false);
-        console.error('MFA verification failed:', error);
+        this.logger.error('MFA verification failed:', error);
       }
     });
   }

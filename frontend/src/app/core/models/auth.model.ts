@@ -34,6 +34,7 @@ export interface DoctorRegisterData extends BaseRegisterData {
   consultationFee?: number;
   bio?: string;
   languages?: string[];
+  qualifications?: string[];
 }
 
 /**

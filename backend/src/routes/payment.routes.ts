@@ -4,14 +4,14 @@ import { requirePatient, requireAdmin, requirePatientOrAdmin } from '../middlewa
 import { validate } from '../middleware/validate.middleware';
 import { idParamValidation } from '../dto/common.dto';
 import {
-    createPayment,
-    confirmStripePayment,
-    capturePaypalPayment,
-    completePayment,
-    refundPayment,
-    getMyPayments,
-    getPaymentById,
-    getAppointmentPayments,
+  createPayment,
+  confirmStripePayment,
+  capturePaypalPayment,
+  completePayment,
+  refundPayment,
+  getMyPayments,
+  getPaymentById,
+  getAppointmentPayments,
 } from '../controllers/payment.controller';
 
 const router = Router();

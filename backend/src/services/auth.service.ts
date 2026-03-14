@@ -337,7 +337,10 @@ class AuthService {
     // Hash the new password explicitly and bypass the beforeUpdate hook to
     // avoid double-hashing (the hook also hashes on password change).
     const hashedNewPassword = await hashPassword(newPassword);
-    await userRepository.updateWithoutHooks(user, { password: hashedNewPassword, refreshToken: null });
+    await userRepository.updateWithoutHooks(user, {
+      password: hashedNewPassword,
+      refreshToken: null,
+    });
 
     logger.info(`Password changed for user: ${user.email}`);
   }
@@ -370,9 +373,7 @@ class AuthService {
     if (!user || !user.mfaSecret) throw new BadRequestError('MFA setup not initiated');
 
     // Decrypt the MFA secret for verification
-    const decryptedSecret = isEncrypted(user.mfaSecret)
-      ? decrypt(user.mfaSecret)
-      : user.mfaSecret; // Backward compatibility for unencrypted secrets
+    const decryptedSecret = isEncrypted(user.mfaSecret) ? decrypt(user.mfaSecret) : user.mfaSecret; // Backward compatibility for unencrypted secrets
 
     const isValid = speakeasy.totp.verify({
       secret: decryptedSecret,
@@ -401,9 +402,7 @@ class AuthService {
     }
 
     // Decrypt the MFA secret for verification
-    const decryptedSecret = isEncrypted(user.mfaSecret)
-      ? decrypt(user.mfaSecret)
-      : user.mfaSecret; // Backward compatibility for unencrypted secrets
+    const decryptedSecret = isEncrypted(user.mfaSecret) ? decrypt(user.mfaSecret) : user.mfaSecret; // Backward compatibility for unencrypted secrets
 
     const isValid = speakeasy.totp.verify({
       secret: decryptedSecret,

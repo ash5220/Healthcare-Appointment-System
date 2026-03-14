@@ -50,11 +50,7 @@ export const getAppointmentById = asyncHandler(async (req: AuthenticatedRequest,
   const { id } = req.params;
 
   // Use role-aware lookup to prevent PHI leakage across patients/doctors
-  const appointment = await appointmentService.getByIdForUser(
-    id,
-    req.user.userId,
-    req.user.role
-  );
+  const appointment = await appointmentService.getByIdForUser(id, req.user.userId, req.user.role);
 
   successResponse(res, { appointment });
 });

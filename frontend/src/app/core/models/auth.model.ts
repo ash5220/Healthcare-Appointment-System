@@ -1,39 +1,39 @@
 import { UserRole } from './constants';
 
 export interface LoginCredentials {
-    email: string;
-    password: string;
+  email: string;
+  password: string;
 }
 
 // ── Base registration fields shared by all registration types ─────────────
 
 interface BaseRegisterData {
-    email: string;
-    password: string;
-    confirmPassword: string;
-    firstName: string;
-    lastName: string;
-    phoneNumber?: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber?: string;
 }
 
 export interface PatientRegisterData extends BaseRegisterData {
-    role: 'patient';
-    dateOfBirth: string;
-    gender: string;
-    bloodGroup?: string;
-    allergies?: string[];
-    emergencyContactName?: string;
-    emergencyContactPhone?: string;
+  role: 'patient';
+  dateOfBirth: string;
+  gender: string;
+  bloodGroup?: string;
+  allergies?: string[];
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
 }
 
 export interface DoctorRegisterData extends BaseRegisterData {
-    role: 'doctor';
-    specialization: string;
-    licenseNumber: string;
-    yearsOfExperience?: number;
-    consultationFee?: number;
-    bio?: string;
-    languages?: string[];
+  role: 'doctor';
+  specialization: string;
+  licenseNumber: string;
+  yearsOfExperience?: number;
+  consultationFee?: number;
+  bio?: string;
+  languages?: string[];
 }
 
 /**
@@ -47,6 +47,5 @@ export type RegisterData = BaseRegisterData | PatientRegisterData | DoctorRegist
  * The refresh token is kept in an HttpOnly cookie and never exposed to JS.
  */
 export interface AuthTokens {
-    accessToken: string;
+  accessToken: string;
 }
-

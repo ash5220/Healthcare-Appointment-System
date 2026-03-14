@@ -2,11 +2,11 @@ import { Request } from 'express';
 import { UserRole } from './constants';
 
 export interface JwtPayload {
-    userId: string;
-    email: string;
-    role: UserRole;
-    iat?: number;
-    exp?: number;
+  userId: string;
+  email: string;
+  role: UserRole;
+  iat?: number;
+  exp?: number;
 }
 
 /**
@@ -17,7 +17,7 @@ export interface JwtPayload {
  * fully-typed request without redundant non-null assertions.
  */
 export interface AuthenticatedRequest extends Request {
-    user: JwtPayload;
+  user: JwtPayload;
 }
 
 /**
@@ -25,7 +25,7 @@ export interface AuthenticatedRequest extends Request {
  * (public endpoints where a logged-in user may get extra data).
  */
 export interface OptionallyAuthenticatedRequest extends Request {
-    user?: JwtPayload;
+  user?: JwtPayload;
 }
 
 // The global augmentation is kept to allow middleware functions (role guards,
@@ -34,9 +34,9 @@ export interface OptionallyAuthenticatedRequest extends Request {
 // incompatible with Express's contravariant RequestHandler signature.
 // Controllers that need the guarantee use asyncHandler<AuthenticatedRequest>.
 declare global {
-    namespace Express {
-        interface Request {
-            user?: JwtPayload;
-        }
+  namespace Express {
+    interface Request {
+      user?: JwtPayload;
     }
+  }
 }

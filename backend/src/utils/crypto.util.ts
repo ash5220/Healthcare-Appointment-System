@@ -21,7 +21,7 @@ const IV_LENGTH = 16; // 128 bits
  * Uses SHA-256 to normalize any-length input to exactly 32 bytes.
  */
 const getEncryptionKey = (): Buffer => {
-    return crypto.createHash('sha256').update(env.encryptionKey).digest();
+  return crypto.createHash('sha256').update(env.encryptionKey).digest();
 };
 
 /**
@@ -33,17 +33,17 @@ const getEncryptionKey = (): Buffer => {
  * @returns Encrypted string in the format iv:authTag:ciphertext
  */
 export const encrypt = (plaintext: string): string => {
-    const key = getEncryptionKey();
-    const iv = crypto.randomBytes(IV_LENGTH);
+  const key = getEncryptionKey();
+  const iv = crypto.randomBytes(IV_LENGTH);
 
-    const cipher = crypto.createCipheriv(ALGORITHM, key, iv);
-    let encrypted = cipher.update(plaintext, 'utf8', 'hex');
-    encrypted += cipher.final('hex');
+  const cipher = crypto.createCipheriv(ALGORITHM, key, iv);
+  let encrypted = cipher.update(plaintext, 'utf8', 'hex');
+  encrypted += cipher.final('hex');
 
-    const authTag = cipher.getAuthTag();
+  const authTag = cipher.getAuthTag();
 
-    // Format: iv:authTag:ciphertext
-    return `${iv.toString('hex')}:${authTag.toString('hex')}:${encrypted}`;
+  // Format: iv:authTag:ciphertext
+  return `${iv.toString('hex')}:${authTag.toString('hex')}:${encrypted}`;
 };
 
 /**
@@ -54,33 +54,33 @@ export const encrypt = (plaintext: string): string => {
  * @throws Error if decryption fails (wrong key, tampered data, or invalid format)
  */
 export const decrypt = (encryptedText: string): string => {
-    const key = getEncryptionKey();
-    const parts = encryptedText.split(':');
+  const key = getEncryptionKey();
+  const parts = encryptedText.split(':');
 
-    if (parts.length !== 3) {
-        throw new Error('Invalid encrypted text format');
-    }
+  if (parts.length !== 3) {
+    throw new Error('Invalid encrypted text format');
+  }
 
-    const [ivHex, authTagHex, ciphertext] = parts;
+  const [ivHex, authTagHex, ciphertext] = parts;
 
-    const iv = Buffer.from(ivHex, 'hex');
-    const authTag = Buffer.from(authTagHex, 'hex');
+  const iv = Buffer.from(ivHex, 'hex');
+  const authTag = Buffer.from(authTagHex, 'hex');
 
-    // Validate expected byte lengths before passing to crypto
-    if (iv.length !== IV_LENGTH) {
-        throw new Error(`Invalid IV length: expected ${IV_LENGTH} bytes, got ${iv.length}`);
-    }
-    if (authTag.length !== 16) {
-        throw new Error(`Invalid auth tag length: expected 16 bytes, got ${authTag.length}`);
-    }
+  // Validate expected byte lengths before passing to crypto
+  if (iv.length !== IV_LENGTH) {
+    throw new Error(`Invalid IV length: expected ${IV_LENGTH} bytes, got ${iv.length}`);
+  }
+  if (authTag.length !== 16) {
+    throw new Error(`Invalid auth tag length: expected 16 bytes, got ${authTag.length}`);
+  }
 
-    const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
-    decipher.setAuthTag(authTag);
+  const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
+  decipher.setAuthTag(authTag);
 
-    let decrypted = decipher.update(ciphertext, 'hex', 'utf8');
-    decrypted += decipher.final('utf8');
+  let decrypted = decipher.update(ciphertext, 'hex', 'utf8');
+  decrypted += decipher.final('utf8');
 
-    return decrypted;
+  return decrypted;
 };
 
 /**
@@ -91,18 +91,18 @@ export const decrypt = (encryptedText: string): string => {
  * and auth tag (32 hex chars = 16 bytes) to avoid false positives.
  */
 export const isEncrypted = (value: string): boolean => {
-    const parts = value.split(':');
-    if (parts.length !== 3) return false;
+  const parts = value.split(':');
+  if (parts.length !== 3) return false;
 
-    const [ivHex, authTagHex] = parts;
-    const hexRegex = /^[0-9a-f]+$/i;
+  const [ivHex, authTagHex] = parts;
+  const hexRegex = /^[0-9a-f]+$/i;
 
-    // IV must be exactly 16 bytes = 32 hex chars
-    if (ivHex.length !== 32 || !hexRegex.test(ivHex)) return false;
-    // Auth tag must be exactly 16 bytes = 32 hex chars
-    if (authTagHex.length !== 32 || !hexRegex.test(authTagHex)) return false;
-    // Ciphertext must be non-empty valid hex
-    if (!parts[2] || !hexRegex.test(parts[2])) return false;
+  // IV must be exactly 16 bytes = 32 hex chars
+  if (ivHex.length !== 32 || !hexRegex.test(ivHex)) return false;
+  // Auth tag must be exactly 16 bytes = 32 hex chars
+  if (authTagHex.length !== 32 || !hexRegex.test(authTagHex)) return false;
+  // Ciphertext must be non-empty valid hex
+  if (!parts[2] || !hexRegex.test(parts[2])) return false;
 
-    return true;
+  return true;
 };

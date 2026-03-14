@@ -3,18 +3,18 @@ import * as authController from '../controllers/auth.controller';
 import { validate } from '../middleware/validate.middleware';
 import { authMiddleware } from '../middleware/auth.middleware';
 import {
-    loginRateLimitMiddleware,
-    registrationRateLimitMiddleware,
+  loginRateLimitMiddleware,
+  registrationRateLimitMiddleware,
 } from '../middleware/rateLimit.middleware';
 import {
-    registerValidation,
-    loginValidation,
-    refreshTokenValidation,
-    changePasswordValidation,
-    mfaLoginValidation,
-    setupMfaVerifyValidation,
-    registerPatientValidation,
-    registerDoctorValidation,
+  registerValidation,
+  loginValidation,
+  refreshTokenValidation,
+  changePasswordValidation,
+  mfaLoginValidation,
+  setupMfaVerifyValidation,
+  registerPatientValidation,
+  registerDoctorValidation,
 } from '../dto/auth.dto';
 
 const router = Router();
@@ -25,10 +25,10 @@ const router = Router();
  * @access  Public
  */
 router.post(
-    '/register',
-    registrationRateLimitMiddleware,
-    validate(registerValidation),
-    authController.register
+  '/register',
+  registrationRateLimitMiddleware,
+  validate(registerValidation),
+  authController.register
 );
 
 /**
@@ -37,10 +37,10 @@ router.post(
  * @access  Public
  */
 router.post(
-    '/register/patient',
-    registrationRateLimitMiddleware,
-    validate(registerPatientValidation),
-    authController.registerPatient
+  '/register/patient',
+  registrationRateLimitMiddleware,
+  validate(registerPatientValidation),
+  authController.registerPatient
 );
 
 /**
@@ -49,10 +49,10 @@ router.post(
  * @access  Public
  */
 router.post(
-    '/register/doctor',
-    registrationRateLimitMiddleware,
-    validate(registerDoctorValidation),
-    authController.registerDoctor
+  '/register/doctor',
+  registrationRateLimitMiddleware,
+  validate(registerDoctorValidation),
+  authController.registerDoctor
 );
 
 /**
@@ -60,12 +60,7 @@ router.post(
  * @desc    Login user
  * @access  Public
  */
-router.post(
-    '/login',
-    loginRateLimitMiddleware,
-    validate(loginValidation),
-    authController.login
-);
+router.post('/login', loginRateLimitMiddleware, validate(loginValidation), authController.login);
 
 /**
  * @route   POST /api/v1/auth/verify-mfa
@@ -73,10 +68,10 @@ router.post(
  * @access  Public
  */
 router.post(
-    '/verify-mfa',
-    loginRateLimitMiddleware,
-    validate(mfaLoginValidation),
-    authController.verifyMfaLogin
+  '/verify-mfa',
+  loginRateLimitMiddleware,
+  validate(mfaLoginValidation),
+  authController.verifyMfaLogin
 );
 
 /**
@@ -84,11 +79,7 @@ router.post(
  * @desc    Refresh access token
  * @access  Public
  */
-router.post(
-    '/refresh-token',
-    validate(refreshTokenValidation),
-    authController.refreshToken
-);
+router.post('/refresh-token', validate(refreshTokenValidation), authController.refreshToken);
 
 /**
  * @route   POST /api/v1/auth/logout
@@ -103,10 +94,10 @@ router.post('/logout', authMiddleware, authController.logout);
  * @access  Private
  */
 router.post(
-    '/change-password',
-    authMiddleware,
-    validate(changePasswordValidation),
-    authController.changePassword
+  '/change-password',
+  authMiddleware,
+  validate(changePasswordValidation),
+  authController.changePassword
 );
 
 /**
@@ -128,6 +119,11 @@ router.post('/setup-mfa', authMiddleware, authController.setupMfa);
  * @desc    Verify token to finalize MFA setup
  * @access  Private
  */
-router.post('/verify-setup-mfa', authMiddleware, validate(setupMfaVerifyValidation), authController.verifySetupMfa);
+router.post(
+  '/verify-setup-mfa',
+  authMiddleware,
+  validate(setupMfaVerifyValidation),
+  authController.verifySetupMfa
+);
 
 export default router;

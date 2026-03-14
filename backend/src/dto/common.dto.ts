@@ -12,7 +12,7 @@ import { z } from 'zod';
  * router.get('/:id', validate(idParamValidation), myController.getById);
  */
 export const idParamValidation = z.object({
-    params: z.object({
-        id: z.uuid('ID must be a valid UUID'),
-    }),
+  params: z.object({
+    id: z.uuid('ID must be a valid UUID'),
+  }),
 });

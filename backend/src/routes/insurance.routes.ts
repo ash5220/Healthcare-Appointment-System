@@ -1,18 +1,22 @@
 import { Router } from 'express';
 import { authMiddleware } from '../middleware/auth.middleware';
-import { requirePatient, requireDoctorOrAdmin, requireAuthenticated } from '../middleware/role.middleware';
+import {
+  requirePatient,
+  requireDoctorOrAdmin,
+  requireAuthenticated,
+} from '../middleware/role.middleware';
 import { validate } from '../middleware/validate.middleware';
 import { idParamValidation } from '../dto/common.dto';
 import {
-    createInsurance,
-    getMyInsurance,
-    getInsuranceById,
-    updateInsurance,
-    verifyInsurance,
-    deactivateInsurance,
-    deleteInsurance,
-    getActiveInsurance,
-    getPatientInsurance,
+  createInsurance,
+  getMyInsurance,
+  getInsuranceById,
+  updateInsurance,
+  verifyInsurance,
+  deactivateInsurance,
+  deleteInsurance,
+  getActiveInsurance,
+  getPatientInsurance,
 } from '../controllers/insurance.controller';
 
 const router = Router();

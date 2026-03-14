@@ -46,9 +46,9 @@ class UserRepository {
   ): Promise<User | null> {
     const include = options.withProfiles
       ? [
-        { model: Doctor, as: 'doctorProfile' },
-        { model: Patient, as: 'patientProfile' },
-      ]
+          { model: Doctor, as: 'doctorProfile' },
+          { model: Patient, as: 'patientProfile' },
+        ]
       : [];
 
     const attributes = options.excludeSensitive
@@ -111,7 +111,11 @@ class UserRepository {
    * Use this when the data has already been processed (e.g. password already hashed)
    * to avoid double-processing by the beforeUpdate hook.
    */
-  async updateWithoutHooks(user: User, data: UserUpdateData, transaction?: Transaction): Promise<User> {
+  async updateWithoutHooks(
+    user: User,
+    data: UserUpdateData,
+    transaction?: Transaction
+  ): Promise<User> {
     // UserUpdateData is a strict subset of InferAttributes<User>, so this cast is safe
     return user.update(data as Partial<InferAttributes<User>>, { transaction, hooks: false });
   }

@@ -1,0 +1,27 @@
+.avatar-lg {
+    width: 100px;
+    height: 100px;
+}
+
+.profile-info-grid {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.bg-primary {
+    background-color: var(--bs-primary) !important;
+}
+
+.text-primary {
+    color: var(--bs-primary) !important;
+}
+
+.btn-outline-primary {
+    border-color: var(--bs-primary);
+    color: var(--bs-primary);
+
+    &:hover {
+        background-color: var(--bs-primary);
+        color: white;
+    }
+}

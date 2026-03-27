@@ -13,6 +13,9 @@ import {
   resetPasswordValidation,
   verifyEmailValidation,
   resendVerificationValidation,
+  mfaLoginValidation,
+  changePasswordValidation,
+  setupMfaVerifyValidation,
 } from '../dto/auth.dto';
 import { UserRole } from '../types/constants';
 import {
@@ -150,7 +153,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const verifyMfaLogin = asyncHandler(async (req: Request, res: Response) => {
-  const { tempToken, token } = req.body as { tempToken: string; token: string };
+  const { tempToken, token } = req.body as z.infer<typeof mfaLoginValidation>['body'];
 
   const result = await authService.verifyMfaLogin(tempToken, token);
 
@@ -191,10 +194,7 @@ export const refreshToken = asyncHandler(async (req: Request, res: Response) => 
 // ── Profile / Password ─────────────────────────────────────────────────
 
 export const changePassword = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const { currentPassword, newPassword } = req.body as {
-    currentPassword: string;
-    newPassword: string;
-  };
+  const { currentPassword, newPassword } = req.body as z.infer<typeof changePasswordValidation>['body'];
 
   await authService.changePassword(req.user.userId, currentPassword, newPassword);
 
@@ -217,7 +217,7 @@ export const setupMfa = asyncHandler(async (req: AuthenticatedRequest, res: Resp
 });
 
 export const verifySetupMfa = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const { token } = req.body as { token: string };
+  const { token } = req.body as z.infer<typeof setupMfaVerifyValidation>['body'];
   await authService.verifySetupMfa(req.user.userId, token);
   successResponse(res, null, 'MFA enabled successfully');
 });

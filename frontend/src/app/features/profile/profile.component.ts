@@ -59,12 +59,18 @@ export class ProfileComponent implements OnInit {
 
     protected goBack(): void {
         const role = this.authService.userRole();
-        if (role === UserRole.DOCTOR) {
-            this.router.navigate(['/doctor/dashboard']);
-        } else if (role === UserRole.ADMIN) {
-            this.router.navigate(['/admin/dashboard']);
-        } else {
-            this.router.navigate(['/patient/dashboard']);
+        switch (role) {
+            case UserRole.PATIENT:
+                this.router.navigate(['/patient/dashboard']);
+                break;
+            case UserRole.DOCTOR:
+                this.router.navigate(['/doctor/dashboard']);
+                break;
+            case UserRole.ADMIN:
+                this.router.navigate(['/admin/dashboard']);
+                break;
+            default:
+                this.router.navigate(['/patient/dashboard']);
         }
     }
 }

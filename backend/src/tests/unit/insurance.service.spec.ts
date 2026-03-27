@@ -153,7 +153,7 @@ describe('InsuranceService', () => {
       const mockIns = makeInsurance();
       (insuranceRepository.findById as jest.Mock).mockResolvedValue(mockIns);
       await expect(
-        insuranceService.verify('ins1', { status: 'INVALID_STATUS' as any })
+        insuranceService.verify('ins1', { status: 'INVALID_STATUS' as unknown as InsuranceStatus })
       ).rejects.toThrow(BadRequestError);
     });
 

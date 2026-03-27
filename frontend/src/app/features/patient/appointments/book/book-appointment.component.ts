@@ -264,13 +264,19 @@ export class BookAppointmentComponent implements OnInit {
       return;
     }
 
+    const doctor = this.selectedDoctor();
+    const slot = this.selectedSlot();
+    const appointmentDate = this.bookingForm.get('appointmentDate')?.value;
+    const reasonForVisit = this.bookingForm.get('reasonForVisit')?.value;
+    if (!doctor || !slot || !appointmentDate || !reasonForVisit) return;
+
     this.isSubmitting.set(true);
 
     this.appointmentService.createAppointment({
-      doctorId: this.selectedDoctor()!.id,
-      appointmentDate: this.bookingForm.get('appointmentDate')!.value!,
-      startTime: this.selectedSlot()!,
-      reasonForVisit: this.bookingForm.get('reasonForVisit')!.value!,
+      doctorId: doctor.id,
+      appointmentDate,
+      startTime: slot,
+      reasonForVisit,
     }).subscribe({
       next: () => {
         this.isSubmitting.set(false);

@@ -18,11 +18,12 @@ jest.mock('../../config/logger', () => ({
   logger: { info: jest.fn(), warn: jest.fn(), error: jest.fn() },
 }));
 
-import { userService } from '../../services/user.service';
+import { userService, SafeUserUpdateData } from '../../services/user.service';
 import { userRepository } from '../../repositories/user.repository';
 import { patientRepository } from '../../repositories/patient.repository';
 import { NotFoundError } from '../../shared/errors';
 import { UserRole } from '../../types/constants';
+import { Patient } from '../../models';
 
 const makeUser = (overrides = {}) => ({
   id: 'u1',
@@ -88,7 +89,7 @@ describe('UserService', () => {
         .mockResolvedValueOnce(mockUser)   // first call for finding the user to update
         .mockResolvedValueOnce(updatedUser); // second call for returning fresh record
 
-      const result = await userService.updateUser('u1', { firstName: 'Updated' } as any);
+      const result = await userService.updateUser('u1', { firstName: 'Updated' });
 
       expect(userRepository.update).toHaveBeenCalledWith(
         mockUser,
@@ -109,7 +110,7 @@ describe('UserService', () => {
         .mockResolvedValueOnce(mockUser)
         .mockResolvedValueOnce(updatedUser);
 
-      await userService.updateUser('u1', { password: 'hacked' } as any);
+      await userService.updateUser('u1', { password: 'hacked' } as unknown as SafeUserUpdateData);
 
       expect(userRepository.update).toHaveBeenCalledWith(
         mockUser,
@@ -182,7 +183,7 @@ describe('UserService', () => {
       (patientRepository.findByUserId as jest.Mock).mockResolvedValue(mockPatient);
       (patientRepository.findById as jest.Mock).mockResolvedValue(updatedPatient);
 
-      const result = await userService.updatePatientProfile('u1', { bloodGroup: 'A+' } as any);
+      const result = await userService.updatePatientProfile('u1', { bloodGroup: 'A+' } as Partial<Patient>);
 
       expect(patientRepository.update).toHaveBeenCalledWith(mockPatient, expect.objectContaining({ bloodGroup: 'A+' }));
       expect(result).toBe(updatedPatient);

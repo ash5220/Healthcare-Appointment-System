@@ -14,6 +14,7 @@ jest.mock('../../config/logger', () => ({
 import { doctorService } from '../../services/doctor.service';
 import { doctorRepository } from '../../repositories/doctor.repository';
 import { NotFoundError } from '../../shared/errors';
+import { Doctor } from '../../models';
 
 const makeDoctor = (overrides: Record<string, unknown> = {}) => ({
   id: 'd1',
@@ -110,7 +111,7 @@ describe('DoctorService', () => {
 
       const result = await doctorService.updateDoctorProfile('u1', {
         specialization: 'Neurology',
-      } as any);
+      } as Partial<Doctor>);
 
       expect(doctorRepository.update).toHaveBeenCalledWith(
         mockDoctor,

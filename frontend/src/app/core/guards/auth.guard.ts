@@ -28,14 +28,15 @@ export const guestGuard: CanActivateFn = () => {
   // Redirect to appropriate dashboard based on role
   const role = authService.userRole();
   switch (role) {
+    case UserRole.PATIENT:
+      router.navigate(['/patient/dashboard']);
+      break;
     case UserRole.DOCTOR:
       router.navigate(['/doctor/dashboard']);
       break;
     case UserRole.ADMIN:
       router.navigate(['/admin/dashboard']);
       break;
-    default:
-      router.navigate(['/patient/dashboard']);
   }
   return false;
 };

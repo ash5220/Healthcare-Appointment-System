@@ -246,7 +246,7 @@ class EmailService {
       try {
         await compileTemplate(name);
         logger.info(`📧 Preloaded email template: ${name}`);
-      } catch (error) {
+      } catch (error: unknown) {
         logger.warn(
           `📧 Could not preload template "${name}": ${error instanceof Error ? error.message : String(error)}`
         );

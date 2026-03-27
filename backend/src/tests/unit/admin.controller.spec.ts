@@ -69,7 +69,7 @@ describe('Admin Controller', () => {
       const result = { doctors: [{ id: 'd1' }], total: 1 };
       (adminService.getPendingDoctors as jest.Mock).mockResolvedValue(result);
 
-      const req = mockReq({ query: { page: '1', limit: '10' } as any });
+      const req = mockReq({ query: { page: '1', limit: '10' } as Record<string, string> });
       const res = mockRes();
 
       await getPendingDoctors(req, res, mockNext);
@@ -83,7 +83,7 @@ describe('Admin Controller', () => {
     it('calls service and returns success', async () => {
       (adminService.approveDoctor as jest.Mock).mockResolvedValue(undefined);
 
-      const req = mockReq({ params: { id: 'doctor-1' } as any });
+      const req = mockReq({ params: { id: 'doctor-1' } });
       const res = mockRes();
 
       await approveDoctor(req, res, mockNext);
@@ -97,7 +97,7 @@ describe('Admin Controller', () => {
     it('calls service and returns success', async () => {
       (adminService.rejectDoctor as jest.Mock).mockResolvedValue(undefined);
 
-      const req = mockReq({ params: { id: 'doctor-1' } as any });
+      const req = mockReq({ params: { id: 'doctor-1' } });
       const res = mockRes();
 
       await rejectDoctor(req, res, mockNext);
@@ -109,7 +109,7 @@ describe('Admin Controller', () => {
 
   describe('deleteUser', () => {
     it('prevents admin from deleting their own account', async () => {
-      const req = mockReq({ params: { id: 'admin-1' } as any });
+      const req = mockReq({ params: { id: 'admin-1' } });
       const res = mockRes();
 
       await deleteUser(req, res, mockNext);

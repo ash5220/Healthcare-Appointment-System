@@ -27,7 +27,7 @@ class SafeEventBus extends EventEmitter {
     for (const listener of listeners) {
       try {
         (listener as (...a: unknown[]) => void)(...args);
-      } catch (error) {
+      } catch (error: unknown) {
         logger.error(`EventBus subscriber crashed on "${String(eventName)}"`, { error });
       }
     }

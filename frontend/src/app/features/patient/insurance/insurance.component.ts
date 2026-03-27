@@ -158,7 +158,6 @@ export class InsuranceComponent implements OnInit {
             case InsuranceStatus.PENDING: return 'bg-warning text-dark';
             case InsuranceStatus.REJECTED: return 'bg-danger';
             case InsuranceStatus.EXPIRED: return 'bg-secondary';
-            default: return 'bg-secondary';
         }
     }
 
@@ -168,7 +167,6 @@ export class InsuranceComponent implements OnInit {
             case InsuranceStatus.PENDING: return 'bi-hourglass-split';
             case InsuranceStatus.REJECTED: return 'bi-x-circle-fill';
             case InsuranceStatus.EXPIRED: return 'bi-clock-history';
-            default: return 'bi-question-circle';
         }
     }
 

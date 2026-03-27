@@ -63,7 +63,7 @@ export const initializeDatabase = async (): Promise<void> => {
     } else {
       logger.info('Skipping sequelize.sync(). Run migrations with "npm run migrate".');
     }
-  } catch (error) {
+  } catch (error: unknown) {
     logger.error('Unable to connect to the database:', error);
     throw error;
   }
@@ -73,7 +73,7 @@ export const closeDatabase = async (): Promise<void> => {
   try {
     await sequelize.close();
     logger.info('Database connection closed.');
-  } catch (error) {
+  } catch (error: unknown) {
     logger.error('Error closing database connection:', error);
     throw error;
   }

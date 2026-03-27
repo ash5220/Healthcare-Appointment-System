@@ -62,3 +62,13 @@ export class ValidationError extends HttpError {
     this.errors = errors;
   }
 }
+
+/** Type predicate: narrows `unknown` to `AppError` at runtime. */
+export function isAppError(err: unknown): err is AppError {
+  return err instanceof Error && 'statusCode' in err && 'isOperational' in err;
+}
+
+/** Type predicate: narrows `unknown` to `HttpError` at runtime. */
+export function isHttpError(err: unknown): err is HttpError {
+  return err instanceof HttpError;
+}

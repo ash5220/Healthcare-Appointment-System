@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { logger } from '../config/logger';
 import { serverErrorResponse, errorResponse } from '../utils/response.util';
 import { isProduction } from '../config/env';
-import { AppError, ValidationError } from '../shared/errors';
+import { ValidationError, isAppError } from '../shared/errors';
 import { ValidationError as SeqValidationError, UniqueConstraintError } from 'sequelize';
 
 // Re-type to avoid CI TypeScript inference issues with module resolution
@@ -19,6 +19,8 @@ export {
   NotFoundError,
   ConflictError,
   ValidationError,
+  isAppError,
+  isHttpError,
 } from '../shared/errors';
 
 // Global error handler
@@ -29,15 +31,15 @@ export const errorMiddleware = (
   _next: NextFunction
 ): void => {
   // Log error
-  const appErr = err as AppError;
+  const appErr = isAppError(err) ? err : undefined;
   logger.error('Error:', {
     message: err.message,
     stack: isProd() ? undefined : err.stack,
-    statusCode: appErr.statusCode,
+    statusCode: appErr?.statusCode,
   });
 
   // Handle known errors
-  if (appErr.isOperational) {
+  if (appErr?.isOperational) {
     if (appErr instanceof ValidationError) {
       errorResponse(res, appErr.message, appErr.statusCode, appErr.errors);
       return;

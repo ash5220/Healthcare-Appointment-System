@@ -98,8 +98,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
         return this.doctorNavItems;
       case UserRole.ADMIN:
         return this.adminNavItems;
-      default:
-        return [];
     }
   }
 

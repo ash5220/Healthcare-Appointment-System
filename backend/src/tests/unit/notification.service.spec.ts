@@ -56,7 +56,7 @@ describe('NotificationService', () => {
     it('passes optional metadata and transaction', async () => {
       const mockNotif = makeNotification();
       (notificationRepository.create as jest.Mock).mockResolvedValue(mockNotif);
-      const fakeTx = {} as any;
+      const fakeTx = {} as unknown as import('sequelize').Transaction;
 
       await notificationService.create(
         'u1',

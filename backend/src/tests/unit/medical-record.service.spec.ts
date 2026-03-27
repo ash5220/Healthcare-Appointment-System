@@ -21,6 +21,7 @@ jest.mock('pdfkit', () =>
 
 import { medicalRecordService } from '../../services/medical-record.service';
 import { medicalRecordRepository } from '../../repositories/medical-record.repository';
+import { MedicalRecord } from '../../models';
 
 // Minimal MedicalRecord shape to support the service methods
 const makeRecord = (overrides: Record<string, unknown> = {}) =>
@@ -36,7 +37,7 @@ const makeRecord = (overrides: Record<string, unknown> = {}) =>
       user: { firstName: 'John', lastName: 'Doe' },
     },
     ...overrides,
-  }) as any;
+  }) as unknown as MedicalRecord;
 
 describe('MedicalRecordService', () => {
   beforeEach(() => jest.clearAllMocks());
@@ -121,7 +122,7 @@ describe('MedicalRecordService', () => {
 
   describe('generatePdf', () => {
     it('writes PDF to stream without throwing (empty records)', () => {
-      const stream = { write: jest.fn(), end: jest.fn() } as any;
+      const stream = { write: jest.fn(), end: jest.fn() } as unknown as NodeJS.WritableStream;
       expect(() => medicalRecordService.generatePdf([], 'Alice Smith', stream)).not.toThrow();
     });
 
@@ -133,20 +134,20 @@ describe('MedicalRecordService', () => {
           notes: 'Follow up in 2 weeks',
         }),
       ];
-      const stream = { write: jest.fn(), end: jest.fn() } as any;
+      const stream = { write: jest.fn(), end: jest.fn() } as unknown as NodeJS.WritableStream;
       expect(() => medicalRecordService.generatePdf(records, 'Bob Jones', stream)).not.toThrow();
     });
 
     it('generates divider between multiple records (index < length-1 branch)', () => {
       const records = [makeRecord({ id: 'r1', notes: null }), makeRecord({ id: 'r2' })];
-      const stream = { write: jest.fn(), end: jest.fn() } as any;
+      const stream = { write: jest.fn(), end: jest.fn() } as unknown as NodeJS.WritableStream;
       // Should not throw when drawing dividers between records
       expect(() => medicalRecordService.generatePdf(records, 'Carol White', stream)).not.toThrow();
     });
 
     it('skips notes section when record has no notes', () => {
       const records = [makeRecord({ notes: null })];
-      const stream = { write: jest.fn(), end: jest.fn() } as any;
+      const stream = { write: jest.fn(), end: jest.fn() } as unknown as NodeJS.WritableStream;
       expect(() => medicalRecordService.generatePdf(records, 'Dave Brown', stream)).not.toThrow();
     });
   });

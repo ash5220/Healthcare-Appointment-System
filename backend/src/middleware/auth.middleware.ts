@@ -52,12 +52,12 @@ export const authMiddleware = async (
       };
 
       next();
-    } catch (error) {
+    } catch (error: unknown) {
       logger.warn('Token verification failed:', error);
       unauthorizedResponse(res, 'Invalid or expired token');
       return;
     }
-  } catch (error) {
+  } catch (error: unknown) {
     logger.error('Auth middleware error:', error);
     unauthorizedResponse(res, 'Authentication failed');
     return;
@@ -94,7 +94,7 @@ export const optionalAuthMiddleware = (
     }
 
     next();
-  } catch (error) {
+  } catch (error: unknown) {
     logger.error('Optional auth middleware error:', error);
     next();
   }

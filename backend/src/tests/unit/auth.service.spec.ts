@@ -165,7 +165,7 @@ describe('AuthService', () => {
       (userRepository.findByEmail as jest.Mock).mockResolvedValue(null);
       (userRepository.create as jest.Mock).mockResolvedValue(mockUser);
       const { role: _r, ...noRole } = payload;
-      await authService.register(noRole as any);
+      await authService.register(noRole);
       expect(userRepository.create).toHaveBeenCalledWith(
         expect.objectContaining({ role: UserRole.PATIENT }),
         expect.anything()

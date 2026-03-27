@@ -154,7 +154,7 @@ export class LoginComponent {
       next: (response) => {
         if (response && response.data && response.data.mfaRequired) {
             this.mfaPending.set(true);
-            this.tempMfaToken.set(response.data.tempToken!);
+            this.tempMfaToken.set(response.data.tempToken ?? '');
             this.isLoading.set(false);
             this.notificationService.info('MFA Required', 'Please enter your Authenticator code.');
             return;

@@ -92,7 +92,7 @@ export const initializeEmailTransporter = async (): Promise<Transporter | null> 
   try {
     await transporter?.verify();
     logger.info('📧 Email transporter connection verified successfully');
-  } catch (error) {
+  } catch (error: unknown) {
     logger.error('📧 Email transporter verification failed:', error);
   }
 
@@ -140,7 +140,7 @@ export const sendEmail = async (options: EmailOptions): Promise<EmailResult> => 
       messageId: info.messageId,
       previewUrl,
     };
-  } catch (error) {
+  } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown email error';
     logger.error(`📧 Failed to send email: ${errorMessage}`);
     return { success: false, error: errorMessage };

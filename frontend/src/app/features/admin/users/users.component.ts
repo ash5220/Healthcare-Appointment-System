@@ -139,10 +139,10 @@ export class UsersComponent implements OnInit {
         return;
       }
       this.userService.createUser({
-        firstName: this.editingUser.firstName!,
-        lastName: this.editingUser.lastName!,
-        email: this.editingUser.email!,
-        password: this.editingUser.password!,
+        firstName: this.editingUser.firstName ?? '',
+        lastName: this.editingUser.lastName ?? '',
+        email: this.editingUser.email ?? '',
+        password: this.editingUser.password ?? '',
         role: this.editingUser.role || UserRole.PATIENT,
       }).subscribe({
         next: () => {

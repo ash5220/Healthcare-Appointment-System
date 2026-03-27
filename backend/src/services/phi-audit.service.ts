@@ -103,7 +103,7 @@ class PhiAuditService {
           attempt,
         });
         return;
-      } catch (error) {
+      } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         if (attempt < PHI_AUDIT_MAX_ATTEMPTS) {
           logger.warn('PHI audit persistence retry scheduled', {

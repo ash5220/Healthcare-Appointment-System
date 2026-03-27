@@ -84,7 +84,8 @@ export class AuthService {
           response.data.user &&
           response.data.accessToken
         ) {
-          this.handleAuthSuccess(response.data.user!, response.data.accessToken!);
+          const { user, accessToken } = response.data;
+          this.handleAuthSuccess(user, accessToken);
         }
       }),
       catchError((error) => {
@@ -100,7 +101,8 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.apiUrl}/register`, data).pipe(
       tap((response) => {
         if (response.success && response.data.user && response.data.accessToken) {
-          this.handleAuthSuccess(response.data.user!, response.data.accessToken!);
+          const { user, accessToken } = response.data;
+          this.handleAuthSuccess(user, accessToken);
         }
       }),
       catchError((error) => {
@@ -116,7 +118,8 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.apiUrl}/register/patient`, data).pipe(
       tap((response) => {
         if (response.success && response.data.user && response.data.accessToken) {
-          this.handleAuthSuccess(response.data.user!, response.data.accessToken!);
+          const { user, accessToken } = response.data;
+          this.handleAuthSuccess(user, accessToken);
         }
       }),
       catchError((error) => {
@@ -132,7 +135,8 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.apiUrl}/register/doctor`, data).pipe(
       tap((response) => {
         if (response.success && response.data.user && response.data.accessToken) {
-          this.handleAuthSuccess(response.data.user!, response.data.accessToken!);
+          const { user, accessToken } = response.data;
+          this.handleAuthSuccess(user, accessToken);
         }
       }),
       catchError((error) => {
@@ -147,7 +151,8 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.apiUrl}/verify-mfa`, { tempToken, token }).pipe(
       tap((response) => {
         if (response.success && response.data.user && response.data.accessToken) {
-          this.handleAuthSuccess(response.data.user!, response.data.accessToken!);
+          const { user, accessToken } = response.data;
+          this.handleAuthSuccess(user, accessToken);
         }
       }),
       catchError((error) => {

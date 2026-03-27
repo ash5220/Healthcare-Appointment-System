@@ -167,6 +167,8 @@ class AppointmentService {
       const doctor = await doctorRepository.findByUserId(userId);
       if (!doctor) throw new NotFoundError('Doctor profile not found');
       resolvedFilters.doctorId = doctor.id;
+    } else if (userRole !== UserRole.ADMIN) {
+      throw new ForbiddenError('Unknown role');
     }
 
     return appointmentRepository.findAll(resolvedFilters);

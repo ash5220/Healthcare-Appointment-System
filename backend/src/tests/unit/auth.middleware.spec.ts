@@ -17,6 +17,7 @@ import { authMiddleware, optionalAuthMiddleware } from '../../middleware/auth.mi
 import { verifyAccessToken } from '../../utils/jwt.util';
 import { User } from '../../models';
 import { UserRole } from '../../types/constants';
+import { OptionallyAuthenticatedRequest } from '../../types/express.d';
 
 const mockResponse = (): Response => {
   const res = {} as Response;
@@ -140,7 +141,7 @@ describe('optionalAuthMiddleware', () => {
     const req = mockRequest();
     const res = mockResponse();
 
-    optionalAuthMiddleware(req as any, res, mockNext);
+    optionalAuthMiddleware(req as unknown as OptionallyAuthenticatedRequest, res, mockNext);
 
     expect(req.user).toBeUndefined();
     expect(mockNext).toHaveBeenCalled();
@@ -153,7 +154,7 @@ describe('optionalAuthMiddleware', () => {
     const req = mockRequest({ headers: { authorization: 'Bearer valid-token' } });
     const res = mockResponse();
 
-    optionalAuthMiddleware(req as any, res, mockNext);
+    optionalAuthMiddleware(req as unknown as OptionallyAuthenticatedRequest, res, mockNext);
 
     expect(req.user).toEqual(decoded);
     expect(mockNext).toHaveBeenCalled();
@@ -167,7 +168,7 @@ describe('optionalAuthMiddleware', () => {
     const req = mockRequest({ headers: { authorization: 'Bearer expired-token' } });
     const res = mockResponse();
 
-    optionalAuthMiddleware(req as any, res, mockNext);
+    optionalAuthMiddleware(req as unknown as OptionallyAuthenticatedRequest, res, mockNext);
 
     expect(req.user).toBeUndefined();
     expect(mockNext).toHaveBeenCalled();

@@ -122,7 +122,7 @@ class SessionService {
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       if (error instanceof UnauthorizedError) {
         throw error;
       }

@@ -37,6 +37,11 @@
 
 Healthcare Appointment System is a production-focused web application that streamlines the appointment lifecycle between patients and providers. The platform includes JWT auth with refresh-token rotation, MFA flows, role-based access control, PHI audit logging, encrypted sensitive data, and an Angular SPA.
 
+### Live Demo
+
+- Public URL: http://44.215.251.252/
+- Status: currently deployed and publicly reachable from the internet.
+
 ---
 
 ## Features
@@ -295,7 +300,8 @@ docker-compose exec api npx ts-node scripts/create-phi-audit-table.ts
 ### Live Endpoint
 
 - Current public endpoint: http://44.215.251.252/
-- Current state: HTTP on static IP. Domain and HTTPS can be added later.
+- Current state: publicly reachable HTTP endpoint on a Lightsail static IP.
+- Note: domain and HTTPS can be added later without changing core app architecture.
 
 ### Deployed Stack
 

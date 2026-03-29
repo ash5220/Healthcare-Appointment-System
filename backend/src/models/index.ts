@@ -1,3 +1,15 @@
+// Import models for associations
+import { User } from './User.model';
+import { Doctor } from './Doctor.model';
+import { Patient } from './Patient.model';
+import { Appointment } from './Appointment.model';
+import { MedicalRecord } from './MedicalRecord.model';
+import { DoctorAvailability } from './Availability.model';
+import { Notification } from './Notification.model';
+import { Message } from './Message.model';
+import { Insurance } from './Insurance.model';
+import './PhiAuditLog.model';
+
 // Export all models
 export { User } from './User.model';
 export { Doctor } from './Doctor.model';
@@ -10,18 +22,6 @@ export { Message } from './Message.model';
 export { Insurance } from './Insurance.model';
 export { PhiAuditLog } from './PhiAuditLog.model';
 export { PhiAction, PhiResourceType, AuditOutcome } from './PhiAuditLog.model';
-
-// Import models for associations
-import { User } from './User.model';
-import { Doctor } from './Doctor.model';
-import { Patient } from './Patient.model';
-import { Appointment } from './Appointment.model';
-import { MedicalRecord } from './MedicalRecord.model';
-import { DoctorAvailability } from './Availability.model';
-import { Notification } from './Notification.model';
-import { Message } from './Message.model';
-import { Insurance } from './Insurance.model';
-import './PhiAuditLog.model';
 
 // Define associations
 export const initializeAssociations = (): void => {

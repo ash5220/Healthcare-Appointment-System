@@ -1,10 +1,6 @@
 import crypto from 'crypto';
 import { User } from '../models';
-import {
-  generateTokenPair,
-  verifyRefreshToken,
-  generateMfaToken
-} from '../utils/jwt.util';
+import { generateTokenPair, verifyRefreshToken, generateMfaToken } from '../utils/jwt.util';
 import { logger } from '../config/logger';
 import { BadRequestError, UnauthorizedError, NotFoundError } from '../shared/errors';
 import { userRepository, doctorRepository } from '../repositories';
@@ -25,7 +21,11 @@ class SessionService {
     if (!user) throw new UnauthorizedError('Invalid email or password');
 
     if (user.isLocked()) {
-      const lockoutRemaining = Math.ceil((user.lockoutUntil!.getTime() - Date.now()) / 60000);
+      if (!user.lockoutUntil) {
+        throw new UnauthorizedError('Account is locked. Please try again later.');
+      }
+
+      const lockoutRemaining = Math.ceil((user.lockoutUntil.getTime() - Date.now()) / 60000);
       throw new UnauthorizedError(
         `Account is locked. Please try again in ${lockoutRemaining} minutes.`
       );
@@ -222,7 +222,7 @@ class SessionService {
       password: hashedPassword,
       passwordResetTokenHash: null,
       passwordResetExpiresAt: null,
-      refreshToken: null,           // invalidate all existing sessions
+      refreshToken: null, // invalidate all existing sessions
     });
 
     logger.info(`Password reset successfully for: ${user.email}`);

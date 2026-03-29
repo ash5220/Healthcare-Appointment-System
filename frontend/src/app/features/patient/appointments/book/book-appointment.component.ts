@@ -1,13 +1,13 @@
 /**
  * BookAppointmentComponent
- * 
+ *
  * Multi-step appointment booking wizard allowing patients to:
  * 1. Search and select a doctor
  * 2. Choose an available date
  * 3. Select a time slot
  * 4. Provide reason for visit
  * 5. Confirm and book
- * 
+ *
  * Uses reactive signals for state management and computed values
  * for derived state like filtered doctors.
  */
@@ -84,23 +84,26 @@ export class BookAppointmentComponent implements OnInit {
   /** Min reason length for validation feedback */
   protected readonly minReasonLength = MIN_REASON_LENGTH;
 
-  /** 
+  /**
    * Date boundaries for appointment booking.
    * Prevents booking in the past or too far in the future.
    */
   protected readonly minDate = new Date().toISOString().split('T')[0];
-  protected readonly maxDate = new Date(
-    Date.now() + MAX_BOOKING_DAYS_AHEAD * 24 * 60 * 60 * 1000
-  ).toISOString().split('T')[0];
+  protected readonly maxDate = new Date(Date.now() + MAX_BOOKING_DAYS_AHEAD * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .split('T')[0];
 
   /** Booking form for date and reason */
   protected readonly bookingForm = this.fb.group({
     appointmentDate: ['', Validators.required],
-    reasonForVisit: ['', [
-      Validators.required,
-      Validators.minLength(MIN_REASON_LENGTH),
-      Validators.maxLength(MAX_REASON_LENGTH)
-    ]],
+    reasonForVisit: [
+      '',
+      [
+        Validators.required,
+        Validators.minLength(MIN_REASON_LENGTH),
+        Validators.maxLength(MAX_REASON_LENGTH),
+      ],
+    ],
   });
 
   ngOnInit(): void {
@@ -120,7 +123,8 @@ export class BookAppointmentComponent implements OnInit {
         this.filteredDoctors.set(doctors);
         this.isLoadingDoctors.set(false);
       },
-      error: () => {
+      error: (error: unknown) => {
+        void error;
         // Set demo doctors for development
         this.setDemoDoctors();
         this.isLoadingDoctors.set(false);
@@ -193,16 +197,17 @@ export class BookAppointmentComponent implements OnInit {
     // Apply search filter
     if (this.searchTerm) {
       const term = this.searchTerm.toLowerCase();
-      result = result.filter(d =>
-        d.user?.firstName?.toLowerCase().includes(term) ||
-        d.user?.lastName?.toLowerCase().includes(term) ||
-        d.specialization?.toLowerCase().includes(term)
+      result = result.filter(
+        (d) =>
+          d.user?.firstName?.toLowerCase().includes(term) ||
+          d.user?.lastName?.toLowerCase().includes(term) ||
+          d.specialization?.toLowerCase().includes(term),
       );
     }
 
     // Apply specialization filter
     if (this.selectedSpecialization) {
-      result = result.filter(d => d.specialization === this.selectedSpecialization);
+      result = result.filter((d) => d.specialization === this.selectedSpecialization);
     }
 
     this.filteredDoctors.set(result);
@@ -238,11 +243,20 @@ export class BookAppointmentComponent implements OnInit {
         this.availableSlots.set(response.data.slots || []);
         this.isLoadingSlots.set(false);
       },
-      error: () => {
+      error: (error: unknown) => {
+        void error;
         // Demo slots for development
         this.availableSlots.set([
-          '09:00', '09:30', '10:00', '10:30', '11:00',
-          '14:00', '14:30', '15:00', '15:30', '16:00'
+          '09:00',
+          '09:30',
+          '10:00',
+          '10:30',
+          '11:00',
+          '14:00',
+          '14:30',
+          '15:00',
+          '15:30',
+          '16:00',
         ]);
         this.isLoadingSlots.set(false);
       },
@@ -272,21 +286,24 @@ export class BookAppointmentComponent implements OnInit {
 
     this.isSubmitting.set(true);
 
-    this.appointmentService.createAppointment({
-      doctorId: doctor.id,
-      appointmentDate,
-      startTime: slot,
-      reasonForVisit,
-    }).subscribe({
-      next: () => {
-        this.isSubmitting.set(false);
-        this.notificationService.success('Success', 'Appointment booked successfully!');
-        this.router.navigate(['/patient/appointments']);
-      },
-      error: () => {
-        this.isSubmitting.set(false);
-      },
-    });
+    this.appointmentService
+      .createAppointment({
+        doctorId: doctor.id,
+        appointmentDate,
+        startTime: slot,
+        reasonForVisit,
+      })
+      .subscribe({
+        next: () => {
+          this.isSubmitting.set(false);
+          this.notificationService.success('Success', 'Appointment booked successfully!');
+          this.router.navigate(['/patient/appointments']);
+        },
+        error: (error: unknown) => {
+          void error;
+          this.isSubmitting.set(false);
+        },
+      });
   }
 
   /**

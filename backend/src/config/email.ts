@@ -3,7 +3,6 @@ import { env, EnvConfig, isProduction } from './env';
 import { logger } from './logger';
 
 const envCfg: EnvConfig = env;
-const isProd: () => boolean = isProduction;
 
 /**
  * Email configuration and transporter setup using Nodemailer.
@@ -47,7 +46,7 @@ let transporter: Transporter | null = null;
 export const initializeEmailTransporter = async (): Promise<Transporter | null> => {
   if (transporter) return transporter;
 
-  const hasSmtpConfig = envCfg.smtpHost && envCfg.smtpUser && envCfg.smtpPassword;
+  const hasSmtpConfig = Boolean(envCfg.smtpHost && envCfg.smtpUser && envCfg.smtpPassword);
 
   if (hasSmtpConfig) {
     // Production / configured SMTP
@@ -66,7 +65,7 @@ export const initializeEmailTransporter = async (): Promise<Transporter | null> 
     });
 
     logger.info(`📧 Email transporter configured with SMTP host: ${envCfg.smtpHost}`);
-  } else if (!isProd()) {
+  } else if (!isProduction()) {
     // Development fallback — Ethereal test account
     const testAccount = await nodemailer.createTestAccount();
 
@@ -126,6 +125,10 @@ export const sendEmail = async (options: EmailOptions): Promise<EmailResult> => 
 
     const rawInfo: unknown = await transporter.sendMail(mailOptions);
     const info = rawInfo as { messageId: string };
+    if (!info?.messageId) {
+      throw new Error('Email provider returned an invalid response');
+    }
+
     const previewUrl = nodemailer.getTestMessageUrl(
       rawInfo as Parameters<typeof nodemailer.getTestMessageUrl>[0]
     );

@@ -3,12 +3,11 @@ import { env, isProduction } from './env';
 import { logger } from './logger';
 import { DB_POOL_MIN, DB_POOL_MAX } from './constants';
 
-const dbHost: string = env.dbHost;
-const dbPort: number = env.dbPort;
-const dbName: string = env.dbName;
-const dbUser: string = env.dbUser;
-const dbPassword: string = env.dbPassword;
-const isProd: () => boolean = isProduction;
+const dbHost = env.dbHost;
+const dbPort = env.dbPort;
+const dbName = env.dbName;
+const dbUser = env.dbUser;
+const dbPassword = env.dbPassword;
 
 const sequelize = new Sequelize({
   dialect: 'mysql',
@@ -19,8 +18,8 @@ const sequelize = new Sequelize({
   password: dbPassword,
   logging: false, // Set to false to prevent logging every SQL script to console
   pool: {
-    max: isProd() ? DB_POOL_MAX : 5,
-    min: isProd() ? DB_POOL_MIN : 0,
+    max: isProduction() ? DB_POOL_MAX : 5,
+    min: isProduction() ? DB_POOL_MIN : 0,
     acquire: 30000,
     idle: 10000,
   },
@@ -37,7 +36,7 @@ const sequelize = new Sequelize({
     // HIPAA §164.312(e)(1) requires encryption for PHI in transit.
     // mysql2 uses the Node.js tls module; setting ssl to true triggers
     // TLS negotiation and rejects unverified server certificates.
-    ...(isProd() && {
+    ...(isProduction() && {
       ssl: {
         rejectUnauthorized: true,
       },
@@ -53,8 +52,8 @@ export const initializeDatabase = async (): Promise<void> => {
 
     // Migration-first lifecycle: do not mutate schema implicitly.
     // Explicitly opt-in to sync only for local prototyping.
-    if (!isProduction() && process.env.ALLOW_DB_SYNC === 'true') {
-      const forceSync = process.env.CLEAN_SYNC === 'true';
+    if (!isProduction() && process.env['ALLOW_DB_SYNC'] === 'true') {
+      const forceSync = process.env['CLEAN_SYNC'] === 'true';
       await sequelize.sync({ force: forceSync, alter: false });
       if (forceSync) {
         logger.warn('CLEAN_SYNC=true: all tables were dropped and recreated.');

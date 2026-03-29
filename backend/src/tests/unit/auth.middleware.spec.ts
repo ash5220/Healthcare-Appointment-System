@@ -20,10 +20,10 @@ import { UserRole } from '../../types/constants';
 import { OptionallyAuthenticatedRequest } from '../../types/express.d';
 
 const mockResponse = (): Response => {
-  const res = {} as Response;
+  const res: Partial<Response> = {};
   res.status = jest.fn().mockReturnValue(res);
   res.json = jest.fn().mockReturnValue(res);
-  return res;
+  return res as Response;
 };
 
 const mockRequest = (overrides: Partial<Request> = {}): Request =>

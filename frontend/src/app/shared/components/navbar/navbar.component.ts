@@ -1,17 +1,24 @@
 /**
  * NavbarComponent
- * 
+ *
  * The main navigation component that appears at the top of every page.
  * It provides:
  * - Role-based navigation links (different menus for patients, doctors, admins)
  * - User authentication status display
  * - Responsive mobile navigation
  * - Logout functionality
- * 
+ *
  * This component uses Angular's signal-based reactivity for authentication state
  * and control flow syntax (@if, @for) for template logic.
  */
-import { Component, inject, signal, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  inject,
+  signal,
+  OnInit,
+  OnDestroy,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
@@ -124,7 +131,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
    * Toggle the mobile menu expanded/collapsed state.
    */
   protected toggleMenu(): void {
-    this.isMenuCollapsed.update(collapsed => !collapsed);
+    this.isMenuCollapsed.update((collapsed) => !collapsed);
   }
 
   /**

@@ -27,8 +27,9 @@ const TEMPLATES_DIR = path.join(__dirname, '..', 'templates', 'emails');
  * Uses async fs calls to avoid blocking the Node.js event loop.
  */
 const compileTemplate = async (templateName: string): Promise<Handlebars.TemplateDelegate> => {
-  if (templateCache.has(templateName)) {
-    return templateCache.get(templateName)!;
+  const cachedTemplate = templateCache.get(templateName);
+  if (cachedTemplate) {
+    return cachedTemplate;
   }
 
   const filePath = path.join(TEMPLATES_DIR, `${templateName}.hbs`);
@@ -53,7 +54,10 @@ const compileTemplate = async (templateName: string): Promise<Handlebars.Templat
  * @param data          Variables passed to both the inner template and the layout
  * @returns             Complete HTML string ready to be sent as an email body
  */
-const renderEmail = async (templateName: string, data: Record<string, unknown>): Promise<string> => {
+const renderEmail = async (
+  templateName: string,
+  data: Record<string, unknown>
+): Promise<string> => {
   // Compile the inner content template
   const contentTemplate = await compileTemplate(templateName);
   const bodyHtml = contentTemplate(data);
@@ -172,7 +176,11 @@ class EmailService {
   /**
    * Send an email-verification link after registration.
    */
-  async sendEmailVerificationEmail(to: string, name: string, verificationToken: string): Promise<EmailResult> {
+  async sendEmailVerificationEmail(
+    to: string,
+    name: string,
+    verificationToken: string
+  ): Promise<EmailResult> {
     const verifyUrl = `${frontendUrl}/verify-email?token=${verificationToken}`;
 
     const html = await renderEmail('email-verification', {

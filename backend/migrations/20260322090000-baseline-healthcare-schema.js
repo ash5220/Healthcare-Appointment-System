@@ -3,9 +3,9 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    const tableExists = async (tableName) => {
+    const tableExists = async tableName => {
       const tables = await queryInterface.showAllTables();
-      const normalized = tables.map((table) =>
+      const normalized = tables.map(table =>
         typeof table === 'string' ? table : table.tableName || table.table_name
       );
       return normalized.includes(tableName);
@@ -800,15 +800,15 @@ module.exports = {
   },
 
   async down(queryInterface) {
-    const tableExists = async (tableName) => {
+    const tableExists = async tableName => {
       const tables = await queryInterface.showAllTables();
-      const normalized = tables.map((table) =>
+      const normalized = tables.map(table =>
         typeof table === 'string' ? table : table.tableName || table.table_name
       );
       return normalized.includes(tableName);
     };
 
-    const dropIfExists = async (tableName) => {
+    const dropIfExists = async tableName => {
       if (await tableExists(tableName)) {
         await queryInterface.dropTable(tableName);
       }

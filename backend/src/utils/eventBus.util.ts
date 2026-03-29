@@ -25,6 +25,10 @@ class SafeEventBus extends EventEmitter {
   override emit(eventName: string | symbol, ...args: unknown[]): boolean {
     const listeners = this.listeners(eventName);
     for (const listener of listeners) {
+      if (typeof listener !== 'function') {
+        continue;
+      }
+
       try {
         (listener as (...a: unknown[]) => void)(...args);
       } catch (error: unknown) {

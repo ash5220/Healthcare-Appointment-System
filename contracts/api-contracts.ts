@@ -1,5 +1,5 @@
-export type ContractUserRole = 'patient' | 'doctor' | 'admin';
-export type ContractGender = 'male' | 'female' | 'other';
+export type ContractUserRole = "patient" | "doctor" | "admin";
+export type ContractGender = "male" | "female" | "other";
 
 export interface ApiPaginationMetadata {
   page: number;
@@ -38,7 +38,7 @@ export interface PatientRegistrationRequestContract {
   phoneNumber?: string;
   dateOfBirth: string;
   gender: ContractGender;
-  bloodGroup?: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
+  bloodGroup?: "A+" | "A-" | "B+" | "B-" | "AB+" | "AB-" | "O+" | "O-";
   allergies?: string[];
   emergencyContactName?: string;
   emergencyContactPhone?: string;

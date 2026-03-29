@@ -5,9 +5,6 @@ import { isProduction } from '../config/env';
 import { ValidationError, isAppError } from '../shared/errors';
 import { ValidationError as SeqValidationError, UniqueConstraintError } from 'sequelize';
 
-// Re-type to avoid CI TypeScript inference issues with module resolution
-const isProd = isProduction as () => boolean;
-
 // Re-export error classes from the shared layer so existing imports that point
 // here keep working without any changes.
 export {
@@ -25,16 +22,19 @@ export {
 
 // Global error handler
 export const errorMiddleware = (
-  err: Error,
+  err: unknown,
   _req: Request,
   res: Response,
   _next: NextFunction
 ): void => {
+  const message = err instanceof Error ? err.message : 'Internal server error';
+  const stack = err instanceof Error ? err.stack : undefined;
+
   // Log error
   const appErr = isAppError(err) ? err : undefined;
   logger.error('Error:', {
-    message: err.message,
-    stack: isProd() ? undefined : err.stack,
+    message,
+    stack: isProduction() ? undefined : stack,
     statusCode: appErr?.statusCode,
   });
 
@@ -51,7 +51,7 @@ export const errorMiddleware = (
   // Handle Sequelize validation errors
   if (err instanceof SeqValidationError) {
     const validationErrors: Record<string, string[]> = {};
-    err.errors.forEach((e) => {
+    err.errors.forEach(e => {
       const field = e.path ?? 'unknown';
       if (!validationErrors[field]) {
         validationErrors[field] = [];
@@ -69,10 +69,10 @@ export const errorMiddleware = (
   }
 
   // Handle unknown errors (don't leak error details in production)
-  if (isProd()) {
+  if (isProduction()) {
     serverErrorResponse(res);
   } else {
-    errorResponse(res, err.message || 'Internal server error', 500);
+    errorResponse(res, message, 500);
   }
 };
 

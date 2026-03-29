@@ -197,8 +197,12 @@ class AppointmentService {
       const newStart = data.startTime || appointment.startTime;
       const newEnd = data.endTime || appointment.endTime;
 
+      if (!appointment.doctorId) {
+        throw new BadRequestError('Appointment is missing doctor assignment');
+      }
+
       const conflict = await appointmentRepository.findConflicting(
-        appointment.doctorId as string,
+        appointment.doctorId,
         newDate,
         newStart,
         newEnd,
@@ -209,7 +213,7 @@ class AppointmentService {
 
     const { appointmentDate, ...rest } = data;
     const payload: Record<string, unknown> = { ...rest };
-    if (appointmentDate) payload.appointmentDate = new Date(appointmentDate);
+    if (appointmentDate) payload['appointmentDate'] = new Date(appointmentDate);
 
     await appointmentRepository.update(appointment, payload);
 

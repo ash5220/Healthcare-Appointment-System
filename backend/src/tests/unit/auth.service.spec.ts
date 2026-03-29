@@ -41,7 +41,7 @@ jest.mock('../../repositories', () => ({
 
 jest.mock('../../config/database', () => ({
   sequelize: {
-    transaction: jest.fn().mockImplementation((cb) => cb({})),
+    transaction: jest.fn().mockImplementation(cb => cb({})),
   },
 }));
 
@@ -105,10 +105,10 @@ const makeUser = (overrides: Record<string, unknown> = {}) => ({
   isActive: true,
   isEmailVerified: true,
   mfaEnabled: false,
-  mfaSecret: null as string | null,
-  mfaTempTokenHash: null as string | null,
-  refreshToken: null as string | null,
-  lockoutUntil: null as Date | null,
+  mfaSecret: null,
+  mfaTempTokenHash: null,
+  refreshToken: null,
+  lockoutUntil: null,
   update: jest.fn().mockResolvedValue(undefined),
   toSafeObject: jest.fn().mockReturnValue({ id: 'user-uuid', email: 'test@example.com' }),
   comparePassword: jest.fn().mockResolvedValue(true),
@@ -369,7 +369,10 @@ describe('AuthService', () => {
       const mockUser = makeUser({ refreshToken: hashToken(incoming), isActive: true });
       (verifyRefreshToken as jest.Mock).mockReturnValue({ userId: 'user-uuid' });
       (userRepository.findById as jest.Mock).mockResolvedValue(mockUser);
-      (generateTokenPair as jest.Mock).mockReturnValue({ accessToken: 'new-acc', refreshToken: 'new-ref' });
+      (generateTokenPair as jest.Mock).mockReturnValue({
+        accessToken: 'new-acc',
+        refreshToken: 'new-ref',
+      });
 
       const result = await authService.refreshToken(incoming);
 
@@ -401,12 +404,16 @@ describe('AuthService', () => {
     });
 
     it('wraps generic JWT errors in UnauthorizedError', async () => {
-      (verifyRefreshToken as jest.Mock).mockImplementation(() => { throw new Error('jwt malformed'); });
+      (verifyRefreshToken as jest.Mock).mockImplementation(() => {
+        throw new Error('jwt malformed');
+      });
       await expect(authService.refreshToken('bad')).rejects.toThrow(UnauthorizedError);
     });
 
     it('rethrows existing UnauthorizedError from verifyRefreshToken', async () => {
-      (verifyRefreshToken as jest.Mock).mockImplementation(() => { throw new UnauthorizedError('denied'); });
+      (verifyRefreshToken as jest.Mock).mockImplementation(() => {
+        throw new UnauthorizedError('denied');
+      });
       await expect(authService.refreshToken('bad')).rejects.toThrow(UnauthorizedError);
     });
   });
@@ -453,14 +460,18 @@ describe('AuthService', () => {
     it('throws BadRequestError when current password is wrong', async () => {
       const mockUser = makeUser({ comparePassword: jest.fn().mockResolvedValue(false) });
       (userRepository.findById as jest.Mock).mockResolvedValue(mockUser);
-      await expect(authService.changePassword('x', 'wrong', 'new')).rejects.toThrow(BadRequestError);
+      await expect(authService.changePassword('x', 'wrong', 'new')).rejects.toThrow(
+        BadRequestError
+      );
     });
 
     it('throws BadRequestError when new password is too common', async () => {
       const mockUser = makeUser();
       (userRepository.findById as jest.Mock).mockResolvedValue(mockUser);
       (isCommonPassword as jest.Mock).mockReturnValueOnce(true);
-      await expect(authService.changePassword('x', 'OldPass1!', 'password')).rejects.toThrow(BadRequestError);
+      await expect(authService.changePassword('x', 'OldPass1!', 'password')).rejects.toThrow(
+        BadRequestError
+      );
     });
   });
 
@@ -521,7 +532,9 @@ describe('AuthService', () => {
     it('throws BadRequestError when mfaSecret is not set (setup not started)', async () => {
       const mockUser = makeUser({ mfaSecret: null });
       (userRepository.findById as jest.Mock).mockResolvedValue(mockUser);
-      await expect(authService.verifySetupMfa('user-uuid', '000000')).rejects.toThrow(BadRequestError);
+      await expect(authService.verifySetupMfa('user-uuid', '000000')).rejects.toThrow(
+        BadRequestError
+      );
     });
 
     it('throws UnauthorizedError for invalid TOTP token', async () => {
@@ -530,7 +543,9 @@ describe('AuthService', () => {
       const mockUser = makeUser({ mfaSecret: 'encrypted-secret' });
       (userRepository.findById as jest.Mock).mockResolvedValue(mockUser);
 
-      await expect(authService.verifySetupMfa('user-uuid', '000000')).rejects.toThrow(UnauthorizedError);
+      await expect(authService.verifySetupMfa('user-uuid', '000000')).rejects.toThrow(
+        UnauthorizedError
+      );
     });
   });
 
@@ -553,8 +568,12 @@ describe('AuthService', () => {
     });
 
     it('throws UnauthorizedError for invalid/expired tempToken', async () => {
-      (verifyMfaToken as jest.Mock).mockImplementation(() => { throw new Error('expired'); });
-      await expect(authService.verifyMfaLogin('bad-token', '123456')).rejects.toThrow(UnauthorizedError);
+      (verifyMfaToken as jest.Mock).mockImplementation(() => {
+        throw new Error('expired');
+      });
+      await expect(authService.verifyMfaLogin('bad-token', '123456')).rejects.toThrow(
+        UnauthorizedError
+      );
     });
 
     it('throws UnauthorizedError when user not found', async () => {

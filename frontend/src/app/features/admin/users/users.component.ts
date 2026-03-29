@@ -33,6 +33,17 @@ export class UsersComponent implements OnInit {
 
   editingUser: Partial<User> & { password?: string } = {};
 
+  private getErrorMessage(error: unknown, fallback: string): string {
+    if (typeof error === 'object' && error !== null && 'error' in error) {
+      const nested = (error as { error?: { message?: unknown } }).error?.message;
+      if (typeof nested === 'string' && nested.trim().length > 0) {
+        return nested;
+      }
+    }
+
+    return fallback;
+  }
+
   ngOnInit(): void {
     this.loadUsers();
   }
@@ -59,7 +70,8 @@ export class UsersComponent implements OnInit {
           this.totalUsers.set(response.metadata?.total || 0);
           this.isLoading.set(false);
         },
-        error: () => {
+        error: (error: unknown) => {
+          void error;
           this.users.set([]);
           this.totalUsers.set(0);
           this.isLoading.set(false);
@@ -106,8 +118,15 @@ export class UsersComponent implements OnInit {
   }
 
   saveUser(): void {
-    if (!this.editingUser.firstName?.trim() || !this.editingUser.lastName?.trim() || !this.editingUser.email?.trim()) {
-      this.notificationService.error('Validation', 'First name, last name, and email are required.');
+    if (
+      !this.editingUser.firstName?.trim() ||
+      !this.editingUser.lastName?.trim() ||
+      !this.editingUser.email?.trim()
+    ) {
+      this.notificationService.error(
+        'Validation',
+        'First name, last name, and email are required.',
+      );
       return;
     }
 
@@ -115,47 +134,57 @@ export class UsersComponent implements OnInit {
 
     if (this.showEditModal()) {
       if (!this.editingUser.id) return;
-      this.userService.updateUser(this.editingUser.id, {
-        firstName: this.editingUser.firstName,
-        lastName: this.editingUser.lastName,
-        email: this.editingUser.email,
-        role: this.editingUser.role,
-      }).subscribe({
-        next: () => {
-          this.notificationService.success('Success', 'User updated successfully');
-          this.isSaving.set(false);
-          this.closeModals();
-          this.loadUsers();
-        },
-        error: (err: { error?: { message?: string } }) => {
-          this.notificationService.error('Error', err?.error?.message || 'Failed to update user');
-          this.isSaving.set(false);
-        },
-      });
+      this.userService
+        .updateUser(this.editingUser.id, {
+          firstName: this.editingUser.firstName,
+          lastName: this.editingUser.lastName,
+          email: this.editingUser.email,
+          role: this.editingUser.role,
+        })
+        .subscribe({
+          next: () => {
+            this.notificationService.success('Success', 'User updated successfully');
+            this.isSaving.set(false);
+            this.closeModals();
+            this.loadUsers();
+          },
+          error: (error: unknown) => {
+            this.notificationService.error(
+              'Error',
+              this.getErrorMessage(error, 'Failed to update user'),
+            );
+            this.isSaving.set(false);
+          },
+        });
     } else {
       if (!this.editingUser.password?.trim()) {
         this.notificationService.error('Validation', 'Password is required for new users.');
         this.isSaving.set(false);
         return;
       }
-      this.userService.createUser({
-        firstName: this.editingUser.firstName ?? '',
-        lastName: this.editingUser.lastName ?? '',
-        email: this.editingUser.email ?? '',
-        password: this.editingUser.password ?? '',
-        role: this.editingUser.role || UserRole.PATIENT,
-      }).subscribe({
-        next: () => {
-          this.notificationService.success('Success', 'User created successfully');
-          this.isSaving.set(false);
-          this.closeModals();
-          this.loadUsers();
-        },
-        error: (err: { error?: { message?: string } }) => {
-          this.notificationService.error('Error', err?.error?.message || 'Failed to create user');
-          this.isSaving.set(false);
-        },
-      });
+      this.userService
+        .createUser({
+          firstName: this.editingUser.firstName ?? '',
+          lastName: this.editingUser.lastName ?? '',
+          email: this.editingUser.email ?? '',
+          password: this.editingUser.password ?? '',
+          role: this.editingUser.role || UserRole.PATIENT,
+        })
+        .subscribe({
+          next: () => {
+            this.notificationService.success('Success', 'User created successfully');
+            this.isSaving.set(false);
+            this.closeModals();
+            this.loadUsers();
+          },
+          error: (error: unknown) => {
+            this.notificationService.error(
+              'Error',
+              this.getErrorMessage(error, 'Failed to create user'),
+            );
+            this.isSaving.set(false);
+          },
+        });
     }
   }
 
@@ -169,8 +198,11 @@ export class UsersComponent implements OnInit {
         this.closeModals();
         this.loadUsers();
       },
-      error: (err: { error?: { message?: string } }) => {
-        this.notificationService.error('Error', err?.error?.message || 'Failed to delete user');
+      error: (error: unknown) => {
+        this.notificationService.error(
+          'Error',
+          this.getErrorMessage(error, 'Failed to delete user'),
+        );
         this.isSaving.set(false);
       },
     });
@@ -184,8 +216,11 @@ export class UsersComponent implements OnInit {
         this.notificationService.success('Success', `User ${action} successfully`);
         this.loadUsers();
       },
-      error: (err: { error?: { message?: string } }) => {
-        this.notificationService.error('Error', err?.error?.message || 'Failed to update user status');
+      error: (error: unknown) => {
+        this.notificationService.error(
+          'Error',
+          this.getErrorMessage(error, 'Failed to update user status'),
+        );
       },
     });
   }
@@ -197,7 +232,7 @@ export class UsersComponent implements OnInit {
       return;
     }
     const headers = ['First Name', 'Last Name', 'Email', 'Role', 'Status', 'Created'];
-    const rows = allUsers.map(u => [
+    const rows = allUsers.map((u) => [
       u.firstName,
       u.lastName,
       u.email,
@@ -205,7 +240,9 @@ export class UsersComponent implements OnInit {
       u.isActive ? 'Active' : 'Inactive',
       new Date(u.createdAt).toLocaleDateString(),
     ]);
-    const csv = [headers, ...rows].map(r => r.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
+    const csv = [headers, ...rows]
+      .map((r) => r.map((v) => `"${String(v ?? '').replace(/"/g, '""')}"`).join(','))
+      .join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');

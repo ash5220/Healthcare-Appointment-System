@@ -1,15 +1,15 @@
 /**
  * LoginComponent
- * 
+ *
  * Handles user authentication via email and password.
- * 
+ *
  * Features:
  * - Reactive form with validation
  * - Password visibility toggle
  * - Demo account quick-fill functionality
  * - Loading state management
  * - Error handling with user feedback
- * 
+ *
  * Security considerations:
  * - Passwords are never logged or stored locally
  * - Failed attempts are rate-limited on the backend
@@ -87,7 +87,7 @@ export class LoginComponent {
 
   /**
    * Login form with email and password fields.
-   * 
+   *
    * Validators:
    * - Email: Required, must be valid email format
    * - Password: Required, minimum length enforced
@@ -109,12 +109,12 @@ export class LoginComponent {
    * Toggle password visibility between plain text and masked.
    */
   protected togglePasswordVisibility(): void {
-    this.showPassword.update(show => !show);
+    this.showPassword.update((show) => !show);
   }
 
   /**
    * Fill the login form with demo account credentials.
-   * 
+   *
    * @param account - The demo account to use
    */
   protected useDemoAccount(account: DemoAccount): void {
@@ -126,13 +126,13 @@ export class LoginComponent {
     // Provide visual feedback that credentials were filled
     this.notificationService.info(
       'Demo Account Selected',
-      `${account.role} credentials have been filled in.`
+      `${account.role} credentials have been filled in.`,
     );
   }
 
   /**
    * Handle form submission and authenticate the user.
-   * 
+   *
    * Process:
    * 1. Validate form
    * 2. Call AuthService.login()
@@ -152,12 +152,19 @@ export class LoginComponent {
 
     this.authService.login({ email, password, rememberMe }).subscribe({
       next: (response) => {
-        if (response && response.data && response.data.mfaRequired) {
-            this.mfaPending.set(true);
-            this.tempMfaToken.set(response.data.tempToken ?? '');
+        if (response?.data?.mfaRequired) {
+          const tempToken = response.data.tempToken;
+          if (!tempToken) {
             this.isLoading.set(false);
-            this.notificationService.info('MFA Required', 'Please enter your Authenticator code.');
+            this.notificationService.error('Error', 'MFA setup is incomplete. Please try again.');
             return;
+          }
+
+          this.mfaPending.set(true);
+          this.tempMfaToken.set(tempToken);
+          this.isLoading.set(false);
+          this.notificationService.info('MFA Required', 'Please enter your Authenticator code.');
+          return;
         }
 
         this.isLoading.set(false);
@@ -171,7 +178,7 @@ export class LoginComponent {
           this.router.navigate(['/']);
         }
       },
-      error: (error) => {
+      error: (error: unknown) => {
         this.isLoading.set(false);
 
         // Error notification is handled by the error interceptor
@@ -197,7 +204,7 @@ export class LoginComponent {
       next: () => {
         this.isLoading.set(false);
         this.notificationService.success('Welcome!', 'You have successfully logged in.');
-        
+
         const user = this.authService.currentUser();
         if (user) {
           this.router.navigate([`/${user.role}/dashboard`]);
@@ -205,34 +212,40 @@ export class LoginComponent {
           this.router.navigate(['/']);
         }
       },
-      error: (error) => {
+      error: (error: unknown) => {
         this.isLoading.set(false);
         this.logger.error('MFA verification failed:', error);
-      }
+      },
     });
   }
 
   /**
    * Check if a form control has a specific validation error.
    * Used in the template for displaying validation messages.
-   * 
+   *
    * @param controlName - Name of the form control
    * @param errorName - Name of the validation error
    * @returns True if the control has the specified error and is touched
    */
-  protected hasError(controlName: string, errorName: string, formName: 'login' | 'mfa' = 'login'): boolean {
-    const control = formName === 'login' ? this.loginForm.get(controlName) : this.mfaForm.get(controlName);
+  protected hasError(
+    controlName: string,
+    errorName: string,
+    formName: 'login' | 'mfa' = 'login',
+  ): boolean {
+    const control =
+      formName === 'login' ? this.loginForm.get(controlName) : this.mfaForm.get(controlName);
     return control ? control.hasError(errorName) && control.touched : false;
   }
 
   /**
    * Get the CSS class for form control validation state.
-   * 
+   *
    * @param controlName - Name of the form control
    * @returns 'is-invalid' if control has errors and is touched, empty string otherwise
    */
   protected getValidationClass(controlName: string, formName: 'login' | 'mfa' = 'login'): string {
-    const control = formName === 'login' ? this.loginForm.get(controlName) : this.mfaForm.get(controlName);
+    const control =
+      formName === 'login' ? this.loginForm.get(controlName) : this.mfaForm.get(controlName);
     if (!control || !control.touched) return '';
     return control.invalid ? 'is-invalid' : 'is-valid';
   }

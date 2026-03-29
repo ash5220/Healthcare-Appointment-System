@@ -80,15 +80,15 @@ export class AuthService {
       tap((response) => {
         if (
           response.success &&
-          !response.data.mfaRequired &&
-          response.data.user &&
-          response.data.accessToken
+          response.data?.mfaRequired &&
+          response.data?.user &&
+          response.data?.accessToken
         ) {
           const { user, accessToken } = response.data;
           this.handleAuthSuccess(user, accessToken);
         }
       }),
-      catchError((error) => {
+      catchError((error: unknown) => {
         this.isLoadingSignal.set(false);
         return throwError(() => error);
       }),
@@ -100,12 +100,12 @@ export class AuthService {
 
     return this.http.post<AuthResponse>(`${this.apiUrl}/register`, data).pipe(
       tap((response) => {
-        if (response.success && response.data.user && response.data.accessToken) {
+        if (response.success && response.data?.user && response.data?.accessToken) {
           const { user, accessToken } = response.data;
           this.handleAuthSuccess(user, accessToken);
         }
       }),
-      catchError((error) => {
+      catchError((error: unknown) => {
         this.isLoadingSignal.set(false);
         return throwError(() => error);
       }),
@@ -117,12 +117,12 @@ export class AuthService {
 
     return this.http.post<AuthResponse>(`${this.apiUrl}/register/patient`, data).pipe(
       tap((response) => {
-        if (response.success && response.data.user && response.data.accessToken) {
+        if (response.success && response.data?.user && response.data?.accessToken) {
           const { user, accessToken } = response.data;
           this.handleAuthSuccess(user, accessToken);
         }
       }),
-      catchError((error) => {
+      catchError((error: unknown) => {
         this.isLoadingSignal.set(false);
         return throwError(() => error);
       }),
@@ -134,12 +134,12 @@ export class AuthService {
 
     return this.http.post<AuthResponse>(`${this.apiUrl}/register/doctor`, data).pipe(
       tap((response) => {
-        if (response.success && response.data.user && response.data.accessToken) {
+        if (response.success && response.data?.user && response.data?.accessToken) {
           const { user, accessToken } = response.data;
           this.handleAuthSuccess(user, accessToken);
         }
       }),
-      catchError((error) => {
+      catchError((error: unknown) => {
         this.isLoadingSignal.set(false);
         return throwError(() => error);
       }),
@@ -150,12 +150,12 @@ export class AuthService {
     this.isLoadingSignal.set(true);
     return this.http.post<AuthResponse>(`${this.apiUrl}/verify-mfa`, { tempToken, token }).pipe(
       tap((response) => {
-        if (response.success && response.data.user && response.data.accessToken) {
+        if (response.success && response.data?.user && response.data?.accessToken) {
           const { user, accessToken } = response.data;
           this.handleAuthSuccess(user, accessToken);
         }
       }),
-      catchError((error) => {
+      catchError((error: unknown) => {
         this.isLoadingSignal.set(false);
         return throwError(() => error);
       }),
@@ -184,7 +184,7 @@ export class AuthService {
   logout(): void {
     this.http.post(`${this.apiUrl}/logout`, {}).subscribe({
       complete: () => this.clearAuth(),
-      error: (err) => {
+      error: (err: unknown) => {
         console.error('[AuthService] logout error (clearing session anyway):', err);
         this.clearAuth();
       },
@@ -200,7 +200,7 @@ export class AuthService {
         tap((response) => {
           this.storageService.setTokens(response.data.accessToken);
         }),
-        catchError((error) => {
+        catchError((error: unknown) => {
           this.clearAuth();
           return throwError(() => error);
         }),

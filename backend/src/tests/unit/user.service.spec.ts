@@ -25,7 +25,7 @@ import { NotFoundError } from '../../shared/errors';
 import { UserRole } from '../../types/constants';
 import { Patient } from '../../models';
 
-const makeUser = (overrides = {}) => ({
+const makeUser = (overrides: Record<string, unknown> = {}) => ({
   id: 'u1',
   email: 'user@test.com',
   role: UserRole.PATIENT,
@@ -34,7 +34,7 @@ const makeUser = (overrides = {}) => ({
   ...overrides,
 });
 
-const makePatient = (overrides = {}) => ({
+const makePatient = (overrides: Record<string, unknown> = {}) => ({
   id: 'p1',
   userId: 'u1',
   update: jest.fn().mockResolvedValue(undefined),
@@ -86,7 +86,7 @@ describe('UserService', () => {
       const mockUser = makeUser();
       const updatedUser = makeUser({ firstName: 'Updated' });
       (userRepository.findById as jest.Mock)
-        .mockResolvedValueOnce(mockUser)   // first call for finding the user to update
+        .mockResolvedValueOnce(mockUser) // first call for finding the user to update
         .mockResolvedValueOnce(updatedUser); // second call for returning fresh record
 
       const result = await userService.updateUser('u1', { firstName: 'Updated' });
@@ -128,10 +128,10 @@ describe('UserService', () => {
 
       await userService.deactivateUser('u1');
 
-      expect(userRepository.update).toHaveBeenCalledWith(
-        mockUser,
-        { isActive: false, refreshToken: null }
-      );
+      expect(userRepository.update).toHaveBeenCalledWith(mockUser, {
+        isActive: false,
+        refreshToken: null,
+      });
     });
 
     it('throws NotFoundError when user not found', async () => {
@@ -183,9 +183,14 @@ describe('UserService', () => {
       (patientRepository.findByUserId as jest.Mock).mockResolvedValue(mockPatient);
       (patientRepository.findById as jest.Mock).mockResolvedValue(updatedPatient);
 
-      const result = await userService.updatePatientProfile('u1', { bloodGroup: 'A+' } as Partial<Patient>);
+      const result = await userService.updatePatientProfile('u1', {
+        bloodGroup: 'A+',
+      } as Partial<Patient>);
 
-      expect(patientRepository.update).toHaveBeenCalledWith(mockPatient, expect.objectContaining({ bloodGroup: 'A+' }));
+      expect(patientRepository.update).toHaveBeenCalledWith(
+        mockPatient,
+        expect.objectContaining({ bloodGroup: 'A+' })
+      );
       expect(result).toBe(updatedPatient);
     });
 

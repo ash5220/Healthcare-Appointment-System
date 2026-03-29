@@ -29,10 +29,10 @@ import { adminService } from '../../services/admin.service';
 import { UserRole } from '../../types/constants';
 
 const mockRes = (): Response => {
-  const res = {} as Response;
+  const res: Partial<Response> = {};
   res.status = jest.fn().mockReturnValue(res);
   res.json = jest.fn().mockReturnValue(res);
-  return res;
+  return res as Response;
 };
 
 const mockReq = (overrides: Partial<AuthenticatedRequest> = {}): AuthenticatedRequest =>
@@ -124,7 +124,7 @@ describe('Admin Controller', () => {
     it('deletes another user successfully', async () => {
       (adminService.deleteUser as jest.Mock).mockResolvedValue(undefined);
 
-      const req = mockReq({ params: { id: 'other-user' } as any });
+      const req = mockReq({ params: { id: 'other-user' } as Record<string, string> });
       const res = mockRes();
 
       await deleteUser(req, res, mockNext);

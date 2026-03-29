@@ -12,8 +12,8 @@ const startServer = async (): Promise<void> => {
     // Initialize database connection
     await initializeDatabase();
 
-    // Initialize email transporter (Nodemailer)
-    await initializeEmailTransporter();
+    // Initialize SendGrid email client
+    initializeEmailTransporter();
 
     // Start Express server
     const server = app.listen(env.port, () => {

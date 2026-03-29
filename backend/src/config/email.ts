@@ -39,7 +39,7 @@ let initialized = false;
  * Initialise the SendGrid client with the API key.
  * Called once at server startup.
  */
-export const initializeEmailTransporter = async (): Promise<void> => {
+export const initializeEmailTransporter = (): void => {
   if (initialized) return;
 
   if (!envCfg.sendgridApiKey) {
@@ -58,7 +58,7 @@ export const initializeEmailTransporter = async (): Promise<void> => {
 export const sendEmail = async (options: EmailOptions): Promise<EmailResult> => {
   try {
     if (!initialized) {
-      await initializeEmailTransporter();
+      initializeEmailTransporter();
     }
 
     if (!initialized) {

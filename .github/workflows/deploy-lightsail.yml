@@ -1,0 +1,101 @@
+name: Deploy to Lightsail
+
+on:
+  workflow_run:
+    workflows: ["Healthcare Appointment System CI"]
+    types: [completed]
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-lightsail-main
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy Production (Lightsail)
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'main' }}
+
+    steps:
+      - name: Validate required deployment secrets
+        env:
+          LIGHTSAIL_HOST: ${{ secrets.LIGHTSAIL_HOST }}
+          LIGHTSAIL_USER: ${{ secrets.LIGHTSAIL_USER }}
+          LIGHTSAIL_SSH_KEY: ${{ secrets.LIGHTSAIL_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          missing=0
+          for key in LIGHTSAIL_HOST LIGHTSAIL_USER LIGHTSAIL_SSH_KEY; do
+            if [ -z "${!key}" ]; then
+              echo "::error::Missing required secret: $key"
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            exit 1
+          fi
+
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.LIGHTSAIL_HOST }}
+          username: ${{ secrets.LIGHTSAIL_USER }}
+          key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
+          port: ${{ secrets.LIGHTSAIL_SSH_PORT || '22' }}
+          script_stop: true
+          command_timeout: 40m
+          script: |
+            set -euo pipefail
+
+            REPO_DIR="/home/ubuntu/Healthcare-Appointment-System"
+            cd "$REPO_DIR"
+
+            git fetch origin main
+            git checkout main
+            git pull --ff-only origin main
+
+            docker compose -f docker-compose.prod.yml down --remove-orphans
+            docker compose -f docker-compose.prod.yml up -d --build --force-recreate
+
+            cd backend
+            npm ci
+            npm run migrate
+            cd ..
+
+            cd frontend
+            npm ci
+            npm run build
+            if [ -d dist/healthcare-frontend/browser ]; then
+              sudo rsync -a --delete dist/healthcare-frontend/browser/ /var/www/healthcare/
+            else
+              sudo rsync -a --delete dist/healthcare-frontend/ /var/www/healthcare/
+            fi
+            cd ..
+
+            sudo systemctl reload nginx
+
+            for i in $(seq 1 20); do
+              if curl -fsS http://127.0.0.1:3000/api/v1/health >/dev/null; then
+                break
+              fi
+              if [ "$i" -eq 20 ]; then
+                echo "Backend health check failed"
+                exit 1
+              fi
+              sleep 3
+            done
+
+            for i in $(seq 1 20); do
+              if curl -fsS http://127.0.0.1/api/v1/health >/dev/null; then
+                break
+              fi
+              if [ "$i" -eq 20 ]; then
+                echo "Nginx health check failed"
+                exit 1
+              fi
+              sleep 3
+            done

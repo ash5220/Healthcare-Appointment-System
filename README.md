@@ -365,6 +365,32 @@ curl -i http://127.0.0.1:3000/api/v1/health
 curl -i http://127.0.0.1/api/v1/health
 ```
 
+### Automated Deployment (GitHub Actions)
+
+This repository now includes an automated Lightsail deployment workflow at `.github/workflows/deploy-lightsail.yml`.
+
+Behavior:
+
+- Trigger source: successful completion of CI workflow (`Healthcare Appointment System CI`)
+- Branch policy: deploys only for `push` events on `main`
+- Target server path: `/home/ubuntu/Healthcare-Appointment-System`
+- Scope: backend container rebuild/restart, backend migrations, frontend build + sync to Nginx web root, Nginx reload, and post-deploy health checks
+
+Required GitHub repository secrets:
+
+- `LIGHTSAIL_HOST` (public IP or hostname)
+- `LIGHTSAIL_USER` (for example `ubuntu`)
+- `LIGHTSAIL_SSH_KEY` (private key content for the VM)
+- Optional: `LIGHTSAIL_SSH_PORT` (defaults to `22`)
+
+Notes:
+
+- The workflow fails fast when required secrets are missing.
+- Health checks are executed at the end of deployment:
+  - `http://127.0.0.1:3000/api/v1/health`
+  - `http://127.0.0.1/api/v1/health`
+- Re-running a failed deployment is supported from the GitHub Actions UI once the root cause is fixed.
+
 ### Troubleshooting 502 Bad Gateway
 
 If frontend actions return 502 from Nginx:

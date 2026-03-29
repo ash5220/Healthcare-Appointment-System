@@ -2,17 +2,18 @@ import { Router } from 'express';
 import { authMiddleware } from '../middleware/auth.middleware';
 import { validate } from '../middleware/validate.middleware';
 import {
-    sendMessage,
-    getConversation,
-    getConversationList,
-    getUnreadCount,
-    markAsRead,
-    getUsers,
+  sendMessage,
+  getConversation,
+  getConversationList,
+  getUnreadCount,
+  markAsRead,
+  getUsers,
 } from '../controllers/message.controller';
 import {
-    userIdParamValidation,
-    senderIdParamValidation,
-    sendMessageValidation,
+  senderIdParamValidation,
+  sendMessageValidation,
+  conversationQueryValidation,
+  getUsersQueryValidation,
 } from '../dto/message.dto';
 
 const router = Router();
@@ -21,7 +22,7 @@ const router = Router();
 router.use(authMiddleware);
 
 // GET /messages/users - Get list of all users to message
-router.get('/users', getUsers);
+router.get('/users', validate(getUsersQueryValidation), getUsers);
 
 // GET /messages/unread-count - Get total unread count
 router.get('/unread-count', getUnreadCount);
@@ -30,7 +31,7 @@ router.get('/unread-count', getUnreadCount);
 router.get('/conversations', getConversationList);
 
 // GET /messages/conversations/:userId - Get conversation with a specific user
-router.get('/conversations/:userId', validate(userIdParamValidation), getConversation);
+router.get('/conversations/:userId', validate(conversationQueryValidation), getConversation);
 
 // POST /messages - Send a message
 router.post('/', validate(sendMessageValidation), sendMessage);

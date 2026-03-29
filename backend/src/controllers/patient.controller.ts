@@ -6,7 +6,7 @@ import { AuthenticatedRequest } from '../types/express.d';
 import type { Patient } from '../models';
 
 export const getPatientProfile = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const patient = await userService.getPatientById(req.params.id);
+  const patient = await userService.getPatientById(req.params['id']);
 
   successResponse(res, { patient });
 });

@@ -6,6 +6,7 @@
  * - Message content has a maximum length (prevents memory/DB abuse)
  */
 import { z } from 'zod';
+import type { Request } from 'express';
 
 const uuidParam = z.uuid('Must be a valid UUID');
 
@@ -22,6 +23,33 @@ export const senderIdParamValidation = z.object({
     senderId: uuidParam,
   }),
 });
+
+/** Shared pagination query schema (page & limit) */
+const paginationQuery = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(50),
+});
+
+export type PaginationQuery = z.infer<typeof paginationQuery>;
+
+/** Validates query params for GET /conversations/:userId */
+export const conversationQueryValidation = z.object({
+  params: z.object({ userId: uuidParam }),
+  query: paginationQuery,
+});
+
+export type ConversationQuery = z.infer<typeof conversationQueryValidation>;
+/** Typed Express request for GET /conversations/:userId */
+export type ConversationRequest = Request<{ userId: string }, unknown, unknown, PaginationQuery>;
+
+/** Validates query params for GET /users */
+export const getUsersQueryValidation = z.object({
+  query: paginationQuery,
+});
+
+export type GetUsersQuery = z.infer<typeof getUsersQueryValidation>;
+/** Typed Express request for GET /users */
+export type GetUsersRequest = Request<Record<string, string>, unknown, unknown, PaginationQuery>;
 
 /** Validates POST / body (send a message) */
 export const sendMessageValidation = z.object({

@@ -38,10 +38,7 @@ const adminCreateUserSchema = z.object({
   firstName: z.string().min(1).max(100),
   lastName: z.string().min(1).max(100),
   email: z.string().email().max(255),
-  password: z
-    .string()
-    .min(8, 'Password must be at least 8 characters')
-    .max(MAX_PASSWORD_LENGTH),
+  password: z.string().min(8, 'Password must be at least 8 characters').max(MAX_PASSWORD_LENGTH),
   role: z.nativeEnum(UserRole).optional().default(UserRole.PATIENT),
 });
 
@@ -73,7 +70,14 @@ export const getUsers = asyncHandler(async (req: AuthenticatedRequest, res: Resp
     limit,
   });
 
-  paginatedResponse(res, users.map(user => user.toSafeObject()), total, page, limit, 'Users retrieved');
+  paginatedResponse(
+    res,
+    users.map(user => user.toSafeObject()),
+    total,
+    page,
+    limit,
+    'Users retrieved'
+  );
 });
 
 export const updateUser = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {

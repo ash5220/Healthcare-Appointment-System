@@ -3,6 +3,7 @@ import { messageService } from '../services/message.service';
 import { successResponse, createdResponse, errorResponse } from '../utils/response.util';
 import { asyncHandler } from '../middleware';
 import { AuthenticatedRequest } from '../types/express.d';
+import type { ConversationRequest, GetUsersRequest } from '../dto/message.dto';
 
 /**
  * Send a message to another user
@@ -27,19 +28,21 @@ export const sendMessage = asyncHandler(async (req: AuthenticatedRequest, res: R
 /**
  * Get conversation with a specific user
  */
-export const getConversation = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const { userId } = req.params;
-  const { page, limit } = req.query;
+export const getConversation = asyncHandler<AuthenticatedRequest & ConversationRequest>(
+  async (req, res) => {
+    const { userId } = req.params;
+    const { page, limit } = req.query;
 
-  const { messages, total } = await messageService.getConversation(
-    req.user.userId,
-    userId,
-    page ? parseInt(page as string) : 1,
-    limit ? parseInt(limit as string) : 50
-  );
+    const { messages, total } = await messageService.getConversation(
+      req.user.userId,
+      userId,
+      page,
+      limit
+    );
 
-  successResponse(res, { messages, total });
-});
+    successResponse(res, { messages, total });
+  }
+);
 
 /**
  * Get all conversations (inbox) for the current user
@@ -74,9 +77,8 @@ export const markAsRead = asyncHandler(async (req: AuthenticatedRequest, res: Re
 /**
  * Get list of users available to message (paginated)
  */
-export const getUsers = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const page = req.query.page ? parseInt(req.query.page as string) : 1;
-  const limit = Math.min(req.query.limit ? parseInt(req.query.limit as string) : 50, 100);
+export const getUsers = asyncHandler<AuthenticatedRequest & GetUsersRequest>(async (req, res) => {
+  const { page, limit } = req.query;
   const { users, total } = await messageService.getUsers(req.user.userId, page, limit);
   successResponse(res, { users, total, page, limit });
 });

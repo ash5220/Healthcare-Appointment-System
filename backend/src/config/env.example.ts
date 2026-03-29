@@ -41,10 +41,8 @@ export interface EnvConfig {
   rateLimitMaxRequests: number;
 
   // Email
-  smtpHost: string;
-  smtpPort: number;
-  smtpUser: string;
-  smtpPassword: string;
+  sendgridApiKey: string;
+  emailFromAddress: string;
 
   // Logging
   logLevel: string;
@@ -111,10 +109,8 @@ export const env: EnvConfig = {
   rateLimitMaxRequests: getEnvVarAsNumber('RATE_LIMIT_MAX_REQUESTS', 100),
 
   // Email
-  smtpHost: getEnvVar('SMTP_HOST', ''),
-  smtpPort: getEnvVarAsNumber('SMTP_PORT', 587),
-  smtpUser: getEnvVar('SMTP_USER', ''),
-  smtpPassword: getEnvVar('SMTP_PASSWORD', ''),
+  sendgridApiKey: getEnvVar('SENDGRID_API_KEY', ''),
+  emailFromAddress: getEnvVar('EMAIL_FROM', ''),
 
   // Logging
   logLevel: getEnvVar('LOG_LEVEL', 'debug'),

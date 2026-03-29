@@ -8,7 +8,7 @@
 import { z } from 'zod';
 import type { Request } from 'express';
 
-const uuidParam = z.uuid('Must be a valid UUID');
+const uuidParam = z.uuid({ message: 'Must be a valid UUID' });
 
 /** Validates the :userId route param (GET /conversations/:userId) */
 export const userIdParamValidation = z.object({

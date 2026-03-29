@@ -123,8 +123,7 @@ export class BookAppointmentComponent implements OnInit {
         this.filteredDoctors.set(doctors);
         this.isLoadingDoctors.set(false);
       },
-      error: (error: unknown) => {
-        void error;
+      error: () => {
         // Set demo doctors for development
         this.setDemoDoctors();
         this.isLoadingDoctors.set(false);

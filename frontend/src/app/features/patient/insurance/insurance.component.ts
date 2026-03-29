@@ -122,8 +122,7 @@ export class InsuranceComponent implements OnInit {
             this.closeForm();
             this.fetchInsurances();
           },
-          error: (error: unknown) => {
-            void error;
+          error: () => {
             this.error.set('Failed to update insurance record');
           },
         });

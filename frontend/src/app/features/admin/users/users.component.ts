@@ -70,8 +70,7 @@ export class UsersComponent implements OnInit {
           this.totalUsers.set(response.metadata?.total || 0);
           this.isLoading.set(false);
         },
-        error: (error: unknown) => {
-          void error;
+        error: () => {
           this.users.set([]);
           this.totalUsers.set(0);
           this.isLoading.set(false);

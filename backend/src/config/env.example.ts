@@ -76,7 +76,7 @@ const getEnvVarAsNumber = (key: string, defaultValue?: number): number => {
   return parsed;
 };
 
-const isProd = process.env.NODE_ENV === 'production';
+const isProd = process.env['NODE_ENV'] === 'production';
 
 export const env: EnvConfig = {
   // Application

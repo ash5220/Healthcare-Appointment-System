@@ -1,18 +1,14 @@
-import nodemailer, { Transporter } from 'nodemailer';
-import { env, EnvConfig, isProduction } from './env';
+import sgMail from '@sendgrid/mail';
+import { env, EnvConfig } from './env';
 import { logger } from './logger';
 
 const envCfg: EnvConfig = env;
 
 /**
- * Email configuration and transporter setup using Nodemailer.
- *
- * In development mode with no SMTP credentials configured, a test account
- * is automatically created using Ethereal Email (https://ethereal.email)
- * so you can preview sent emails without a real mail server.
- *
- * In production, provide real SMTP credentials via environment variables:
- *   SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD
+ * Email sending via SendGrid Web API.
+ * Configure with a single environment variable:
+ *   SENDGRID_API_KEY  — your SendGrid API key (starts with SG.)
+ *   EMAIL_FROM        — verified sender address in your SendGrid account
  */
 
 interface EmailOptions {
@@ -37,112 +33,56 @@ interface EmailResult {
   error?: string;
 }
 
-let transporter: Transporter | null = null;
+let initialized = false;
 
 /**
- * Creates and returns the Nodemailer transporter.
- * Uses Ethereal for development if no SMTP credentials are set.
+ * Initialise the SendGrid client with the API key.
+ * Called once at server startup.
  */
-export const initializeEmailTransporter = async (): Promise<Transporter | null> => {
-  if (transporter) return transporter;
+export const initializeEmailTransporter = async (): Promise<void> => {
+  if (initialized) return;
 
-  const hasSmtpConfig = Boolean(envCfg.smtpHost && envCfg.smtpUser && envCfg.smtpPassword);
-
-  if (hasSmtpConfig) {
-    // Production / configured SMTP
-    transporter = nodemailer.createTransport({
-      host: envCfg.smtpHost,
-      port: envCfg.smtpPort,
-      secure: envCfg.smtpPort === 465,
-      auth: {
-        user: envCfg.smtpUser,
-        pass: envCfg.smtpPassword,
-      },
-      pool: true,
-      maxConnections: 5,
-      maxMessages: 100,
-      rateLimit: 10, // max 10 messages/second
-    });
-
-    logger.info(`📧 Email transporter configured with SMTP host: ${envCfg.smtpHost}`);
-  } else if (!isProduction()) {
-    // Development fallback — Ethereal test account
-    const testAccount = await nodemailer.createTestAccount();
-
-    transporter = nodemailer.createTransport({
-      host: 'smtp.ethereal.email',
-      port: 587,
-      secure: false,
-      auth: {
-        user: testAccount.user,
-        pass: testAccount.pass,
-      },
-    });
-
-    logger.info('📧 Email transporter configured with Ethereal test account');
-    logger.info(`   Ethereal user: ${testAccount.user}`);
-    logger.info('   Preview sent emails at https://ethereal.email');
-  } else {
-    logger.warn('⚠️  No SMTP configuration found. Email sending is disabled.');
-    return null;
+  if (!envCfg.sendgridApiKey) {
+    logger.warn('⚠️  No SENDGRID_API_KEY found. Email sending is disabled.');
+    return;
   }
 
-  // Verify transporter connection
-  try {
-    await transporter?.verify();
-    logger.info('📧 Email transporter connection verified successfully');
-  } catch (error: unknown) {
-    logger.error('📧 Email transporter verification failed:', error);
-  }
-
-  return transporter;
+  sgMail.setApiKey(envCfg.sendgridApiKey);
+  initialized = true;
+  logger.info(`📧 SendGrid email client initialised (from: ${envCfg.emailFromAddress})`);
 };
 
 /**
- * Send an email using the configured transporter.
+ * Send an email via SendGrid Web API.
  */
 export const sendEmail = async (options: EmailOptions): Promise<EmailResult> => {
   try {
-    if (!transporter) {
+    if (!initialized) {
       await initializeEmailTransporter();
     }
 
-    if (!transporter) {
-      logger.warn('Email not sent — transporter not available');
-      return { success: false, error: 'Email transporter not configured' };
+    if (!initialized) {
+      logger.warn('Email not sent — SendGrid not configured');
+      return { success: false, error: 'SENDGRID_API_KEY not configured' };
     }
 
-    const mailOptions = {
-      from:
-        options.from || `"Healthcare System" <${envCfg.smtpUser || 'noreply@healthcare.local'}>`,
-      to: Array.isArray(options.to) ? options.to.join(', ') : options.to,
+    const toAddresses = Array.isArray(options.to) ? options.to : [options.to];
+
+    const msg: sgMail.MailDataRequired = {
+      to: toAddresses,
+      from: options.from || `"Healthcare System" <${envCfg.emailFromAddress}>`,
       subject: options.subject,
-      text: options.text,
-      html: options.html,
-      replyTo: options.replyTo,
-      attachments: options.attachments,
+      text: options.text ?? options.subject,
+      ...(options.html !== undefined && { html: options.html }),
+      ...(options.replyTo !== undefined && { replyTo: options.replyTo }),
     };
 
-    const rawInfo: unknown = await transporter.sendMail(mailOptions);
-    const info = rawInfo as { messageId: string };
-    if (!info?.messageId) {
-      throw new Error('Email provider returned an invalid response');
-    }
+    const [response] = await sgMail.send(msg);
+    const messageId = (response.headers as Record<string, string>)['x-message-id'];
 
-    const previewUrl = nodemailer.getTestMessageUrl(
-      rawInfo as Parameters<typeof nodemailer.getTestMessageUrl>[0]
-    );
+    logger.info(`📧 Email sent successfully to: ${toAddresses.join(', ')}`);
 
-    logger.info(`📧 Email sent successfully [${info.messageId}] to: ${mailOptions.to}`);
-    if (previewUrl) {
-      logger.info(`   Preview URL: ${previewUrl}`);
-    }
-
-    return {
-      success: true,
-      messageId: info.messageId,
-      previewUrl,
-    };
+    return { success: true, messageId };
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown email error';
     logger.error(`📧 Failed to send email: ${errorMessage}`);
@@ -150,9 +90,6 @@ export const sendEmail = async (options: EmailOptions): Promise<EmailResult> => 
   }
 };
 
-/**
- * Get the raw Nodemailer transporter (for advanced use cases).
- */
-export const getTransporter = (): Transporter | null => transporter;
+export const isEmailConfigured = (): boolean => initialized;
 
 export type { EmailOptions, EmailResult };

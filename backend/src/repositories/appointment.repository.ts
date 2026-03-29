@@ -82,7 +82,7 @@ class AppointmentRepository {
     };
 
     if (excludeId) {
-      (where as Record<string, unknown>).id = { [Op.ne]: excludeId };
+      (where as Record<string, unknown>)['id'] = { [Op.ne]: excludeId };
     }
 
     return Appointment.findOne({ where });

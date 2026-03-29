@@ -15,16 +15,16 @@ export const validate = (schema: ZodTypeAny): RequestHandler => {
       if (validatedData && typeof validatedData === 'object') {
         const data = validatedData;
         if ('body' in data) {
-          req.body = data.body;
+          req.body = data['body'];
         }
-        if ('query' in data && typeof data.query === 'object' && data.query !== null) {
-          Object.assign(req.query, data.query);
+        if ('query' in data && typeof data['query'] === 'object' && data['query'] !== null) {
+          Object.assign(req.query, data['query']);
         }
-        if ('params' in data && typeof data.params === 'object' && data.params !== null) {
-          Object.assign(req.params, data.params);
+        if ('params' in data && typeof data['params'] === 'object' && data['params'] !== null) {
+          Object.assign(req.params, data['params']);
         }
-        if ('cookies' in data && typeof data.cookies === 'object' && data.cookies !== null) {
-          Object.assign(req.cookies, data.cookies);
+        if ('cookies' in data && typeof data['cookies'] === 'object' && data['cookies'] !== null) {
+          Object.assign(req.cookies, data['cookies']);
         }
       }
 

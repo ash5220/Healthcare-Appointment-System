@@ -109,7 +109,7 @@ describe('sanitizeMiddleware', () => {
 
     sanitizeMiddleware(req, mockResponse(), next);
 
-    expect(req.query.search).toBe('test');
+    expect(req.query['search']).toBe('test');
   });
 
   it('sanitizes URL params', () => {
@@ -121,7 +121,7 @@ describe('sanitizeMiddleware', () => {
 
     sanitizeMiddleware(req, mockResponse(), next);
 
-    expect(req.params.id).toBe('abc');
+    expect(req.params['id']).toBe('abc');
   });
 
   it('passes non-string values through unchanged', () => {

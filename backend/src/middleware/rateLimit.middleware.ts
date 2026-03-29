@@ -147,7 +147,7 @@ export const loginRateLimitMiddleware = async (
 ): Promise<void> => {
   try {
     const ip = req.ip || req.socket.remoteAddress || 'unknown';
-    const email: unknown = (req.body as Record<string, unknown>)?.email;
+    const email: unknown = (req.body as Record<string, unknown>)?.['email'];
 
     // Check IP rate limit
     await loginIpLimiter.consume(ip);

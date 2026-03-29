@@ -92,19 +92,19 @@ class InsuranceService {
     }
 
     const payload: Record<string, unknown> = {};
-    if (input.providerName !== undefined) payload.providerName = input.providerName;
-    if (input.policyNumber !== undefined) payload.policyNumber = input.policyNumber;
-    if (input.groupNumber !== undefined) payload.groupNumber = input.groupNumber;
-    if (input.subscriberName !== undefined) payload.subscriberName = input.subscriberName;
+    if (input.providerName !== undefined) payload['providerName'] = input.providerName;
+    if (input.policyNumber !== undefined) payload['policyNumber'] = input.policyNumber;
+    if (input.groupNumber !== undefined) payload['groupNumber'] = input.groupNumber;
+    if (input.subscriberName !== undefined) payload['subscriberName'] = input.subscriberName;
     if (input.subscriberRelation !== undefined)
-      payload.subscriberRelation = input.subscriberRelation;
-    if (input.planType !== undefined) payload.planType = input.planType;
+      payload['subscriberRelation'] = input.subscriberRelation;
+    if (input.planType !== undefined) payload['planType'] = input.planType;
     if (input.coverageStartDate !== undefined)
-      payload.coverageStartDate = new Date(input.coverageStartDate);
+      payload['coverageStartDate'] = new Date(input.coverageStartDate);
     if (input.coverageEndDate !== undefined)
-      payload.coverageEndDate = new Date(input.coverageEndDate);
-    if (input.copayAmount !== undefined) payload.copayAmount = input.copayAmount;
-    if (input.deductibleAmount !== undefined) payload.deductibleAmount = input.deductibleAmount;
+      payload['coverageEndDate'] = new Date(input.coverageEndDate);
+    if (input.copayAmount !== undefined) payload['copayAmount'] = input.copayAmount;
+    if (input.deductibleAmount !== undefined) payload['deductibleAmount'] = input.deductibleAmount;
 
     await insuranceRepository.update(insurance, payload as Partial<Insurance>);
     logger.info(`Insurance updated: ${id}`);

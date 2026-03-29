@@ -107,8 +107,8 @@ export const deleteUser = asyncHandler(async (req: AuthenticatedRequest, res: Re
 });
 
 export const getPendingDoctors = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 10;
+  const page = Number(req.query['page']) || 1;
+  const limit = Number(req.query['limit']) || 10;
   const { doctors, total } = await adminService.getPendingDoctors(page, limit);
   paginatedResponse(res, doctors, total, page, limit, 'Pending doctors retrieved');
 });

@@ -14,7 +14,7 @@ const logDir = path.join(__dirname, '../../logs');
 
 // ── Logger instance ────────────────────────────────────────────────────
 export const logger = winston.createLogger({
-  level: process.env.LOG_LEVEL || 'info',
+  level: process.env['LOG_LEVEL'] || 'info',
   format: combine(timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }), errors({ stack: true }), logFormat),
   defaultMeta: { service: 'healthcare-api' },
   transports: [
@@ -44,7 +44,7 @@ export const logger = winston.createLogger({
 });
 
 // Add console transport for non-production environments
-if (process.env.NODE_ENV !== 'production') {
+if (process.env['NODE_ENV'] !== 'production') {
   logger.add(
     new winston.transports.Console({
       format: combine(
@@ -62,7 +62,7 @@ if (process.env.NODE_ENV !== 'production') {
 // In production only errors (4xx/5xx) are logged to reduce noise.
 export const httpLogger = (req: Request, res: Response, next: () => void): void => {
   const start = Date.now();
-  const isProduction = process.env.NODE_ENV === 'production';
+  const isProduction = process.env['NODE_ENV'] === 'production';
 
   res.on('finish', () => {
     const duration = Date.now() - start;

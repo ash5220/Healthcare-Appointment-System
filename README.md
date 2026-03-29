@@ -115,7 +115,7 @@ For detailed threat analysis, see [docs/threat-model.md](docs/threat-model.md).
 | Database    | MySQL 8, Sequelize 6                            |
 | Auth        | JWT, bcrypt, otplib                             |
 | Validation  | Zod                                             |
-| Email       | Nodemailer                                      |
+| Email       | SendGrid (@sendgrid/mail)                       |
 | Logging     | Winston                                         |
 | Security    | Helmet, CORS, rate-limiter-flexible             |
 | Dev Tooling | ESLint, Prettier, Jest, ts-node-dev             |
@@ -452,14 +452,14 @@ Use [backend/.env.example](backend/.env.example) for local development and [back
 | RATE_LIMIT_WINDOW_MS    | Rate limit time window | 900000  | Yes                    |
 | RATE_LIMIT_MAX_REQUESTS | Max requests in window | 100     | Yes                    |
 
-### SMTP
+### Email (SendGrid)
 
-| Variable      | Description      | Default | Required in Production |
-| ------------- | ---------------- | ------- | ---------------------- |
-| SMTP_HOST     | SMTP server host | empty   | Yes                    |
-| SMTP_PORT     | SMTP server port | 587     | Yes                    |
-| SMTP_USER     | SMTP username    | empty   | Yes                    |
-| SMTP_PASSWORD | SMTP password    | empty   | Yes                    |
+| Variable         | Description                          | Default | Required in Production |
+| ---------------- | ------------------------------------ | ------- | ---------------------- |
+| SENDGRID_API_KEY | SendGrid Web API key (`SG.xxx`)      | empty   | Yes                    |
+| EMAIL_FROM       | Verified sender email address        | empty   | Yes                    |
+
+Email is sent via the SendGrid Web API (`@sendgrid/mail`). No SMTP credentials are required. The sender address set in `EMAIL_FROM` must be verified in the SendGrid dashboard under Settings → Sender Authentication before emails will be delivered.
 
 ### Generating Strong Secrets
 

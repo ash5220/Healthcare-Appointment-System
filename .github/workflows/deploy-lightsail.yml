@@ -56,7 +56,13 @@ jobs:
             git fetch origin main
             git checkout main
             git reset --hard origin/main
-            git clean -fd
+
+            # Do not clean untracked files here: the VM keeps local runtime files
+            # such as docker-compose.prod.yml and backend/.env.docker.
+            if [ ! -f docker-compose.prod.yml ]; then
+              echo "Missing docker-compose.prod.yml on VM at $REPO_DIR"
+              exit 1
+            fi
 
             docker compose -f docker-compose.prod.yml down --remove-orphans
             docker compose -f docker-compose.prod.yml up -d --build --force-recreate

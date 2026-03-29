@@ -78,12 +78,7 @@ export class AuthService {
 
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials).pipe(
       tap((response) => {
-        if (
-          response.success &&
-          response.data?.mfaRequired &&
-          response.data?.user &&
-          response.data?.accessToken
-        ) {
+        if (response.success && !response.data.mfaRequired) {
           const { user, accessToken } = response.data;
           this.handleAuthSuccess(user, accessToken);
         }
@@ -100,7 +95,7 @@ export class AuthService {
 
     return this.http.post<AuthResponse>(`${this.apiUrl}/register`, data).pipe(
       tap((response) => {
-        if (response.success && response.data?.user && response.data?.accessToken) {
+        if (response.success && !response.data.mfaRequired) {
           const { user, accessToken } = response.data;
           this.handleAuthSuccess(user, accessToken);
         }
@@ -117,7 +112,7 @@ export class AuthService {
 
     return this.http.post<AuthResponse>(`${this.apiUrl}/register/patient`, data).pipe(
       tap((response) => {
-        if (response.success && response.data?.user && response.data?.accessToken) {
+        if (response.success && !response.data.mfaRequired) {
           const { user, accessToken } = response.data;
           this.handleAuthSuccess(user, accessToken);
         }
@@ -134,7 +129,7 @@ export class AuthService {
 
     return this.http.post<AuthResponse>(`${this.apiUrl}/register/doctor`, data).pipe(
       tap((response) => {
-        if (response.success && response.data?.user && response.data?.accessToken) {
+        if (response.success && !response.data.mfaRequired) {
           const { user, accessToken } = response.data;
           this.handleAuthSuccess(user, accessToken);
         }
@@ -150,7 +145,7 @@ export class AuthService {
     this.isLoadingSignal.set(true);
     return this.http.post<AuthResponse>(`${this.apiUrl}/verify-mfa`, { tempToken, token }).pipe(
       tap((response) => {
-        if (response.success && response.data?.user && response.data?.accessToken) {
+        if (response.success && !response.data.mfaRequired) {
           const { user, accessToken } = response.data;
           this.handleAuthSuccess(user, accessToken);
         }

@@ -4,55 +4,53 @@ import { SystemStats, AppointmentStatusCounts } from './dashboard.model';
 import { AdminUsersResponseContract } from '../contracts/generated-contracts';
 
 export interface StatsResponse {
-    data: {
-        stats: SystemStats;
-    };
+  data: {
+    stats: SystemStats;
+  };
 }
 
 export interface AppointmentStatsResponse {
-    data: {
-        stats: AppointmentStatusCounts;
-    };
+  data: {
+    stats: AppointmentStatusCounts;
+  };
 }
 
 export interface AvailabilityResponse {
-    data: {
-        availability: DoctorAvailability[];
-    };
+  data: {
+    availability: DoctorAvailability[];
+  };
 }
 
 export type DoctorsResponse = PaginatedResponse<Doctor>;
 
 export type UserResponse = AdminUsersResponseContract & { data: User[] };
 
-
+/** Discriminated union on mfaRequired for fully type-safe narrowing. */
+export type AuthResponseData =
+  | { mfaRequired: true; tempToken: string }
+  | { mfaRequired?: false; user: User; accessToken: string };
 
 export interface AuthResponse {
-    success: boolean;
-    data: {
-        user?: User;
-        accessToken?: string;
-        mfaRequired?: boolean;
-        tempToken?: string;
-    };
-    message?: string;
+  success: boolean;
+  data: AuthResponseData;
+  message?: string;
 }
 
 export interface AppointmentResponse {
-    success: boolean;
-    data: {
-        appointment: Appointment;
-    };
-    message?: string;
+  success: boolean;
+  data: {
+    appointment: Appointment;
+  };
+  message?: string;
 }
 
 export interface PaginatedResponse<T> {
-    success: boolean;
-    data: T[];
-    metadata: {
-        page: number;
-        limit: number;
-        total: number;
-        totalPages: number;
-    };
+  success: boolean;
+  data: T[];
+  metadata: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
 }

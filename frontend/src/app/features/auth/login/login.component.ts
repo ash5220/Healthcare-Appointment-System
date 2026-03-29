@@ -152,13 +152,8 @@ export class LoginComponent {
 
     this.authService.login({ email, password, rememberMe }).subscribe({
       next: (response) => {
-        if (response?.data?.mfaRequired) {
-          const tempToken = response.data.tempToken;
-          if (!tempToken) {
-            this.isLoading.set(false);
-            this.notificationService.error('Error', 'MFA setup is incomplete. Please try again.');
-            return;
-          }
+        if (response.data.mfaRequired) {
+          const { tempToken } = response.data;
 
           this.mfaPending.set(true);
           this.tempMfaToken.set(tempToken);

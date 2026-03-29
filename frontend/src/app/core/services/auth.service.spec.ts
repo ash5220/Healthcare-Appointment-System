@@ -63,7 +63,9 @@ describe('AuthService', () => {
 
             service.login(credentials).subscribe(response => {
                 expect(response.success).toBeTrue();
-                expect(response.data.user).toEqual(mockUser);
+                if (!response.data.mfaRequired) {
+                    expect(response.data.user).toEqual(mockUser);
+                }
                 expect(service.isAuthenticated()).toBeTrue();
                 expect(service.currentUser()).toEqual(mockUser);
             });

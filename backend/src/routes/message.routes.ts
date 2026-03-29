@@ -13,7 +13,7 @@ import {
   senderIdParamValidation,
   sendMessageValidation,
   conversationQueryValidation,
-  getUsersQueryValidation,
+  messageUsersQueryValidation,
 } from '../dto/message.dto';
 
 const router = Router();
@@ -22,7 +22,7 @@ const router = Router();
 router.use(authMiddleware);
 
 // GET /messages/users - Get list of all users to message
-router.get('/users', validate(getUsersQueryValidation), getUsers);
+router.get('/users', validate(messageUsersQueryValidation), getUsers);
 
 // GET /messages/unread-count - Get total unread count
 router.get('/unread-count', getUnreadCount);

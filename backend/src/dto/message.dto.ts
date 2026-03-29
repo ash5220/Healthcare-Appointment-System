@@ -43,11 +43,11 @@ export type ConversationQuery = z.infer<typeof conversationQueryValidation>;
 export type ConversationRequest = Request<{ userId: string }, unknown, unknown, PaginationQuery>;
 
 /** Validates query params for GET /users */
-export const getUsersQueryValidation = z.object({
+export const messageUsersQueryValidation = z.object({
   query: paginationQuery,
 });
 
-export type GetUsersQuery = z.infer<typeof getUsersQueryValidation>;
+export type GetUsersQuery = z.infer<typeof messageUsersQueryValidation>;
 /** Typed Express request for GET /users */
 export type GetUsersRequest = Request<Record<string, string>, unknown, unknown, PaginationQuery>;
 

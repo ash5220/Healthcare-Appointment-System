@@ -1,0 +1,162 @@
+/**
+ * Patient Dashboard Component Styles
+ * 
+ * Scoped styles for the patient dashboard.
+ * Includes custom card styles, animations, and responsive adjustments.
+ */
+
+// ============================================================================
+// WELCOME CARD STYLES
+// ============================================================================
+
+/**
+ * Welcome banner card with gradient background.
+ * Uses a purple-blue gradient that matches the brand identity.
+ */
+.welcome-card {
+    background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+
+    // Smooth hover effect for interactivity feedback
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 40px rgba(102, 126, 234, 0.3);
+    }
+}
+
+// ============================================================================
+// STATISTICS CARD STYLES
+// ============================================================================
+
+/**
+ * Icon box container for stat card icons.
+ * Fixed dimensions ensure consistent appearance across all cards.
+ */
+.icon-box {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0; // Prevent icon box from shrinking on small screens
+}
+
+/**
+ * Stat card hover effect.
+ * Subtle lift animation on hover for interactive feedback.
+ */
+.stat-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
+    }
+}
+
+// ============================================================================
+// QUICK ACTION STYLES
+// ============================================================================
+
+/**
+ * Quick action button styling.
+ * Full-width buttons with icon alignment.
+ */
+.quick-action-btn {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    transition: all 0.2s ease;
+
+    &:hover {
+        transform: translateX(4px);
+    }
+
+    i {
+        width: 20px; // Fixed width for consistent icon alignment
+        text-align: center;
+    }
+}
+
+// ============================================================================
+// AVATAR STYLES
+// ============================================================================
+
+/**
+ * Avatar container for doctor display.
+ */
+.avatar {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/**
+ * Avatar text styling for displaying initials.
+ */
+.avatar-text {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+// ============================================================================
+// LIST ITEM STYLES
+// ============================================================================
+
+/**
+ * Appointment list item hover effect.
+ * Subtle background change on hover.
+ */
+.list-group-item {
+    transition: background-color 0.15s ease;
+
+    &:hover {
+        background-color: var(--bs-gray-50, #f8f9fa);
+    }
+}
+
+// ============================================================================
+// RESPONSIVE ADJUSTMENTS
+// ============================================================================
+
+/**
+ * Tablet and mobile adjustments.
+ */
+@media (max-width: 991.98px) {
+    .welcome-card {
+        .card-body {
+            text-align: center;
+        }
+
+        .btn-lg {
+            width: 100%;
+        }
+    }
+}
+
+/**
+ * Small mobile adjustments.
+ */
+@media (max-width: 575.98px) {
+    .stat-card {
+        .card-body {
+            flex-direction: column;
+            text-align: center;
+
+            .icon-box {
+                margin-bottom: 0.5rem;
+                margin-right: 0 !important;
+            }
+        }
+    }
+}

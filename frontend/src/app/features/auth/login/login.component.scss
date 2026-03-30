@@ -1,0 +1,190 @@
+/**
+ * Login Component Styles
+ * 
+ * Scoped styles for the login page.
+ * Creates a modern, clean authentication interface.
+ */
+
+// ============================================================================
+// CONTAINER STYLES
+// ============================================================================
+
+/**
+ * Full-page login container with gradient background.
+ * Creates visual depth and separates from the main app.
+ */
+.login-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+    padding: 2rem 0;
+}
+
+// ============================================================================
+// CARD STYLES
+// ============================================================================
+
+/**
+ * Login card with enhanced shadow and hover effect.
+ */
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12) !important;
+    }
+}
+
+// ============================================================================
+// BRAND ICON
+// ============================================================================
+
+/**
+ * Centered brand icon at the top of the form.
+ * Large size with primary color for brand recognition.
+ */
+.brand-icon {
+    font-size: 3rem;
+
+    i {
+        background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+}
+
+// ============================================================================
+// FORM STYLES
+// ============================================================================
+
+/**
+ * Input group styling for better visual integration.
+ */
+.input-group-text {
+    background-color: transparent;
+    border-right: none;
+}
+
+.input-group .form-control {
+    border-left: none;
+
+    &:focus {
+        box-shadow: none;
+
+        // Highlight the entire input group on focus
+        ~.input-group-text {
+            border-color: var(--bs-primary);
+        }
+    }
+}
+
+/**
+ * Ensure input group has consistent focus styling.
+ */
+.input-group:focus-within {
+
+    .input-group-text,
+    .form-control,
+    .btn-outline-secondary {
+        border-color: var(--bs-primary);
+    }
+}
+
+/**
+ * Password visibility toggle button styling.
+ */
+.btn-outline-secondary {
+    border-left: none;
+
+    &:hover {
+        background-color: transparent;
+        color: var(--bs-primary);
+    }
+
+    &:focus {
+        box-shadow: none;
+    }
+}
+
+// ============================================================================
+// VALIDATION STYLES
+// ============================================================================
+
+/**
+ * Valid input state styling.
+ */
+.form-control.is-valid {
+    border-color: var(--bs-success);
+
+    &:focus {
+        box-shadow: 0 0 0 0.2rem rgba(var(--bs-success-rgb), 0.25);
+    }
+}
+
+/**
+ * Invalid input state styling.
+ */
+.form-control.is-invalid {
+    border-color: var(--bs-danger);
+
+    &:focus {
+        box-shadow: 0 0 0 0.2rem rgba(var(--bs-danger-rgb), 0.25);
+    }
+}
+
+// ============================================================================
+// BUTTON STYLES
+// ============================================================================
+
+/**
+ * Primary submit button with gradient and hover effect.
+ */
+.btn-primary {
+    background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+    border: none;
+    font-weight: 500;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    &:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+}
+
+// ============================================================================
+// DEMO ACCOUNTS SECTION
+// ============================================================================
+
+/**
+ * Demo account buttons styling.
+ */
+.border-top {
+    border-color: var(--bs-gray-200) !important;
+}
+
+// ============================================================================
+// RESPONSIVE ADJUSTMENTS
+// ============================================================================
+
+/**
+ * Mobile-specific adjustments.
+ */
+@media (max-width: 575.98px) {
+    .login-container {
+        padding: 1rem;
+    }
+
+    .card-body {
+        padding: 1.5rem !important;
+    }
+
+    .brand-icon {
+        font-size: 2.5rem;
+    }
+}

@@ -13,14 +13,16 @@
  */
 import {
   Component,
+  DestroyRef,
   inject,
   signal,
   OnInit,
-  OnDestroy,
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { filter, switchMap, timer } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 import { MessageService } from '../../../core/services/message.service';
 import { UserRole } from '../../../core/models';
@@ -43,7 +45,7 @@ interface NavItem {
   styleUrl: './navbar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NavbarComponent implements OnInit, OnDestroy {
+export class NavbarComponent implements OnInit {
   /** Inject the AuthService to access authentication state */
   protected readonly authService = inject(AuthService);
 
@@ -52,8 +54,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   /** Track whether the mobile menu is expanded */
   protected isMenuCollapsed = signal(true);
-
-  private unreadPollInterval: ReturnType<typeof setInterval> | null = null;
+  private readonly destroyRef = inject(DestroyRef);
 
   /**
    * Navigation items for patient users.
@@ -109,22 +110,14 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // Load initial unread count if authenticated
-    if (this.authService.isAuthenticated()) {
-      this.messageService.getUnreadCount().subscribe();
-    }
-    // Poll every 30 seconds
-    this.unreadPollInterval = setInterval(() => {
-      if (this.authService.isAuthenticated()) {
-        this.messageService.getUnreadCount().subscribe();
-      }
-    }, 30000);
-  }
-
-  ngOnDestroy(): void {
-    if (this.unreadPollInterval) {
-      clearInterval(this.unreadPollInterval);
-    }
+    // Poll every 30 seconds while authenticated; teardown is automatic on destroy.
+    timer(0, 30000)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        filter(() => this.authService.isAuthenticated()),
+        switchMap(() => this.messageService.getUnreadCount()),
+      )
+      .subscribe();
   }
 
   /**

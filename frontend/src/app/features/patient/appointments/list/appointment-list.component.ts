@@ -108,7 +108,7 @@ export class AppointmentListComponent implements OnInit {
     }
 
     // Sort by date (newest first)
-    return result.sort((a, b) =>
+    return [...result].sort((a, b) =>
       new Date(b.appointmentDate).getTime() - new Date(a.appointmentDate).getTime()
     );
   });

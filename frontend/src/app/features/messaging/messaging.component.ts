@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Observable, forkJoin, switchMap, tap, timer } from 'rxjs';
 import { MessageService } from '../../core/services/message.service';
 import { AuthService } from '../../core/services/auth.service';
 import { Conversation, Message, MessagingUser } from '../../core/models';
@@ -62,12 +63,15 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
         return this.messageService.conversations().find((c) => c.userId === partnerId) ?? null;
     });
 
-    private pollingInterval: ReturnType<typeof setInterval> | null = null;
-
     ngOnInit(): void {
         this.loadData();
-        // Poll for new messages every 10 seconds
-        this.pollingInterval = setInterval(() => this.refreshData(), 10000);
+        // Poll for new messages every 10 seconds, tied to component lifecycle
+        timer(10000, 10000)
+            .pipe(
+                takeUntilDestroyed(this.destroyRef),
+                switchMap(() => this.refreshData())
+            )
+            .subscribe();
 
         // Open conversation from route params if provided (e.g. /messages?userId=xxx)
         this.route.queryParams
@@ -87,33 +91,40 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
 
     ngOnDestroy(): void {
-        if (this.pollingInterval) {
-            clearInterval(this.pollingInterval);
-        }
         this.messageService.clearActiveConversation();
     }
 
     private loadData(): void {
-        this.messageService.getConversations().subscribe();
-        this.messageService.getUsers().subscribe();
+        this.messageService.getConversations().pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
+        this.messageService.getUsers().pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
     }
 
-    private refreshData(): void {
+    private refreshData(): Observable<unknown> {
         const partnerId = this.messageService.activePartner();
-        this.messageService.getConversations().subscribe();
+        const requests: Observable<unknown>[] = [this.messageService.getConversations()];
+
         if (partnerId) {
-            this.messageService.getConversation(partnerId).subscribe(() => {
-                this.shouldScroll = true;
-            });
+            requests.push(
+                this.messageService.getConversation(partnerId).pipe(
+                    tap(() => {
+                        this.shouldScroll = true;
+                    })
+                )
+            );
         }
+
+        return forkJoin(requests);
     }
 
     protected openConversation(userId: string): void {
         this.showNewConversation.set(false);
         this.searchQuery.set('');
-        this.messageService.getConversation(userId).subscribe(() => {
-            this.shouldScroll = true;
-        });
+        this.messageService
+            .getConversation(userId)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(() => {
+                this.shouldScroll = true;
+            });
     }
 
     protected sendMessage(): void {
@@ -122,16 +133,19 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
         if (!content || !partnerId || this.isSending()) return;
 
         this.isSending.set(true);
-        this.messageService.sendMessage({ receiverId: partnerId, content }).subscribe({
-            next: () => {
-                this.messageText.set('');
-                this.isSending.set(false);
-                this.shouldScroll = true;
-            },
-            error: () => {
-                this.isSending.set(false);
-            },
-        });
+        this.messageService
+            .sendMessage({ receiverId: partnerId, content })
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: () => {
+                    this.messageText.set('');
+                    this.isSending.set(false);
+                    this.shouldScroll = true;
+                },
+                error: () => {
+                    this.isSending.set(false);
+                },
+            });
     }
 
     protected startNewConversation(user: MessagingUser): void {
@@ -145,7 +159,7 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.showNewConversation.set(false);
         this.messageService.clearActiveConversation();
         // Set partner as active (service trick: push a fake conversation entry so header shows)
-        this.messageService.getConversation(user.id).subscribe();
+        this.messageService.getConversation(user.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
     }
 
     protected handleKeydown(event: KeyboardEvent): void {

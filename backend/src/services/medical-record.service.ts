@@ -32,7 +32,7 @@ class MedicalRecordService {
 
       return [
         record.id,
-        record.createdAt.toISOString().split('T')[0],
+        new Date(record.createdAt).toISOString().split('T')[0],
         record.recordType,
         doctorName,
         record.diagnosis || '',
@@ -68,7 +68,7 @@ class MedicalRecordService {
       doc
         .fontSize(14)
         .font('Helvetica-Bold')
-        .text(`Record Date: ${record.createdAt.toISOString().split('T')[0]}`);
+        .text(`Record Date: ${new Date(record.createdAt).toISOString().split('T')[0]}`);
       doc.fontSize(12).font('Helvetica').text(`Type: ${record.recordType}`);
       doc.text(`Doctor: ${doctorName}`);
 

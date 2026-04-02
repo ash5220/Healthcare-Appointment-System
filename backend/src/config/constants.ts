@@ -92,7 +92,7 @@ export const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
  * Maximum general API requests per window.
  * Allows normal usage while preventing abuse.
  */
-export const RATE_LIMIT_MAX_REQUESTS = 100;
+export const RATE_LIMIT_MAX_REQUESTS = 500;
 
 /**
  * Maximum login attempts per window.

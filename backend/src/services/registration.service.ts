@@ -15,6 +15,8 @@ import {
 } from './auth.types';
 import { emailService } from './email.service';
 
+const EMAIL_VERIFICATION_EXPIRY_MS = 2 * 24 * 60 * 60 * 1000;
+
 class RegistrationService {
   async register(data: RegisterUserData): Promise<AuthResponse> {
     const { email, password, firstName, lastName, phoneNumber, role } = data;
@@ -35,9 +37,13 @@ class RegistrationService {
       // Generate email-verification token inside the transaction so the hash
       // is persisted atomically with the user row.
       const verificationToken = crypto.randomBytes(32).toString('hex');
+      const verificationExpiresAt = new Date(Date.now() + EMAIL_VERIFICATION_EXPIRY_MS);
       await userRepository.update(
         user,
-        { emailVerificationTokenHash: hashToken(verificationToken) },
+        {
+          emailVerificationTokenHash: hashToken(verificationToken),
+          emailVerificationExpiresAt: verificationExpiresAt,
+        },
         t
       );
 
@@ -105,9 +111,13 @@ class RegistrationService {
 
       // Generate and store email-verification token.
       const verificationToken = crypto.randomBytes(32).toString('hex');
+      const verificationExpiresAt = new Date(Date.now() + EMAIL_VERIFICATION_EXPIRY_MS);
       await userRepository.update(
         user,
-        { emailVerificationTokenHash: hashToken(verificationToken) },
+        {
+          emailVerificationTokenHash: hashToken(verificationToken),
+          emailVerificationExpiresAt: verificationExpiresAt,
+        },
         t
       );
 
@@ -174,9 +184,13 @@ class RegistrationService {
 
       // Generate and store email-verification token.
       const verificationToken = crypto.randomBytes(32).toString('hex');
+      const verificationExpiresAt = new Date(Date.now() + EMAIL_VERIFICATION_EXPIRY_MS);
       await userRepository.update(
         user,
-        { emailVerificationTokenHash: hashToken(verificationToken) },
+        {
+          emailVerificationTokenHash: hashToken(verificationToken),
+          emailVerificationExpiresAt: verificationExpiresAt,
+        },
         t
       );
 

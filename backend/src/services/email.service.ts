@@ -192,7 +192,7 @@ class EmailService {
       to,
       subject: '✅ Verify Your Email — Healthcare System',
       html,
-      text: `Hi ${name}, verify your email by visiting: ${verifyUrl}. This link expires in 24 hours.`,
+      text: `Hi ${name}, verify your email by visiting: ${verifyUrl}. This link expires in 48 hours.`,
     });
   }
 

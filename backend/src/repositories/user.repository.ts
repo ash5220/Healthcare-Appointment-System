@@ -44,6 +44,7 @@ export type UserUpdateData = {
   passwordResetExpiresAt?: Date | null;
   // Email-verification flow
   emailVerificationTokenHash?: string | null;
+  emailVerificationExpiresAt?: Date | null;
 };
 
 class UserRepository {

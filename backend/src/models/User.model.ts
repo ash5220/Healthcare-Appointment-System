@@ -33,6 +33,7 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
   declare passwordResetExpiresAt: CreationOptional<Date | null>;
   // Email-verification token (hex digest, single-use)
   declare emailVerificationTokenHash: CreationOptional<string | null>;
+  declare emailVerificationExpiresAt: CreationOptional<Date | null>;
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
 
@@ -162,6 +163,10 @@ User.init(
     },
     emailVerificationTokenHash: {
       type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    emailVerificationExpiresAt: {
+      type: DataTypes.DATE,
       allowNull: true,
     },
     createdAt: {

@@ -176,6 +176,20 @@ export class AuthService {
     );
   }
 
+  verifyEmail(token: string): Observable<{ success: boolean; message?: string }> {
+    return this.http.post<{ success: boolean; message?: string }>(
+      `${this.apiUrl}/verify-email`,
+      { token },
+    );
+  }
+
+  resendVerificationEmail(email: string): Observable<{ success: boolean; message?: string }> {
+    return this.http.post<{ success: boolean; message?: string }>(
+      `${this.apiUrl}/resend-verification`,
+      { email },
+    );
+  }
+
   logout(): void {
     this.http.post(`${this.apiUrl}/logout`, {}).subscribe({
       complete: () => this.clearAuth(),

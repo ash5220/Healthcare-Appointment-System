@@ -160,6 +160,15 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
 
+  // Email verification — public route linked from registration email
+  {
+    path: 'verify-email',
+    loadComponent: () =>
+      import('./features/auth/verify-email/verify-email.component').then(
+        (m) => m.VerifyEmailComponent,
+      ),
+  },
+
   // Fallback — proper 404 page instead of silently redirecting
   {
     path: 'unauthorized',

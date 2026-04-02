@@ -20,6 +20,7 @@ export const sendMessage = asyncHandler(async (req: AuthenticatedRequest, res: R
     senderId: req.user.userId,
     receiverId,
     content,
+    senderRole: req.user.role,
   });
 
   createdResponse(res, { message }, 'Message sent successfully');
@@ -79,6 +80,11 @@ export const markAsRead = asyncHandler(async (req: AuthenticatedRequest, res: Re
  */
 export const getUsers = asyncHandler<AuthenticatedRequest & GetUsersRequest>(async (req, res) => {
   const { page, limit } = req.query;
-  const { users, total } = await messageService.getUsers(req.user.userId, page, limit);
+  const { users, total } = await messageService.getUsers(
+    req.user.userId,
+    req.user.role,
+    page,
+    limit
+  );
   successResponse(res, { users, total, page, limit });
 });

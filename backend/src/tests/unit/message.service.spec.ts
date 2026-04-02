@@ -8,11 +8,19 @@ jest.mock('../../repositories/message.repository', () => ({
     countUnread: jest.fn(),
     markAsRead: jest.fn(),
     findActiveUsers: jest.fn(),
+    findEligiblePartners: jest.fn(),
+  },
+}));
+
+jest.mock('../../repositories/appointment.repository', () => ({
+  appointmentRepository: {
+    hasCompletedAppointmentBetweenUsers: jest.fn(),
   },
 }));
 
 import { messageService } from '../../services/message.service';
 import { messageRepository } from '../../repositories/message.repository';
+import { appointmentRepository } from '../../repositories/appointment.repository';
 
 const makeMsg = (overrides: Record<string, unknown> = {}) => ({
   id: 'm1',
@@ -40,18 +48,23 @@ describe('MessageService', () => {
   // ── sendMessage ───────────────────────────────────────────────────────────
 
   describe('sendMessage', () => {
-    it('happy path — sends a message', async () => {
+    it('happy path — patient sends a message to doctor after completed appointment', async () => {
       const mockMsg = makeMsg();
       (messageRepository.findReceiverActive as jest.Mock).mockResolvedValue({
         id: 'u2',
         isActive: true,
+        role: 'doctor',
       });
+      (appointmentRepository.hasCompletedAppointmentBetweenUsers as jest.Mock).mockResolvedValue(
+        true
+      );
       (messageRepository.create as jest.Mock).mockResolvedValue(mockMsg);
 
       const result = await messageService.sendMessage({
         senderId: 'u1',
         receiverId: 'u2',
         content: 'Hello',
+        senderRole: 'patient',
       });
 
       expect(messageRepository.create).toHaveBeenCalledWith(
@@ -64,10 +77,19 @@ describe('MessageService', () => {
       (messageRepository.findReceiverActive as jest.Mock).mockResolvedValue({
         id: 'u2',
         isActive: true,
+        role: 'doctor',
       });
+      (appointmentRepository.hasCompletedAppointmentBetweenUsers as jest.Mock).mockResolvedValue(
+        true
+      );
       (messageRepository.create as jest.Mock).mockResolvedValue(makeMsg());
 
-      await messageService.sendMessage({ senderId: 'u1', receiverId: 'u2', content: '  Hi!  ' });
+      await messageService.sendMessage({
+        senderId: 'u1',
+        receiverId: 'u2',
+        content: '  Hi!  ',
+        senderRole: 'patient',
+      });
 
       expect(messageRepository.create).toHaveBeenCalledWith(
         expect.objectContaining({ content: 'Hi!' })
@@ -77,7 +99,12 @@ describe('MessageService', () => {
     it('throws when receiver not found', async () => {
       (messageRepository.findReceiverActive as jest.Mock).mockResolvedValue(null);
       await expect(
-        messageService.sendMessage({ senderId: 'u1', receiverId: 'ghost', content: 'Hi' })
+        messageService.sendMessage({
+          senderId: 'u1',
+          receiverId: 'ghost',
+          content: 'Hi',
+          senderRole: 'patient',
+        })
       ).rejects.toThrow('Receiver not found');
     });
 
@@ -85,9 +112,15 @@ describe('MessageService', () => {
       (messageRepository.findReceiverActive as jest.Mock).mockResolvedValue({
         id: 'u2',
         isActive: false,
+        role: 'doctor',
       });
       await expect(
-        messageService.sendMessage({ senderId: 'u1', receiverId: 'u2', content: 'Hi' })
+        messageService.sendMessage({
+          senderId: 'u1',
+          receiverId: 'u2',
+          content: 'Hi',
+          senderRole: 'patient',
+        })
       ).rejects.toThrow('deactivated');
     });
 
@@ -95,10 +128,93 @@ describe('MessageService', () => {
       (messageRepository.findReceiverActive as jest.Mock).mockResolvedValue({
         id: 'u1',
         isActive: true,
+        role: 'patient',
       });
       await expect(
-        messageService.sendMessage({ senderId: 'u1', receiverId: 'u1', content: 'Hi' })
+        messageService.sendMessage({
+          senderId: 'u1',
+          receiverId: 'u1',
+          content: 'Hi',
+          senderRole: 'patient',
+        })
       ).rejects.toThrow('Cannot send a message to yourself');
+    });
+
+    it('throws ForbiddenError when patient tries to message doctor without completed appointment', async () => {
+      (messageRepository.findReceiverActive as jest.Mock).mockResolvedValue({
+        id: 'u2',
+        isActive: true,
+        role: 'doctor',
+      });
+      (appointmentRepository.hasCompletedAppointmentBetweenUsers as jest.Mock).mockResolvedValue(
+        false
+      );
+
+      await expect(
+        messageService.sendMessage({
+          senderId: 'u1',
+          receiverId: 'u2',
+          content: 'Hi',
+          senderRole: 'patient',
+        })
+      ).rejects.toThrow('completed appointment');
+    });
+
+    it('throws ForbiddenError when patient tries to message another patient', async () => {
+      (messageRepository.findReceiverActive as jest.Mock).mockResolvedValue({
+        id: 'u2',
+        isActive: true,
+        role: 'patient',
+      });
+
+      await expect(
+        messageService.sendMessage({
+          senderId: 'u1',
+          receiverId: 'u2',
+          content: 'Hi',
+          senderRole: 'patient',
+        })
+      ).rejects.toThrow('different role');
+    });
+
+    it('allows admin to message any user without appointment check', async () => {
+      const mockMsg = makeMsg();
+      (messageRepository.findReceiverActive as jest.Mock).mockResolvedValue({
+        id: 'u2',
+        isActive: true,
+        role: 'patient',
+      });
+      (messageRepository.create as jest.Mock).mockResolvedValue(mockMsg);
+
+      const result = await messageService.sendMessage({
+        senderId: 'admin1',
+        receiverId: 'u2',
+        content: 'Admin message',
+        senderRole: 'admin',
+      });
+
+      expect(appointmentRepository.hasCompletedAppointmentBetweenUsers).not.toHaveBeenCalled();
+      expect(result).toBe(mockMsg);
+    });
+
+    it('allows any user to message an admin without appointment check', async () => {
+      const mockMsg = makeMsg();
+      (messageRepository.findReceiverActive as jest.Mock).mockResolvedValue({
+        id: 'admin1',
+        isActive: true,
+        role: 'admin',
+      });
+      (messageRepository.create as jest.Mock).mockResolvedValue(mockMsg);
+
+      const result = await messageService.sendMessage({
+        senderId: 'u1',
+        receiverId: 'admin1',
+        content: 'Hello admin',
+        senderRole: 'patient',
+      });
+
+      expect(appointmentRepository.hasCompletedAppointmentBetweenUsers).not.toHaveBeenCalled();
+      expect(result).toBe(mockMsg);
     });
   });
 
@@ -217,17 +333,39 @@ describe('MessageService', () => {
   // ── getUsers ──────────────────────────────────────────────────────────────
 
   describe('getUsers', () => {
-    it('returns active users from repository', async () => {
+    it('admin — returns all active users from findActiveUsers', async () => {
       const users = [
         { id: 'u2', firstName: 'Bob' },
         { id: 'u3', firstName: 'Carol' },
       ];
-      (messageRepository.findActiveUsers as jest.Mock).mockResolvedValue(users);
+      (messageRepository.findActiveUsers as jest.Mock).mockResolvedValue({ users, total: 2 });
 
-      const result = await messageService.getUsers('u1');
+      const result = await messageService.getUsers('u1', 'admin');
 
-      expect(result).toBe(users);
+      expect(result).toEqual({ users, total: 2 });
       expect(messageRepository.findActiveUsers).toHaveBeenCalledWith('u1', 1, 50);
+      expect(messageRepository.findEligiblePartners).not.toHaveBeenCalled();
+    });
+
+    it('patient — returns eligible partners from findEligiblePartners', async () => {
+      const users = [{ id: 'doc1', firstName: 'Dr. Alice' }];
+      (messageRepository.findEligiblePartners as jest.Mock).mockResolvedValue({ users, total: 1 });
+
+      const result = await messageService.getUsers('u1', 'patient');
+
+      expect(result).toEqual({ users, total: 1 });
+      expect(messageRepository.findEligiblePartners).toHaveBeenCalledWith('u1', 'patient', 1, 50);
+      expect(messageRepository.findActiveUsers).not.toHaveBeenCalled();
+    });
+
+    it('doctor — returns eligible partners from findEligiblePartners', async () => {
+      const users = [{ id: 'p1', firstName: 'Alice' }];
+      (messageRepository.findEligiblePartners as jest.Mock).mockResolvedValue({ users, total: 1 });
+
+      const result = await messageService.getUsers('doc1', 'doctor');
+
+      expect(result).toEqual({ users, total: 1 });
+      expect(messageRepository.findEligiblePartners).toHaveBeenCalledWith('doc1', 'doctor', 1, 50);
     });
   });
 });

@@ -2,6 +2,7 @@ import { Op, QueryTypes } from 'sequelize';
 import { Message } from '../models/Message.model';
 import { User } from '../models/User.model';
 import { sequelize } from '../config/database';
+import { AppointmentStatus } from '../types/constants';
 
 export interface CreateMessageData {
   senderId: string;
@@ -16,6 +17,26 @@ const messageIncludes = [
   { model: User, as: 'sender', attributes: userAttrs },
   { model: User, as: 'receiver', attributes: userAttrs },
 ];
+
+/** Shape of a raw message row returned by findConversation SQL query. */
+interface RawMessageRow {
+  id: string;
+  senderId: string;
+  receiverId: string;
+  content: string;
+  isRead: number | boolean;
+  readAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  sId: string;
+  sFirstName: string;
+  sLastName: string;
+  sRole: string;
+  rId: string;
+  rFirstName: string;
+  rLastName: string;
+  rRole: string;
+}
 
 /** Shape returned by the conversation-list raw SQL query. */
 export interface ConversationRow {
@@ -35,10 +56,13 @@ class MessageRepository {
     return Message.findByPk(msg.id, { include: messageIncludes }) as Promise<Message>;
   }
 
-  async findReceiverActive(receiverId: string): Promise<{ id: string; isActive: boolean } | null> {
-    return User.findByPk(receiverId, { attributes: ['id', 'isActive'] }) as Promise<{
+  async findReceiverActive(
+    receiverId: string
+  ): Promise<{ id: string; isActive: boolean; role: string } | null> {
+    return User.findByPk(receiverId, { attributes: ['id', 'isActive', 'role'] }) as Promise<{
       id: string;
       isActive: boolean;
+      role: string;
     } | null>;
   }
 
@@ -49,21 +73,68 @@ class MessageRepository {
     limit = 50
   ): Promise<{ messages: Message[]; total: number }> {
     const offset = (page - 1) * limit;
+    // limit/offset are validated DTO integers — safe to inline to avoid MySQL2
+    // quoting them as strings which makes `LIMIT '50'` a syntax error.
+    const replacements = { userId, otherUserId };
 
-    const { count, rows } = await Message.findAndCountAll({
-      where: {
-        [Op.or]: [
-          { senderId: userId, receiverId: otherUserId },
-          { senderId: otherUserId, receiverId: userId },
-        ],
-      },
-      include: messageIncludes,
-      order: [['createdAt', 'DESC']],
-      limit,
-      offset,
-    });
+    // Use raw SQL to avoid Sequelize v6's subquery-pagination strategy which
+    // duplicates the ORDER BY into an outer query where the two users JOINs
+    // create an ambiguous `created_at` column reference.
+    const whereClause = `
+      (
+        (m.sender_id = :userId   AND m.receiver_id = :otherUserId) OR
+        (m.sender_id = :otherUserId AND m.receiver_id = :userId)
+      )
+      AND m.deleted_at IS NULL
+    `;
 
-    return { messages: rows.reverse(), total: count };
+    const [countRows, rows] = await Promise.all([
+      sequelize.query<{ total: string }>(
+        `SELECT COUNT(*) AS total FROM messages m WHERE ${whereClause}`,
+        { replacements, type: QueryTypes.SELECT }
+      ),
+      sequelize.query<RawMessageRow>(
+        `SELECT
+          m.id            AS id,
+          m.sender_id     AS senderId,
+          m.receiver_id   AS receiverId,
+          m.content       AS content,
+          m.is_read       AS isRead,
+          m.read_at       AS readAt,
+          m.created_at    AS createdAt,
+          m.updated_at    AS updatedAt,
+          s.id            AS sId,
+          s.first_name    AS sFirstName,
+          s.last_name     AS sLastName,
+          s.role          AS sRole,
+          r.id            AS rId,
+          r.first_name    AS rFirstName,
+          r.last_name     AS rLastName,
+          r.role          AS rRole
+        FROM messages m
+        INNER JOIN users s ON s.id = m.sender_id
+        INNER JOIN users r ON r.id = m.receiver_id
+        WHERE ${whereClause}
+        ORDER BY m.created_at DESC
+        LIMIT ${limit} OFFSET ${offset}`,
+        { replacements, type: QueryTypes.SELECT }
+      ),
+    ]);
+
+    const messages = rows.reverse().map(r => ({
+      id: r.id,
+      senderId: r.senderId,
+      receiverId: r.receiverId,
+      content: r.content,
+      isRead: Boolean(r.isRead),
+      readAt: r.readAt ?? null,
+      createdAt: r.createdAt,
+      updatedAt: r.updatedAt,
+      sender: { id: r.sId, firstName: r.sFirstName, lastName: r.sLastName, role: r.sRole },
+      receiver: { id: r.rId, firstName: r.rFirstName, lastName: r.rLastName, role: r.rRole },
+    }));
+
+    return { messages: messages as unknown as Message[], total: Number(countRows[0]?.total ?? 0) };
   }
 
   async markConversationAsRead(senderId: string, receiverId: string): Promise<void> {
@@ -139,7 +210,11 @@ class MessageRepository {
     );
   }
 
-  async findActiveUsers(currentUserId: string, page = 1, limit = 50): Promise<{ users: User[]; total: number }> {
+  async findActiveUsers(
+    currentUserId: string,
+    page = 1,
+    limit = 50
+  ): Promise<{ users: User[]; total: number }> {
     const offset = (page - 1) * limit;
     const { count, rows } = await User.findAndCountAll({
       where: {
@@ -156,6 +231,70 @@ class MessageRepository {
     });
     return { users: rows, total: count };
   }
+
+  /**
+   * Return the distinct users a patient/doctor is allowed to message —
+   * i.e. users on the other side of a completed appointment.
+   * Patients see their doctors; doctors see their patients.
+   */
+  async findEligiblePartners(
+    currentUserId: string,
+    currentRole: string,
+    page = 1,
+    limit = 50
+  ): Promise<{ users: EligiblePartnerRow[]; total: number }> {
+    const offset = (page - 1) * limit;
+
+    // Build the DISTINCT select based on role.
+    // Patients → find doctor users from completed appointments.
+    // Doctors  → find patient users from completed appointments.
+    const innerSql =
+      currentRole === 'patient'
+        ? `
+          SELECT DISTINCT u.id, u.first_name AS firstName, u.last_name AS lastName, u.role, u.email
+          FROM appointments a
+          INNER JOIN patients p  ON p.id = a.patient_id  AND p.deleted_at IS NULL
+          INNER JOIN doctors  d  ON d.id = a.doctor_id   AND d.deleted_at IS NULL
+          INNER JOIN users    u  ON u.id = d.user_id     AND u.is_active  = true
+          WHERE p.user_id  = :userId
+            AND a.status   = :completed
+            AND a.deleted_at IS NULL
+        `
+        : `
+          SELECT DISTINCT u.id, u.first_name AS firstName, u.last_name AS lastName, u.role, u.email
+          FROM appointments a
+          INNER JOIN doctors  d  ON d.id = a.doctor_id   AND d.deleted_at IS NULL
+          INNER JOIN patients p  ON p.id = a.patient_id  AND p.deleted_at IS NULL
+          INNER JOIN users    u  ON u.id = p.user_id     AND u.is_active  = true
+          WHERE d.user_id  = :userId
+            AND a.status   = :completed
+            AND a.deleted_at IS NULL
+        `;
+
+    const replacements = { userId: currentUserId, completed: AppointmentStatus.COMPLETED };
+
+    const [countRows, users] = await Promise.all([
+      sequelize.query<{ total: string }>(
+        `SELECT COUNT(*) AS total FROM (${innerSql}) AS eligible`,
+        { replacements, type: QueryTypes.SELECT }
+      ),
+      sequelize.query<EligiblePartnerRow>(
+        `${innerSql} ORDER BY firstName ASC LIMIT ${limit} OFFSET ${offset}`,
+        { replacements, type: QueryTypes.SELECT }
+      ),
+    ]);
+
+    return { users, total: Number(countRows[0]?.total ?? 0) };
+  }
+}
+
+/** Shape returned by findEligiblePartners (and compatible with admin findActiveUsers). */
+export interface EligiblePartnerRow {
+  id: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+  email: string;
 }
 
 export const messageRepository = new MessageRepository();

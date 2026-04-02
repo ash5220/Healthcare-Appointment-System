@@ -1,6 +1,12 @@
 import { Message } from '../models/Message.model';
-import { User } from '../models/User.model';
-import { messageRepository, ConversationRow } from '../repositories/message.repository';
+import {
+  messageRepository,
+  ConversationRow,
+  EligiblePartnerRow,
+} from '../repositories/message.repository';
+import { appointmentRepository } from '../repositories/appointment.repository';
+import { ForbiddenError, BadRequestError, NotFoundError } from '../shared/errors';
+import { UserRole } from '../types/constants';
 
 export interface ConversationPartner {
   userId: string;
@@ -16,18 +22,49 @@ export interface SendMessageData {
   senderId: string;
   receiverId: string;
   content: string;
+  senderRole: UserRole;
 }
 
 class MessageService {
   /**
-   * Send a new message from sender to receiver
+   * Send a new message from sender to receiver.
+   *
+   * Access rules:
+   *  - Admins may message anyone and receive from anyone.
+   *  - Patients may only message doctors they have had a completed appointment with.
+   *  - Doctors may only message patients they have had a completed appointment with.
+   *  - Peer messaging (patient↔patient, doctor↔doctor) is not permitted.
    */
   async sendMessage(data: SendMessageData): Promise<Message> {
-    // Verify receiver exists and is active
     const receiver = await messageRepository.findReceiverActive(data.receiverId);
-    if (!receiver) throw new Error('Receiver not found');
-    if (!receiver.isActive) throw new Error('Receiver account is deactivated');
-    if (data.senderId === data.receiverId) throw new Error('Cannot send a message to yourself');
+    if (!receiver) throw new NotFoundError('Receiver not found');
+    if (!receiver.isActive) throw new BadRequestError('Receiver account is deactivated');
+    if (data.senderId === data.receiverId)
+      throw new BadRequestError('Cannot send a message to yourself');
+
+    const senderRole = data.senderRole;
+    const receiverRole = receiver.role as UserRole;
+
+    // Enforce appointment-based messaging restrictions for non-admin users.
+    if (senderRole !== UserRole.ADMIN && receiverRole !== UserRole.ADMIN) {
+      if (senderRole === receiverRole) {
+        throw new ForbiddenError('You can only message users with a different role');
+      }
+
+      // One party is a patient, the other is a doctor.
+      const patientUserId = senderRole === UserRole.PATIENT ? data.senderId : data.receiverId;
+      const doctorUserId = senderRole === UserRole.DOCTOR ? data.senderId : data.receiverId;
+
+      const hasAppointment = await appointmentRepository.hasCompletedAppointmentBetweenUsers(
+        patientUserId,
+        doctorUserId
+      );
+      if (!hasAppointment) {
+        throw new ForbiddenError(
+          'You can only send messages after a completed appointment with this doctor'
+        );
+      }
+    }
 
     return messageRepository.create({
       senderId: data.senderId,
@@ -89,10 +126,21 @@ class MessageService {
   }
 
   /**
-   * Get list of users that the current user can message (paginated)
+   * Get list of users that the current user can message (paginated).
+   * Admins see all active users; patients/doctors see only users they've had
+   * a completed appointment with (on the other side of the relationship).
    */
-  async getUsers(currentUserId: string, page = 1, limit = 50): Promise<{ users: User[]; total: number }> {
-    return messageRepository.findActiveUsers(currentUserId, page, limit);
+  async getUsers(
+    currentUserId: string,
+    role: UserRole,
+    page = 1,
+    limit = 50
+  ): Promise<{ users: EligiblePartnerRow[]; total: number }> {
+    if (role === UserRole.ADMIN) {
+      const result = await messageRepository.findActiveUsers(currentUserId, page, limit);
+      return result as unknown as { users: EligiblePartnerRow[]; total: number };
+    }
+    return messageRepository.findEligiblePartners(currentUserId, role, page, limit);
   }
 }
 

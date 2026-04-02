@@ -188,6 +188,38 @@ class AppointmentRepository {
     });
     return rows as unknown as Array<{ status: string; count: number }>;
   }
+
+  /**
+   * Returns true when the given patient user and doctor user share at least one
+   * completed appointment.  Used by the messaging layer to enforce the rule that
+   * patients and doctors may only message each other after a completed visit.
+   */
+  async hasCompletedAppointmentBetweenUsers(
+    patientUserId: string,
+    doctorUserId: string
+  ): Promise<boolean> {
+    const appt = await Appointment.findOne({
+      where: { status: AppointmentStatus.COMPLETED },
+      include: [
+        {
+          model: Patient,
+          as: 'patient',
+          where: { userId: patientUserId },
+          required: true,
+          attributes: [],
+        },
+        {
+          model: Doctor,
+          as: 'doctor',
+          where: { userId: doctorUserId },
+          required: true,
+          attributes: [],
+        },
+      ],
+      attributes: ['id'],
+    });
+    return appt !== null;
+  }
 }
 
 /** Shape returned by the countByStatus aggregate query. */

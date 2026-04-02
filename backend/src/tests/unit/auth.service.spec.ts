@@ -78,6 +78,14 @@ jest.mock('qrcode', () => ({
   toDataURL: jest.fn().mockResolvedValue('data:image/png;base64,qrcode'),
 }));
 
+jest.mock('../../services/email.service', () => ({
+  emailService: {
+    sendEmailVerificationEmail: jest.fn().mockResolvedValue(undefined),
+    sendPasswordResetEmail: jest.fn().mockResolvedValue(undefined),
+    sendWelcomeEmail: jest.fn().mockResolvedValue(undefined),
+  },
+}));
+
 // ─── Now safe to import tested code ───────────────────────────────────────────
 
 import { authService } from '../../services/auth.service';

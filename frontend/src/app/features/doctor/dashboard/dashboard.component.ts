@@ -160,8 +160,8 @@ export class DoctorDashboardComponent implements OnInit {
    * Get patient initials for avatar display.
    */
   protected getPatientInitials(appointment: Appointment): string {
-    const firstName = appointment.patient?.user?.firstName || '';
-    const lastName = appointment.patient?.user?.lastName || '';
+    const firstName = appointment.patient?.firstName || '';
+    const lastName = appointment.patient?.lastName || '';
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
   }
 
@@ -169,8 +169,8 @@ export class DoctorDashboardComponent implements OnInit {
    * Get patient full name.
    */
   protected getPatientName(appointment: Appointment): string {
-    const firstName = appointment.patient?.user?.firstName || '';
-    const lastName = appointment.patient?.user?.lastName || '';
+    const firstName = appointment.patient?.firstName || '';
+    const lastName = appointment.patient?.lastName || '';
     return `${firstName} ${lastName}`.trim();
   }
 }

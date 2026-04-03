@@ -27,7 +27,10 @@ export interface InsuranceInfo {
   expiryDate?: string;
 }
 
-export class Patient extends Model<InferAttributes<Patient>, InferCreationAttributes<Patient>> {
+export class Patient extends Model<
+  InferAttributes<Patient, { omit: 'firstName' | 'lastName' | 'email' | 'phoneNumber' }>,
+  InferCreationAttributes<Patient, { omit: 'firstName' | 'lastName' | 'email' | 'phoneNumber' }>
+> {
   declare id: CreationOptional<string>;
   declare userId: ForeignKey<User['id']>;
   declare dateOfBirth: Date;
@@ -42,8 +45,27 @@ export class Patient extends Model<InferAttributes<Patient>, InferCreationAttrib
   declare updatedAt: CreationOptional<Date>;
   declare deletedAt: CreationOptional<Date | null>;
 
-  // Association
+  // Association — raw nested object (still available if needed)
   declare user?: NonAttribute<User>;
+
+  // ── Virtual getters ────────────────────────────────────────────────────────
+  // Proxy User identity fields onto Patient so API responses expose
+  // patient.firstName directly instead of patient.user.firstName.
+  // The getter IS the TypeScript declaration — no separate 'declare' needed.
+  get firstName(): string | undefined { return this.user?.firstName; }
+  get lastName(): string | undefined { return this.user?.lastName; }
+  get email(): string | undefined { return this.user?.email; }
+  get phoneNumber(): string | undefined { return this.user?.phoneNumber; }
+
+  /** Include virtual fields in JSON serialization so API responses are flat. */
+  override toJSON(): object {
+    const base = super.toJSON() as Record<string, unknown>;
+    base['firstName'] = this.firstName;
+    base['lastName'] = this.lastName;
+    base['email'] = this.email;
+    base['phoneNumber'] = this.phoneNumber;
+    return base;
+  }
 }
 
 Patient.init(

@@ -16,7 +16,10 @@ export interface DoctorQualification {
     year: number;
 }
 
-export class Doctor extends Model<InferAttributes<Doctor>, InferCreationAttributes<Doctor>> {
+export class Doctor extends Model<
+    InferAttributes<Doctor, { omit: 'firstName' | 'lastName' | 'email' | 'phoneNumber' }>,
+    InferCreationAttributes<Doctor, { omit: 'firstName' | 'lastName' | 'email' | 'phoneNumber' }>
+> {
     declare id: CreationOptional<string>;
     declare userId: ForeignKey<User['id']>;
     declare specialization: string;
@@ -33,8 +36,26 @@ export class Doctor extends Model<InferAttributes<Doctor>, InferCreationAttribut
     declare updatedAt: CreationOptional<Date>;
     declare deletedAt: CreationOptional<Date | null>;
 
-    // Association
+    // Association — raw nested object (still available if needed internally)
     declare user?: NonAttribute<User>;
+
+    // ── Virtual getters ────────────────────────────────────────────────────────
+    // Proxy User identity fields so API responses expose doctor.firstName
+    // directly instead of doctor.user.firstName.
+    get firstName(): string | undefined { return this.user?.firstName; }
+    get lastName():  string | undefined { return this.user?.lastName; }
+    get email():     string | undefined { return this.user?.email; }
+    get phoneNumber(): string | undefined { return this.user?.phoneNumber; }
+
+    /** Include virtual fields in JSON serialization so API responses are flat. */
+    override toJSON(): object {
+        const base = super.toJSON() as Record<string, unknown>;
+        base['firstName']   = this.firstName;
+        base['lastName']    = this.lastName;
+        base['email']       = this.email;
+        base['phoneNumber'] = this.phoneNumber;
+        return base;
+    }
 }
 
 Doctor.init(

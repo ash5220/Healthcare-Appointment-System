@@ -197,11 +197,11 @@ export class BookAppointmentComponent implements OnInit {
     if (this.searchTerm) {
       const term = this.searchTerm.toLowerCase();
       result = result.filter(
-        (d) =>
-          d.user?.firstName?.toLowerCase().includes(term) ||
-          d.user?.lastName?.toLowerCase().includes(term) ||
-          d.specialization?.toLowerCase().includes(term),
-      );
+          (d) =>
+            d.firstName?.toLowerCase().includes(term) ||
+            d.lastName?.toLowerCase().includes(term) ||
+            d.specialization?.toLowerCase().includes(term),
+        );
     }
 
     // Apply specialization filter
@@ -309,8 +309,8 @@ export class BookAppointmentComponent implements OnInit {
    * Get doctor initials for avatar display.
    */
   protected getDoctorInitials(doctor: Doctor): string {
-    const first = doctor.user?.firstName?.charAt(0) || '';
-    const last = doctor.user?.lastName?.charAt(0) || '';
+    const first = doctor.firstName?.charAt(0) || '';
+    const last = doctor.lastName?.charAt(0) || '';
     return `${first}${last}`.toUpperCase();
   }
 
@@ -318,7 +318,7 @@ export class BookAppointmentComponent implements OnInit {
    * Get doctor full name.
    */
   protected getDoctorName(doctor: Doctor): string {
-    return `Dr. ${doctor.user?.firstName || ''} ${doctor.user?.lastName || ''}`.trim();
+    return `Dr. ${doctor.firstName || ''} ${doctor.lastName || ''}`.trim();
   }
 
   /**

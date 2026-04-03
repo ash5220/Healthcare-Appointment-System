@@ -20,6 +20,11 @@ export interface Doctor {
   id: string;
   userId: string;
   user?: User;
+  // Virtual fields
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phoneNumber?: string;
   specialization: string;
   licenseNumber: string;
   yearsOfExperience: number;
@@ -41,6 +46,11 @@ export interface Patient {
   id: string;
   userId: string;
   user?: User;
+  // Virtual fields 
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phoneNumber?: string;
   dateOfBirth: Date;
   gender: Gender;
   bloodGroup?: string;

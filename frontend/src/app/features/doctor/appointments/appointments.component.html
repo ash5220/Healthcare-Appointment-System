@@ -78,15 +78,15 @@
                                 <div class="d-flex align-items-center">
                                     <div class="avatar-sm me-3">
                                         <span class="avatar-text bg-primary-subtle text-primary">
-                                            {{ apt.patient?.user?.firstName?.charAt(0) }}{{
-                                            apt.patient?.user?.lastName?.charAt(0) }}
+                                            {{ apt.patient?.firstName?.charAt(0) }}{{
+                                            apt.patient?.lastName?.charAt(0) }}
                                         </span>
                                     </div>
                                     <div>
                                         <div class="fw-semibold">
-                                            {{ apt.patient?.user?.firstName }} {{ apt.patient?.user?.lastName }}
+                                            {{ apt.patient?.firstName }} {{ apt.patient?.lastName }}
                                         </div>
-                                        <small class="text-muted">{{ apt.patient?.user?.email }}</small>
+                                        <small class="text-muted">{{ apt.patient?.email }}</small>
                                     </div>
                                 </div>
                             </td>
@@ -145,7 +145,8 @@
 
 <!-- Complete Modal -->
 @if (showCompleteModal()) {
-<div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="completeModalTitle" (keydown.escape)="closeModals()" style="background: rgba(0,0,0,0.5)">
+<div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="completeModalTitle"
+    (keydown.escape)="closeModals()" style="background: rgba(0,0,0,0.5)">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -211,7 +212,8 @@
 
 <!-- Cancel Modal -->
 @if (showCancelModal()) {
-<div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="doctorCancelModalTitle" (keydown.escape)="closeModals()" style="background: rgba(0,0,0,0.5)">
+<div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true"
+    aria-labelledby="doctorCancelModalTitle" (keydown.escape)="closeModals()" style="background: rgba(0,0,0,0.5)">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">

@@ -9,8 +9,8 @@ interface AdminAppointment {
   status: string;
   appointmentDate: string;
   reasonForVisit?: string;
-  patient?: { user?: { firstName: string; lastName: string; email: string } };
-  doctor?: { user?: { firstName: string; lastName: string } };
+  patient?: { firstName?: string; lastName?: string; email?: string };
+  doctor?: { firstName?: string; lastName?: string };
 }
 
 @Component({

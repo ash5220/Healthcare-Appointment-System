@@ -101,8 +101,8 @@ export class AppointmentListComponent implements OnInit {
     // Apply search filter
     if (search) {
       result = result.filter(apt =>
-        apt.doctor?.user?.firstName?.toLowerCase().includes(search) ||
-        apt.doctor?.user?.lastName?.toLowerCase().includes(search) ||
+        apt.doctor?.firstName?.toLowerCase().includes(search) ||
+        apt.doctor?.lastName?.toLowerCase().includes(search) ||
         apt.doctor?.specialization?.toLowerCase().includes(search)
       );
     }
@@ -211,8 +211,8 @@ export class AppointmentListComponent implements OnInit {
    * Get doctor initials for avatar.
    */
   protected getDoctorInitials(appointment: Appointment): string {
-    const first = appointment.doctor?.user?.firstName?.charAt(0) || '';
-    const last = appointment.doctor?.user?.lastName?.charAt(0) || '';
+    const first = appointment.doctor?.firstName?.charAt(0) || '';
+    const last = appointment.doctor?.lastName?.charAt(0) || '';
     return `${first}${last}`.toUpperCase();
   }
 
@@ -220,8 +220,8 @@ export class AppointmentListComponent implements OnInit {
    * Get doctor full name.
    */
   protected getDoctorName(appointment: Appointment): string {
-    const first = appointment.doctor?.user?.firstName || '';
-    const last = appointment.doctor?.user?.lastName || '';
+    const first = appointment.doctor?.firstName || '';
+    const last = appointment.doctor?.lastName || '';
     return `Dr. ${first} ${last}`.trim();
   }
 }

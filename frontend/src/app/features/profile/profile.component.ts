@@ -6,17 +6,16 @@ import {
   OnInit,
   computed,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 import { UserRole } from '../../core/models';
 import { NotificationService } from '../../core/services/notification.service';
+import { LoggerService } from '../../core/services/logger.service';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-profile',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [ReactiveFormsModule],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -26,6 +25,8 @@ export class ProfileComponent implements OnInit {
   private readonly notificationService = inject(NotificationService);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
+
+  private readonly logger = inject(LoggerService);
 
   protected readonly isLoading = signal(false);
   protected readonly isSaving = signal(false);
@@ -50,8 +51,15 @@ export class ProfileComponent implements OnInit {
 
   // ── Forms ──────────────────────────────────────────────────────────────
 
-  protected profileForm!: FormGroup;
-  protected emailChangeForm!: FormGroup;
+  protected profileForm!: FormGroup<{
+    firstName: FormControl<string | null>;
+    lastName: FormControl<string | null>;
+    phoneNumber: FormControl<string | null>;
+  }>;
+
+  protected emailChangeForm!: FormGroup<{
+    newEmail: FormControl<string | null>;
+  }>;
 
   ngOnInit(): void {
     if (!this.user()) {
@@ -99,7 +107,7 @@ export class ProfileComponent implements OnInit {
       error: (err: unknown) => {
         this.isLoading.set(false);
         this.notificationService.error('Error', 'Failed to load user profile');
-        console.error('Profile load error:', err);
+        this.logger.error('Profile load error', err);
       },
     });
   }

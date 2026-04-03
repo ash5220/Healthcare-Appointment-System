@@ -17,6 +17,19 @@ export interface SafeUserUpdateData {
   phoneNumber?: string | null;
 }
 
+/**
+ * Fields a patient is permitted to update on their own profile.
+ * Sensitive medical fields (userId, etc.) are deliberately excluded.
+ */
+export interface SafePatientUpdateData {
+  dateOfBirth?: string;
+  gender?: Patient['gender'];
+  bloodGroup?: string;
+  allergies?: string[];
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
+}
+
 class UserService {
   async getUsers(filters: UserFilters): Promise<{ users: User[]; total: number }> {
     return userRepository.findAll(filters);
@@ -42,7 +55,7 @@ class UserService {
     if (phoneNumber !== undefined) safeData.phoneNumber = phoneNumber;
 
     await userRepository.update(user, safeData);
-    logger.info(`User updated: ${user.email}`);
+    logger.info(`User updated: ${user.id}`);
     return this.getUserById(id);
   }
 
@@ -55,14 +68,14 @@ class UserService {
     const user = await userRepository.findById(id);
     if (!user) throw new NotFoundError('User not found');
     await userRepository.update(user, { isActive: false, refreshToken: null });
-    logger.info(`User deactivated: ${user.email}`);
+    logger.info(`User deactivated: ${user.id}`);
   }
 
   async activateUser(id: string): Promise<void> {
     const user = await userRepository.findById(id);
     if (!user) throw new NotFoundError('User not found');
     await userRepository.update(user, { isActive: true });
-    logger.info(`User activated: ${user.email}`);
+    logger.info(`User activated: ${user.id}`);
   }
 
   async getPatientById(id: string): Promise<Patient> {
@@ -71,22 +84,21 @@ class UserService {
     return patient;
   }
 
-  async updatePatientProfile(userId: string, rawData: Partial<Patient>): Promise<Patient> {
+  async updatePatientProfile(userId: string, rawData: SafePatientUpdateData): Promise<Patient> {
     const patient = await patientRepository.findByUserId(userId, { withUser: true });
     if (!patient) throw new NotFoundError('Patient profile not found');
 
     // Whitelist only the fields a patient is allowed to self-update.
-    const { dateOfBirth, gender, bloodGroup, allergies, emergencyContactName, emergencyContactPhone } = rawData as Record<string, unknown>;
     const safeData: Partial<Patient> = {};
-    if (dateOfBirth !== undefined) safeData.dateOfBirth = new Date(dateOfBirth as string);
-    if (gender !== undefined) safeData.gender = gender as Patient['gender'];
-    if (bloodGroup !== undefined) safeData.bloodGroup = bloodGroup as string;
-    if (allergies !== undefined) safeData.allergies = allergies as string[];
-    if (emergencyContactName !== undefined) safeData.emergencyContactName = emergencyContactName as string;
-    if (emergencyContactPhone !== undefined) safeData.emergencyContactPhone = emergencyContactPhone as string;
+    if (rawData.dateOfBirth !== undefined) safeData.dateOfBirth = new Date(rawData.dateOfBirth);
+    if (rawData.gender !== undefined) safeData.gender = rawData.gender;
+    if (rawData.bloodGroup !== undefined) safeData.bloodGroup = rawData.bloodGroup;
+    if (rawData.allergies !== undefined) safeData.allergies = rawData.allergies;
+    if (rawData.emergencyContactName !== undefined) safeData.emergencyContactName = rawData.emergencyContactName;
+    if (rawData.emergencyContactPhone !== undefined) safeData.emergencyContactPhone = rawData.emergencyContactPhone;
 
     await patientRepository.update(patient, safeData);
-    logger.info(`Patient profile updated for user: ${userId}`);
+    logger.info(`Patient profile updated: userId=${userId}`);
     return this.getPatientById(patient.id);
   }
 }

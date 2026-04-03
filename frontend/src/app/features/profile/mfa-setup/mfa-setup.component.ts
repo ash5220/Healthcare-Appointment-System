@@ -1,14 +1,13 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import { LoggerService } from '../../../core/services/logger.service';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-mfa-setup',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [ReactiveFormsModule],
   templateUrl: './mfa-setup.component.html',
   styleUrl: './mfa-setup.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -17,6 +16,7 @@ export class MfaSetupComponent {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly notificationService = inject(NotificationService);
+  private readonly logger = inject(LoggerService);
   private readonly router = inject(Router);
 
   protected readonly isLoading = signal(false);
@@ -38,10 +38,10 @@ export class MfaSetupComponent {
           this.secret.set(response.data.secret);
         }
       },
-      error: (error) => {
+      error: (error: unknown) => {
         this.isLoading.set(false);
         this.notificationService.error('Error', 'Failed to initialize MFA setup.');
-        console.error('MFA setup error:', error);
+        this.logger.error('MFA setup error', error);
       }
     });
   }
@@ -58,10 +58,10 @@ export class MfaSetupComponent {
         this.notificationService.success('Success', 'MFA has been successfully enabled.');
         this.goBack();
       },
-      error: (error) => {
+      error: (error: unknown) => {
         this.isVerifying.set(false);
         this.notificationService.error('Error', 'Invalid or expired code. Please try again.');
-        console.error('MFA verification error:', error);
+        this.logger.error('MFA verification error', error);
       }
     });
   }

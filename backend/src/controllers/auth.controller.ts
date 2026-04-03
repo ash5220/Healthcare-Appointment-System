@@ -27,9 +27,7 @@ import {
   REFRESH_TOKEN_COOKIE,
 } from '../utils/cookie.util';
 import { UnauthorizedError, BadRequestError } from '../shared/errors';
-import { userService } from '../services/user.service';
-
-
+import { userService } from '../services';
 // ── Registration Endpoints ─────────────────────────────────────────────
 
 export const register = asyncHandler(async (req: Request, res: Response) => {

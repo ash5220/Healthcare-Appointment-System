@@ -21,8 +21,8 @@
  * <app-loading-spinner size="small" />
  * ```
  */
-import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, ChangeDetectionStrategy, input } from '@angular/core';
+import { NgClass, NgStyle } from '@angular/common';
 
 /**
  * Available spinner sizes.
@@ -34,8 +34,7 @@ type SpinnerSize = 'small' | 'medium' | 'large';
 
 @Component({
   selector: 'app-loading-spinner',
-  standalone: true,
-  imports: [CommonModule],
+  imports: [NgClass, NgStyle],
   templateUrl: './loading-spinner.component.html',
   styleUrl: './loading-spinner.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -46,20 +45,20 @@ export class LoadingSpinnerComponent {
    * Affects the visual size of the loading indicator.
    * @default 'medium'
    */
-  @Input() size: SpinnerSize = 'medium';
+  readonly size = input<SpinnerSize>('medium');
 
   /**
    * Whether to display the spinner with a full-screen overlay.
    * When true, blocks user interaction with the underlying content.
    * @default false
    */
-  @Input() overlay = false;
+  readonly overlay = input(false);
 
   /**
    * Optional message to display below the spinner.
    * Useful for providing context about what is loading.
    */
-  @Input() message?: string;
+  readonly message = input<string | undefined>(undefined);
 
   /**
    * CSS class to apply for the spinner size.
@@ -71,7 +70,7 @@ export class LoadingSpinnerComponent {
       medium: '',
       large: 'spinner-lg',
     };
-    return sizeClasses[this.size];
+    return sizeClasses[this.size()];
   }
 
   /**
@@ -79,7 +78,7 @@ export class LoadingSpinnerComponent {
    * Bootstrap only provides sm variant, so we need custom styles for large.
    */
   protected get customStyles(): Record<string, string> {
-    if (this.size === 'large') {
+    if (this.size() === 'large') {
       return {
         width: '3rem',
         height: '3rem',

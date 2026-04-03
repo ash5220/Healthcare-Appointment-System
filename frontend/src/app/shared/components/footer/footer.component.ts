@@ -11,7 +11,7 @@
  * The footer is responsive and collapses to a single column on mobile devices.
  */
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
 /**
@@ -38,8 +38,7 @@ interface SocialLink {
 
 @Component({
   selector: 'app-footer',
-  standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [NgClass, RouterModule],
   templateUrl: './footer.component.html',
   styleUrl: './footer.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

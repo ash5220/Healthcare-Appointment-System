@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import { User } from '../models';
 import { generateTokenPair, verifyRefreshToken, generateMfaToken } from '../utils/jwt.util';
 import { logger } from '../config/logger';
@@ -88,7 +88,7 @@ class SessionService {
     const tokens = generateTokenPair(user.id, user.email, user.role);
     await userRepository.update(user, { refreshToken: hashToken(tokens.refreshToken) });
 
-    logger.info(`User logged in successfully: ${user.email}`);
+    logger.info(`User logged in successfully: ${user.id}`);
 
     return {
       user: user.toSafeObject(),
@@ -136,7 +136,7 @@ class SessionService {
     const user = await userRepository.findById(userId);
     if (user) {
       await userRepository.update(user, { refreshToken: null });
-      logger.info(`User logged out: ${user.email}`);
+      logger.info(`User logged out: ${user.id}`);
     }
   }
 
@@ -161,7 +161,7 @@ class SessionService {
       refreshToken: null,
     });
 
-    logger.info(`Password changed for user: ${user.email}`);
+    logger.info(`Password changed for user: ${user.id}`);
   }
 
   async getUserById(userId: string): Promise<User> {
@@ -198,7 +198,7 @@ class SessionService {
     });
 
     await emailService.sendPasswordResetEmail(user.email, user.firstName, rawToken);
-    logger.info(`Password-reset email sent to: ${user.email}`);
+    logger.info(`Password-reset email sent: userId=${user.id}`);
   }
 
   /**
@@ -256,7 +256,7 @@ class SessionService {
       emailVerificationExpiresAt: null,
     });
 
-    logger.info(`Email verified for user: ${user.email}`);
+    logger.info(`Email verified for user: ${user.id}`);
   }
 
   /**
@@ -282,7 +282,7 @@ class SessionService {
       .sendEmailVerificationEmail(user.email, user.firstName, rawToken)
       .catch(err => logger.error('Failed to resend verification email:', err));
 
-    logger.info(`Verification email resent to: ${user.email}`);
+    logger.info(`Verification email resent: userId=${user.id}`);
   }
 
   /**
@@ -314,7 +314,7 @@ class SessionService {
     });
 
     await emailService.sendEmailChangeEmail(newEmail, user.firstName, rawToken);
-    logger.info(`Email change requested: ${user.email} → ${newEmail}`);
+    logger.info(`Email change requested: userId=${user.id}`);
   }
 
   /**
@@ -345,7 +345,7 @@ class SessionService {
       refreshToken: null,
     });
 
-    logger.info(`Email changed successfully: ${user.email} → ${newEmail}`);
+    logger.info(`Email changed successfully: userId=${user.id}`);
   }
 }
 

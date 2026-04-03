@@ -11,15 +11,15 @@
   - aria-live for dynamic loading messages
 -->
 
-@if (overlay) {
+@if (overlay()) {
 <!-- Full-screen overlay mode -->
 <div class="spinner-overlay" role="status" aria-live="polite">
     <div class="spinner-container">
         <div class="spinner-border text-primary" [ngClass]="sizeClass" [ngStyle]="customStyles">
             <span class="visually-hidden">Loading...</span>
         </div>
-        @if (message) {
-        <p class="spinner-message mt-3 mb-0">{{ message }}</p>
+        @if (message()) {
+        <p class="spinner-message mt-3 mb-0">{{ message() }}</p>
         }
     </div>
 </div>
@@ -29,8 +29,8 @@
     <div class="spinner-border text-primary" [ngClass]="sizeClass" [ngStyle]="customStyles">
         <span class="visually-hidden">Loading...</span>
     </div>
-    @if (message) {
-    <p class="spinner-message mt-2 mb-0 small text-muted">{{ message }}</p>
+    @if (message()) {
+    <p class="spinner-message mt-2 mb-0 small text-muted">{{ message() }}</p>
     }
 </div>
 }

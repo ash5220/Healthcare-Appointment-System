@@ -1,6 +1,6 @@
 import { SafeUser } from '../models/User.model';
 import { UserRole, Gender } from '../types/constants';
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 
 export interface RegisterUserData {
   email: string;

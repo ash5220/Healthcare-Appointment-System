@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import { UserRole } from '../types/constants';
 import { generateTokenPair } from '../utils/jwt.util';
 import { logger } from '../config/logger';
@@ -55,7 +55,7 @@ class RegistrationService {
         .sendEmailVerificationEmail(user.email, user.firstName, verificationToken)
         .catch(err => logger.error('Failed to send verification email:', err));
 
-      logger.info(`User registered successfully: ${user.email}`);
+      logger.info(`User registered successfully: userId=${user.id}`);
 
       return {
         user: user.toSafeObject(),
@@ -125,7 +125,7 @@ class RegistrationService {
         .sendEmailVerificationEmail(user.email, user.firstName, verificationToken)
         .catch(err => logger.error('Failed to send verification email:', err));
 
-      logger.info(`Patient registered successfully: ${user.email}`);
+      logger.info(`Patient registered successfully: userId=${user.id}`);
 
       return {
         user: user.toSafeObject(),
@@ -198,8 +198,7 @@ class RegistrationService {
         .sendEmailVerificationEmail(user.email, user.firstName, verificationToken)
         .catch(err => logger.error('Failed to send verification email:', err));
 
-      logger.info(`Doctor registered successfully: ${user.email}`);
-
+      logger.info(`Doctor registered successfully: userId=${user.id}`);
       return {
         user: user.toSafeObject(),
         accessToken: tokens.accessToken,

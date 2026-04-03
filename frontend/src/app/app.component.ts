@@ -17,7 +17,7 @@
  */
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { NavbarComponent } from './shared/components/navbar/navbar.component';
 import { FooterComponent } from './shared/components/footer/footer.component';
 import { NotificationService } from './core/services/notification.service';
@@ -25,8 +25,7 @@ import { ToastMessage } from './core/models';
 
 @Component({
     selector: 'app-root',
-    standalone: true,
-    imports: [CommonModule, RouterOutlet, NavbarComponent, FooterComponent],
+    imports: [NgClass, RouterOutlet, NavbarComponent, FooterComponent],
     templateUrl: './app.component.html',
     styleUrl: './app.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,

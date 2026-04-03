@@ -15,7 +15,7 @@
  * - Legacy format (iv:authTag:ciphertext, SHA-256 KDF) is only decrypted,
  *   never produced — all new secrets are written in v1 format
  */
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import { env } from '../config/env';
 
 const encryptionKey: string = env.encryptionKey;

@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { environment } from '../../../../environments/environment';
+import { Gender } from '../../../core/models';
 
 import { DoctorPatientsComponent } from './patients.component';
 
@@ -20,13 +21,11 @@ const makeAppointment = (patientId: string, firstName: string, lastName: string,
     id: patientId,
     userId: `u-${patientId}`,
     dateOfBirth: new Date('1990-01-01'),
-    gender: 'male',
+    gender: Gender.MALE,
     allergies: [],
-    qualifications: [],
-    languages: [],
     user: { firstName, lastName, email: `${firstName.toLowerCase()}@example.com` },
     ...extra,
-  },
+  } as never,
   createdAt: new Date(),
   updatedAt: new Date(),
 });
@@ -191,7 +190,7 @@ describe('DoctorPatientsComponent', () => {
     });
 
     it('DoctorPatientsComponent — patient with no user — returns empty string', () => {
-      const patient = { id: 'p1', userId: 'u1', dateOfBirth: new Date(), gender: 'male', allergies: [] } as never;
+      const patient = { id: 'p1', userId: 'u1', dateOfBirth: new Date(), gender: Gender.MALE, allergies: [] } as never;
       expect(component['initials'](patient)).toBe('');
     });
   });

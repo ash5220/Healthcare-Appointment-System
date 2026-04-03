@@ -18,12 +18,12 @@ export class DoctorPatientsComponent implements OnInit {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiUrl}/appointments`;
 
-  protected readonly searchQuery = signal('');
-  protected readonly isLoading = signal(true);
+  public readonly searchQuery = signal('');
+  public readonly isLoading = signal(true);
   private readonly allPatients = signal<Patient[]>([]);
 
   /** Patients filtered by the search query. */
-  protected readonly filteredPatients = computed<Patient[]>(() => {
+  public readonly filteredPatients = computed<Patient[]>(() => {
     const query = this.searchQuery().toLowerCase().trim();
     if (!query) return this.allPatients();
     return this.allPatients().filter((p) => {

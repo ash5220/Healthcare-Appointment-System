@@ -102,7 +102,11 @@ describe('ResetPasswordComponent', () => {
   // Submission — happy path
   // ---------------------------------------------------------------------------
   describe('ResetPasswordComponent — submission — happy path', () => {
-    beforeEach(async () => setup('my-token'));
+    beforeEach(async () => {
+      await setup('my-token');
+      // Stub navigation so tests that don't explicitly test it don't fail
+      spyOn(router, 'navigate').and.returnValue(Promise.resolve(true));
+    });
 
     it('ResetPasswordComponent — valid form submitted — calls resetPassword with token and password', fakeAsync(() => {
       mockAuthService.resetPassword.and.returnValue(of({ success: true }));
@@ -126,7 +130,9 @@ describe('ResetPasswordComponent', () => {
 
     it('ResetPasswordComponent — reset succeeds — navigates to login after 3 seconds', fakeAsync(() => {
       mockAuthService.resetPassword.and.returnValue(of({ success: true }));
-      const navSpy = spyOn(router, 'navigate');
+      // router.navigate is already spied in beforeEach — fetch the spy reference.
+      const navSpy = router.navigate as jasmine.Spy;
+      navSpy.calls.reset();
       component['form'].patchValue({ newPassword: 'NewPass1!', confirmPassword: 'NewPass1!' });
 
       component['submitForm']();

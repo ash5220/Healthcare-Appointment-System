@@ -51,6 +51,8 @@ describe('PatientDashboardComponent', () => {
             doctor: {
                 id: '1',
                 userId: '1',
+                firstName: 'Jane',
+                lastName: 'Smith',
                 specialization: 'General Medicine',
                 licenseNumber: 'L001',
                 qualifications: [],

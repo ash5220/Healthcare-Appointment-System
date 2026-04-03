@@ -70,6 +70,10 @@ export interface MessagingUser {
     lastName: string;
     role: UserRole;
     email: string;
+    isEmailVerified: boolean;
+    isActive: boolean;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 export interface UnreadCountResponse {

@@ -38,12 +38,20 @@ describe('AdminDashboardComponent', () => {
         mockAdminService.getDashboardStats.and.returnValue(of({
             data: {
                 stats: {
-                    totalUsers: 10,
-                    totalDoctors: 2,
-                    totalPatients: 8,
-                    totalAppointments: 50
-                }
-            }
+                    users: {
+                        total: 10,
+                        byRole: { doctor: 2, patient: 8, admin: 1 },
+                        active: 9,
+                        inactive: 1,
+                        verified: 8,
+                        unverified: 2,
+                    },
+                    appointments: {
+                        total: 50,
+                        byStatus: { confirmed: 20, completed: 25, cancelled: 5 },
+                    },
+                },
+            },
         }));
 
         await TestBed.configureTestingModule({

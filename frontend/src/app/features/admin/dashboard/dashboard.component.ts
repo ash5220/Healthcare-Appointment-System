@@ -75,7 +75,25 @@ export class AdminDashboardComponent implements OnInit {
     protected loadDashboardData(): void {
         this.adminService.getDashboardStats().subscribe({
             next: (response) => {
-                this.stats.set(response.data.stats);
+                const { users, appointments } = response.data.stats;
+                this.stats.set({
+                    totalUsers: users.total,
+                    totalDoctors: users.byRole['doctor'] ?? 0,
+                    totalPatients: users.byRole['patient'] ?? 0,
+                    totalAppointments: appointments.total,
+                });
+                this.appointmentBreakdown.set({
+                    scheduled: appointments.byStatus['scheduled'] ?? 0,
+                    confirmed: appointments.byStatus['confirmed'] ?? 0,
+                    completed: appointments.byStatus['completed'] ?? 0,
+                    cancelled: appointments.byStatus['cancelled'] ?? 0,
+                });
+                this.userStats.set({
+                    activeUsers: users.active,
+                    newThisWeek: 0,
+                    pendingVerification: users.unverified,
+                    inactive: users.inactive,
+                });
                 this.isLoading.set(false);
             },
             error: () => {

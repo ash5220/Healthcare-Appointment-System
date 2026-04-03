@@ -134,6 +134,34 @@ export const routes: Routes = [
           import('./features/admin/users/users.component').then((m) => m.UsersComponent),
       },
       {
+        path: 'doctors',
+        loadComponent: () =>
+          import('./features/admin/doctors/doctors.component').then(
+            (m) => m.AdminDoctorsComponent,
+          ),
+      },
+      {
+        path: 'appointments',
+        loadComponent: () =>
+          import('./features/admin/appointments/appointments.component').then(
+            (m) => m.AdminAppointmentsComponent,
+          ),
+      },
+      {
+        path: 'settings',
+        loadComponent: () =>
+          import('./features/admin/settings/settings.component').then(
+            (m) => m.AdminSettingsComponent,
+          ),
+      },
+      {
+        path: 'reports',
+        loadComponent: () =>
+          import('./features/admin/reports/reports.component').then(
+            (m) => m.AdminReportsComponent,
+          ),
+      },
+      {
         path: 'messages',
         loadComponent: () =>
           import('./features/messaging/messaging.component').then((m) => m.MessagingComponent),

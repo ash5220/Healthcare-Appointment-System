@@ -1,11 +1,24 @@
 import { Doctor, User } from './user.model';
 import { DoctorAvailability, Appointment } from './appointment.model';
-import { SystemStats, AppointmentStatusCounts } from './dashboard.model';
+import { AppointmentStatusCounts } from './dashboard.model';
 import { AdminUsersResponseContract } from '../contracts/generated-contracts';
 
-export interface StatsResponse {
+export interface AdminStatsApiResponse {
   data: {
-    stats: SystemStats;
+    stats: {
+      users: {
+        total: number;
+        byRole: Record<string, number>;
+        active: number;
+        inactive: number;
+        verified: number;
+        unverified: number;
+      };
+      appointments: {
+        total: number;
+        byStatus: Record<string, number>;
+      };
+    };
   };
 }
 

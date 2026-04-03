@@ -14,7 +14,7 @@
  *   }), medicalRecordController.getMyRecords);
  */
 import { Request, Response, NextFunction, RequestHandler } from 'express';
-import { AuthenticatedRequest } from '../types/express.d';
+import { AuthenticatedRequest } from '../types/express-augment';
 import {
   PhiAction,
   PhiResourceType,

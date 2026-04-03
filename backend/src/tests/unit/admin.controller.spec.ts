@@ -17,7 +17,7 @@ jest.mock('../../config/logger', () => ({
 }));
 
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../../types/express.d';
+import { AuthenticatedRequest } from '../../types/express-augment';
 import {
   getStats,
   getPendingDoctors,

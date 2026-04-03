@@ -26,7 +26,7 @@ jest.mock('../../config/logger', () => ({
 // ─── Now safe to import tested code ───────────────────────────────────────────
 
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../../types/express.d';
+import { AuthenticatedRequest } from '../../types/express-augment';
 import * as appointmentController from '../../controllers/appointment.controller';
 import { appointmentService } from '../../services/appointment.service';
 import { UserRole, AppointmentStatus } from '../../types/constants';

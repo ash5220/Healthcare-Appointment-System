@@ -1,2 +1,2 @@
 export * from './constants';
-export * from './express.d';
+export * from './express-augment';

@@ -17,7 +17,7 @@ import { authMiddleware, optionalAuthMiddleware } from '../../middleware/auth.mi
 import { verifyAccessToken } from '../../utils/jwt.util';
 import { User } from '../../models';
 import { UserRole } from '../../types/constants';
-import { OptionallyAuthenticatedRequest } from '../../types/express.d';
+import { OptionallyAuthenticatedRequest } from '../../types/express-augment';
 
 const mockResponse = (): Response => {
   const res: Partial<Response> = {};

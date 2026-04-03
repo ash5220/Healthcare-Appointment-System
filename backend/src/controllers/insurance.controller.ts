@@ -1,4 +1,4 @@
-import { AuthenticatedRequest } from '../types/express.d';
+import { AuthenticatedRequest } from '../types/express-augment';
 import { insuranceService } from '../services/insurance.service';
 import type {
   CreateInsuranceInput,

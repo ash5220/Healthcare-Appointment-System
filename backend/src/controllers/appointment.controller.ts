@@ -2,7 +2,7 @@ import { Response } from 'express';
 import { appointmentService } from '../services';
 import { successResponse, createdResponse, paginatedResponse } from '../utils/response.util';
 import { asyncHandler } from '../middleware';
-import { AuthenticatedRequest } from '../types/express.d';
+import { AuthenticatedRequest } from '../types/express-augment';
 import { AppointmentStatus } from '../types/constants';
 import { BadRequestError } from '../shared/errors';
 import type { UpdateAppointmentData } from '../services/appointment.service';

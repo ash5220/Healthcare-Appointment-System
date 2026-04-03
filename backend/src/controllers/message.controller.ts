@@ -2,7 +2,7 @@ import { Response } from 'express';
 import { messageService } from '../services/message.service';
 import { successResponse, createdResponse, errorResponse } from '../utils/response.util';
 import { asyncHandler } from '../middleware';
-import { AuthenticatedRequest } from '../types/express.d';
+import { AuthenticatedRequest } from '../types/express-augment';
 import type { ConversationRequest, GetUsersRequest } from '../dto/message.dto';
 
 /**

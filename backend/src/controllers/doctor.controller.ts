@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { doctorService, availabilityService } from '../services';
 import { successResponse, paginatedResponse } from '../utils/response.util';
 import { asyncHandler, ForbiddenError } from '../middleware';
-import { AuthenticatedRequest } from '../types/express.d';
+import { AuthenticatedRequest } from '../types/express-augment';
 import type { UpdateAvailabilityData } from '../services/availability.service';
 import type { DayOfWeek } from '../types/constants';
 import type { Doctor } from '../models';

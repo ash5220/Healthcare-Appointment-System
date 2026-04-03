@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { authService } from '../services';
 import { successResponse, createdResponse } from '../utils/response.util';
 import { asyncHandler } from '../middleware';
-import { AuthenticatedRequest } from '../types/express.d';
+import { AuthenticatedRequest } from '../types/express-augment';
 import { z } from 'zod';
 import {
   registerValidation,

@@ -4,7 +4,7 @@ import { authMiddleware } from '../middleware/auth.middleware';
 import { requirePatient } from '../middleware/role.middleware';
 import { createPhiAuditMiddleware, PhiAction, PhiResourceType } from '../middleware/phi-audit.middleware';
 import { patientRepository } from '../repositories';
-import { AuthenticatedRequest } from '../types/express.d';
+import { AuthenticatedRequest } from '../types/express-augment';
 
 const router = Router();
 

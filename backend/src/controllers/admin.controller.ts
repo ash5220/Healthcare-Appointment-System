@@ -5,7 +5,7 @@ import { paginatedResponse, successResponse, createdResponse } from '../utils/re
 import { adminService } from '../services/admin.service';
 import { UserRole } from '../types/constants';
 import { BadRequestError } from '../shared/errors';
-import { AuthenticatedRequest } from '../types/express.d';
+import { AuthenticatedRequest } from '../types/express-augment';
 import { MAX_PASSWORD_LENGTH } from '../config/constants';
 
 const adminUsersQuerySchema = z.object({

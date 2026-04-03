@@ -51,7 +51,7 @@ jest.mock('../../middleware/error.middleware', () => {
 });
 
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../../types/express.d';
+import { AuthenticatedRequest } from '../../types/express-augment';
 import { getMyRecords, exportMyRecordsCsv, exportMyRecordsPdf } from '../../controllers/medical-record.controller';
 import { medicalRecordService } from '../../services/medical-record.service';
 import { patientRepository } from '../../repositories';

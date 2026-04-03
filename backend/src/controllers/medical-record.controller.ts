@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import { medicalRecordService } from '../services/medical-record.service';
 import { asyncHandler } from '../middleware';
-import { AuthenticatedRequest } from '../types/express.d';
+import { AuthenticatedRequest } from '../types/express-augment';
 import { successResponse } from '../utils/response.util';
 import { NotFoundError } from '../middleware/error.middleware';
 import { patientRepository } from '../repositories';

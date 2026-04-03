@@ -1,4 +1,4 @@
-import express, { Express } from 'express';
+import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
@@ -22,7 +22,7 @@ initNotificationSubscribers();
 // Initialize model associations
 initializeAssociations();
 
-const app: Express = express();
+const app: Application = express();
 
 // ── Proxy Trust ────────────────────────────────────────────────────────
 // Tell Express to trust the first hop of X-Forwarded-For so that req.ip
@@ -62,7 +62,7 @@ app.use(
     compression({
         level: 6,                      // balanced speed vs. compression ratio
         threshold: 1024,               // skip responses smaller than 1 KB
-        filter: (req, res) => {
+        filter: (req: Request, res: Response) => {
             // Don't compress server-sent events
             if (req.headers['x-no-compression']) return false;
             return compression.filter(req, res);
@@ -84,7 +84,7 @@ const allowedOrigins = isProduction()
 
 app.use(
     cors({
-        origin: (requestOrigin, callback) => {
+        origin: (requestOrigin: string | undefined, callback: (err: Error | null, origin?: string | boolean) => void) => {
             // Allow server-to-server requests (no Origin header) and listed origins
             if (!requestOrigin || allowedOrigins.includes(requestOrigin)) {
                 callback(null, requestOrigin ?? true);
@@ -124,7 +124,7 @@ app.use(httpLogger);
 app.use(`/api/${env.apiVersion}`, routes);
 
 // ── Root Endpoint ──────────────────────────────────────────────────────
-app.get('/', (_req, res) => {
+app.get('/', (_req: Request, res: Response) => {
     res.json({
         success: true,
         message: 'Healthcare Appointment System API',

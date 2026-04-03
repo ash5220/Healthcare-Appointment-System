@@ -2,7 +2,7 @@ import { Response } from 'express';
 import { userService } from '../services';
 import { successResponse } from '../utils/response.util';
 import { asyncHandler } from '../middleware';
-import { AuthenticatedRequest } from '../types/express.d';
+import { AuthenticatedRequest } from '../types/express-augment';
 import type { Patient } from '../models';
 
 export const getPatientProfile = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {

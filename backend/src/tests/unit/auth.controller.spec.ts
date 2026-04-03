@@ -38,7 +38,7 @@ jest.mock('../../config/logger', () => ({
 // ─── Now safe to import tested code ───────────────────────────────────────────
 
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../../types/express.d';
+import { AuthenticatedRequest } from '../../types/express-augment';
 import * as authController from '../../controllers/auth.controller';
 import { authService } from '../../services/auth.service';
 import { setRefreshTokenCookie, clearRefreshTokenCookie } from '../../utils/cookie.util';

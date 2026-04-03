@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { OptionallyAuthenticatedRequest } from '../types/express.d';
+import { OptionallyAuthenticatedRequest } from '../types/express-augment';
 import { verifyAccessToken } from '../utils/jwt.util';
 import { unauthorizedResponse } from '../utils/response.util';
 import { logger } from '../config/logger';

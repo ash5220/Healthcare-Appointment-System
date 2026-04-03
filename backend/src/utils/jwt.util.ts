@@ -17,7 +17,7 @@
  */
 import jwt, { SignOptions, JwtPayload as JwtLibPayload } from 'jsonwebtoken';
 import { env } from '../config/env';
-import { JwtPayload } from '../types/express.d';
+import { JwtPayload } from '../types/express-augment';
 import { UserRole } from '../types/constants';
 
 const jwtSecret: string = env.jwtSecret;

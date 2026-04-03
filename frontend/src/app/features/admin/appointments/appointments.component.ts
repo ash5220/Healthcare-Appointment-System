@@ -8,8 +8,8 @@ interface AdminAppointment {
   id: string;
   status: string;
   appointmentDate: string;
-  reason?: string;
-  patient?: { firstName: string; lastName: string; email: string };
+  reasonForVisit?: string;
+  patient?: { user?: { firstName: string; lastName: string; email: string } };
   doctor?: { user?: { firstName: string; lastName: string } };
 }
 

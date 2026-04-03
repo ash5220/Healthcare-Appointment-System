@@ -189,6 +189,10 @@ Controller → Service → Repository → Model
 - **Coverage**: Maintain minimum 80% coverage for branches, functions, lines, and statements.
 - **Isolation**: Each test manages its own data. No shared mutable state between tests.
 - **Mock external services**: HTTP calls, email services, and third-party APIs must be mocked.
+- **Every testable unit must cover three categories of scenarios**:
+  - **Happy path**: valid input, expected success outcome.
+  - **Edge cases**: boundary values, empty collections, null/undefined inputs, maximum lengths, concurrent operations.
+  - **Error cases**: invalid input, missing required fields, unauthorized access, service failures, network errors, constraint violations.
 
 ### Backend (Jest + supertest)
 

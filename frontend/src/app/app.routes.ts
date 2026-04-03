@@ -104,6 +104,13 @@ export const routes: Routes = [
           import('./features/doctor/schedule/schedule.component').then((m) => m.ScheduleComponent),
       },
       {
+        path: 'patients',
+        loadComponent: () =>
+          import('./features/doctor/patients/patients.component').then(
+            (m) => m.DoctorPatientsComponent,
+          ),
+      },
+      {
         path: 'messages',
         loadComponent: () =>
           import('./features/messaging/messaging.component').then((m) => m.MessagingComponent),

@@ -225,6 +225,19 @@ export class AuthService {
     );
   }
 
+  forgotPassword(email: string): Observable<{ success: boolean; message?: string }> {
+    return this.http.post<{ success: boolean; message?: string }>(`${this.apiUrl}/forgot-password`, {
+      email,
+    });
+  }
+
+  resetPassword(token: string, newPassword: string): Observable<{ success: boolean; message?: string }> {
+    return this.http.post<{ success: boolean; message?: string }>(`${this.apiUrl}/reset-password`, {
+      token,
+      newPassword,
+    });
+  }
+
   private handleAuthSuccess(user: User, accessToken: string): void {
     this.storageService.setTokens(accessToken);
     this.storageService.setUser(user);

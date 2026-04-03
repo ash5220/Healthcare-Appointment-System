@@ -220,6 +220,15 @@ export const routes: Routes = [
       ),
   },
 
+  // Confirm email change — public route linked from email change request
+  {
+    path: 'confirm-email-change',
+    loadComponent: () =>
+      import('./features/auth/confirm-email-change/confirm-email-change.component').then(
+        (m) => m.ConfirmEmailChangeComponent,
+      ),
+  },
+
   // Fallback — proper 404 page instead of silently redirecting
   {
     path: 'unauthorized',

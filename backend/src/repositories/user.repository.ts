@@ -28,6 +28,7 @@ export type UserUpdateData = {
   firstName?: string;
   lastName?: string;
   phoneNumber?: string | null;
+  email?: string;
   role?: UserRole;
   isActive?: boolean;
   isEmailVerified?: boolean;
@@ -45,6 +46,10 @@ export type UserUpdateData = {
   // Email-verification flow
   emailVerificationTokenHash?: string | null;
   emailVerificationExpiresAt?: Date | null;
+  // Email-change flow
+  emailChangeTokenHash?: string | null;
+  emailChangeExpiresAt?: Date | null;
+  emailChangePending?: string | null;
 };
 
 class UserRepository {
@@ -76,6 +81,10 @@ class UserRepository {
 
   async findByEmailVerificationTokenHash(hash: string): Promise<User | null> {
     return User.findOne({ where: { emailVerificationTokenHash: hash } });
+  }
+
+  async findByEmailChangeTokenHash(hash: string): Promise<User | null> {
+    return User.findOne({ where: { emailChangeTokenHash: hash } });
   }
 
   async findAll(filters: UserFilters): Promise<{ users: User[]; total: number }> {

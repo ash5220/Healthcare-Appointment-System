@@ -284,6 +284,69 @@ class SessionService {
 
     logger.info(`Verification email resent to: ${user.email}`);
   }
+
+  /**
+   * Step 1 of 2: user requests an email change.
+   * Stores the desired new email (pending) and sends a confirmation link to
+   * the NEW address. The current email stays active until confirmation.
+   */
+  async requestEmailChange(userId: string, newEmail: string): Promise<void> {
+    const user = await userRepository.findById(userId);
+    if (!user) throw new NotFoundError('User not found');
+
+    // Block if new email is already taken by someone else
+    const existing = await userRepository.findByEmail(newEmail);
+    if (existing && existing.id !== userId) {
+      throw new BadRequestError('That email address is already in use.');
+    }
+
+    if (user.email === newEmail) {
+      throw new BadRequestError('The new email must be different from your current email.');
+    }
+
+    const rawToken = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + EMAIL_VERIFICATION_EXPIRY_MS);
+
+    await userRepository.update(user, {
+      emailChangePending: newEmail,
+      emailChangeTokenHash: hashToken(rawToken),
+      emailChangeExpiresAt: expiresAt,
+    });
+
+    await emailService.sendEmailChangeEmail(newEmail, user.firstName, rawToken);
+    logger.info(`Email change requested: ${user.email} → ${newEmail}`);
+  }
+
+  /**
+   * Step 2 of 2: user clicks the link in their NEW inbox.
+   * Swaps the email and clears the pending fields.
+   */
+  async confirmEmailChange(token: string): Promise<void> {
+    const tokenHash = hashToken(token);
+    const user = await userRepository.findByEmailChangeTokenHash(tokenHash);
+
+    if (!user) throw new BadRequestError('Invalid or expired email change token.');
+    if (!user.emailChangeExpiresAt || user.emailChangeExpiresAt < new Date()) {
+      throw new BadRequestError('Email change token has expired. Please request a new one.');
+    }
+    if (!user.emailChangePending) {
+      throw new BadRequestError('No email change is pending for this account.');
+    }
+
+    const newEmail = user.emailChangePending;
+
+    await userRepository.update(user, {
+      email: newEmail,
+      isEmailVerified: true,
+      emailChangePending: null,
+      emailChangeTokenHash: null,
+      emailChangeExpiresAt: null,
+      // Invalidate all sessions — user must log in again with the new email
+      refreshToken: null,
+    });
+
+    logger.info(`Email changed successfully: ${user.email} → ${newEmail}`);
+  }
 }
 
 export const sessionService = new SessionService();

@@ -16,6 +16,9 @@ import {
   mfaLoginValidation,
   changePasswordValidation,
   setupMfaVerifyValidation,
+  updateProfileValidation,
+  requestEmailChangeValidation,
+  confirmEmailChangeValidation,
 } from '../dto/auth.dto';
 import { UserRole } from '../types/constants';
 import {
@@ -24,6 +27,8 @@ import {
   REFRESH_TOKEN_COOKIE,
 } from '../utils/cookie.util';
 import { UnauthorizedError, BadRequestError } from '../shared/errors';
+import { userService } from '../services/user.service';
+
 
 // ── Registration Endpoints ─────────────────────────────────────────────
 
@@ -207,6 +212,40 @@ export const changePassword = asyncHandler(async (req: AuthenticatedRequest, res
 export const getProfile = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const user = await authService.getUserById(req.user.userId);
   successResponse(res, user);
+});
+
+export const updateProfile = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const { firstName, lastName, phoneNumber } = req.body as z.infer<
+    typeof updateProfileValidation
+  >['body'];
+  const updated = await userService.updateProfile(req.user.userId, {
+    firstName,
+    lastName,
+    phoneNumber,
+  });
+  successResponse(res, updated, 'Profile updated successfully');
+});
+
+export const requestEmailChange = asyncHandler(
+  async (req: AuthenticatedRequest, res: Response) => {
+    const { newEmail } = req.body as z.infer<typeof requestEmailChangeValidation>['body'];
+    await authService.requestEmailChange(req.user.userId, newEmail);
+    successResponse(
+      res,
+      null,
+      `A confirmation link has been sent to ${newEmail}. Click it to complete the change.`
+    );
+  }
+);
+
+export const confirmEmailChange = asyncHandler(async (req: Request, res: Response) => {
+  const { token } = req.body as z.infer<typeof confirmEmailChangeValidation>['body'];
+  await authService.confirmEmailChange(token);
+  successResponse(
+    res,
+    null,
+    'Email changed successfully. Please log in again with your new email address.'
+  );
 });
 
 // ── MFA Setup ──────────────────────────────────────────────────────────

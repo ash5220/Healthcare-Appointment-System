@@ -225,6 +225,35 @@ export class AuthService {
     );
   }
 
+  updateProfile(data: {
+    firstName?: string;
+    lastName?: string;
+    phoneNumber?: string | null;
+  }): Observable<{ data: User; message?: string }> {
+    return this.http
+      .patch<{ data: User; message?: string }>(`${this.apiUrl}/profile`, data)
+      .pipe(
+        tap((response) => {
+          this.currentUserSignal.set(response.data);
+          this.storageService.setUser(response.data);
+        }),
+      );
+  }
+
+  requestEmailChange(newEmail: string): Observable<{ success: boolean; message?: string }> {
+    return this.http.post<{ success: boolean; message?: string }>(
+      `${this.apiUrl}/request-email-change`,
+      { newEmail },
+    );
+  }
+
+  confirmEmailChange(token: string): Observable<{ success: boolean; message?: string }> {
+    return this.http.post<{ success: boolean; message?: string }>(
+      `${this.apiUrl}/confirm-email-change`,
+      { token },
+    );
+  }
+
   forgotPassword(email: string): Observable<{ success: boolean; message?: string }> {
     return this.http.post<{ success: boolean; message?: string }>(`${this.apiUrl}/forgot-password`, {
       email,

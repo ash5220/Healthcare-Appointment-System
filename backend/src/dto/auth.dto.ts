@@ -306,3 +306,45 @@ export const resendVerificationValidation = z.object({
   }),
 });
 
+// ── Profile Update ──────────────────────────────────────────────────────
+
+export const updateProfileValidation = z.object({
+  body: z.strictObject({
+    firstName: z
+      .string()
+      .min(1, 'First name is required')
+      .max(100, 'First name must be between 1 and 100 characters')
+      .regex(
+        /^[a-zA-Z\s'-]+$/,
+        'First name can only contain letters, spaces, hyphens, and apostrophes'
+      )
+      .optional(),
+    lastName: z
+      .string()
+      .min(1, 'Last name is required')
+      .max(100, 'Last name must be between 1 and 100 characters')
+      .regex(
+        /^[a-zA-Z\s'-]+$/,
+        'Last name can only contain letters, spaces, hyphens, and apostrophes'
+      )
+      .optional(),
+    phoneNumber: z.string().max(20).nullable().optional(),
+  }),
+});
+
+// ── Email Change ────────────────────────────────────────────────────────
+
+export const requestEmailChangeValidation = z.object({
+  body: z.strictObject({
+    newEmail: z
+      .string()
+      .email('Please provide a valid email address')
+      .max(255, 'Email must not exceed 255 characters'),
+  }),
+});
+
+export const confirmEmailChangeValidation = z.object({
+  body: z.strictObject({
+    token: z.string().min(1, 'Confirmation token is required'),
+  }),
+});

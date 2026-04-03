@@ -46,6 +46,11 @@ class UserService {
     return this.getUserById(id);
   }
 
+  /** Alias used by the profile controller — same whitelist as updateUser. */
+  async updateProfile(id: string, rawData: SafeUserUpdateData): Promise<User> {
+    return this.updateUser(id, rawData);
+  }
+
   async deactivateUser(id: string): Promise<void> {
     const user = await userRepository.findById(id);
     if (!user) throw new NotFoundError('User not found');

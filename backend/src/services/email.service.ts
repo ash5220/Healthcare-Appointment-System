@@ -216,6 +216,30 @@ class EmailService {
   }
 
   /**
+   * Send an email change confirmation link to the new address.
+   */
+  async sendEmailChangeEmail(
+    to: string,
+    name: string,
+    changeToken: string
+  ): Promise<EmailResult> {
+    const confirmUrl = `${frontendUrl}/confirm-email-change?token=${changeToken}`;
+
+    const html = await renderEmail('email-change', {
+      name,
+      newEmail: to,
+      confirmUrl,
+    });
+
+    return sendEmail({
+      to,
+      subject: '📧 Confirm Your Email Change — Healthcare System',
+      html,
+      text: `Hi ${name}, confirm your new email address by visiting: ${confirmUrl}. This link expires in 48 hours.`,
+    });
+  }
+
+  /**
    * Render any template by name with custom data and send it.
    * Useful for ad-hoc or future templates without adding a new method.
    */
@@ -248,6 +272,7 @@ class EmailService {
       'appointment-reminder',
       'password-reset',
       'email-verification',
+      'email-change',
     ];
 
     for (const name of templates) {
@@ -264,3 +289,4 @@ class EmailService {
 }
 
 export const emailService = new EmailService();
+

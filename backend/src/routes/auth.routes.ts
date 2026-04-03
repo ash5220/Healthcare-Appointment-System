@@ -20,6 +20,9 @@ import {
   resetPasswordValidation,
   verifyEmailValidation,
   resendVerificationValidation,
+  updateProfileValidation,
+  requestEmailChangeValidation,
+  confirmEmailChangeValidation,
 } from '../dto/auth.dto';
 
 const router = Router();
@@ -111,6 +114,41 @@ router.post(
  * @access  Private
  */
 router.get('/profile', authMiddleware, authController.getProfile);
+
+/**
+ * @route   PATCH /api/v1/auth/profile
+ * @desc    Update current user profile (name, phone)
+ * @access  Private
+ */
+router.patch(
+  '/profile',
+  authMiddleware,
+  validate(updateProfileValidation),
+  authController.updateProfile
+);
+
+/**
+ * @route   POST /api/v1/auth/request-email-change
+ * @desc    Request an email address change — sends confirmation to new address
+ * @access  Private
+ */
+router.post(
+  '/request-email-change',
+  authMiddleware,
+  validate(requestEmailChangeValidation),
+  authController.requestEmailChange
+);
+
+/**
+ * @route   POST /api/v1/auth/confirm-email-change
+ * @desc    Confirm an email address change using the token from the email
+ * @access  Public
+ */
+router.post(
+  '/confirm-email-change',
+  validate(confirmEmailChangeValidation),
+  authController.confirmEmailChange
+);
 
 /**
  * @route   POST /api/v1/auth/setup-mfa

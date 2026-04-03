@@ -74,6 +74,14 @@ class AuthService {
   async resendVerificationEmail(email: string): Promise<void> {
     return sessionService.resendVerificationEmail(email);
   }
+
+  async requestEmailChange(userId: string, newEmail: string): Promise<void> {
+    return sessionService.requestEmailChange(userId, newEmail);
+  }
+
+  async confirmEmailChange(token: string): Promise<void> {
+    return sessionService.confirmEmailChange(token);
+  }
 }
 
 export const authService = new AuthService();

@@ -39,8 +39,8 @@ Healthcare Appointment System is a production-focused web application that strea
 
 ### Live Demo
 
-- Public URL: http://44.215.251.252/
-- Status: currently deployed and publicly reachable from the internet.
+- Public URL: https://infinitesevens.com/
+- Status: currently deployed with HTTPS (TLS via Let's Encrypt) on AWS Lightsail.
 
 ---
 
@@ -299,9 +299,9 @@ docker-compose exec api npx ts-node scripts/create-phi-audit-table.ts
 
 ### Live Endpoint
 
-- Current public endpoint: http://44.215.251.252/
-- Current state: publicly reachable HTTP endpoint on a Lightsail static IP.
-- Note: domain and HTTPS can be added later without changing core app architecture.
+- Current public endpoint: https://infinitesevens.com/
+- Current state: publicly reachable HTTPS endpoint on a Lightsail static IP with Let's Encrypt TLS certificate.
+- Static IP: 44.215.251.252 — DNS A record points `infinitesevens.com` to this IP.
 
 ### Deployed Stack
 
@@ -327,7 +327,7 @@ For production, use `backend/.env.docker` with production values.
 
 - Set `NODE_ENV=production`
 - Set `DB_HOST` to the Lightsail managed MySQL endpoint (not `db`)
-- Set `FRONTEND_URL` to the exact browser origin with scheme, for example `http://44.215.251.252`
+- Set `FRONTEND_URL` to the exact browser origin with scheme, for example `https://infinitesevens.com`
 - Use strong values (at least 32 chars) for `JWT_SECRET`, `JWT_REFRESH_SECRET`, `MFA_TOKEN_SECRET`, and `ENCRYPTION_KEY`
 
 ### Managed MySQL TLS Configuration

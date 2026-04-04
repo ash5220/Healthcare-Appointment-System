@@ -31,26 +31,30 @@ describe('LoadingSpinnerComponent', () => {
 
     describe('size input', () => {
         it('should default to medium size', () => {
-            expect(component.size).toBe('medium');
+            expect(component.size()).toBe('medium');
         });
 
         it('should return empty class for medium size', () => {
-            component.size = 'medium';
+            fixture.componentRef.setInput('size', 'medium');
+            fixture.detectChanges();
             expect(component['sizeClass']).toBe('');
         });
 
         it('should return sm class for small size', () => {
-            component.size = 'small';
+            fixture.componentRef.setInput('size', 'small');
+            fixture.detectChanges();
             expect(component['sizeClass']).toBe('spinner-border-sm');
         });
 
         it('should return lg class for large size', () => {
-            component.size = 'large';
+            fixture.componentRef.setInput('size', 'large');
+            fixture.detectChanges();
             expect(component['sizeClass']).toBe('spinner-lg');
         });
 
         it('should return custom styles for large size', () => {
-            component.size = 'large';
+            fixture.componentRef.setInput('size', 'large');
+            fixture.detectChanges();
             const styles = component['customStyles'];
             expect(styles['width']).toBe('3rem');
             expect(styles['height']).toBe('3rem');
@@ -59,7 +63,7 @@ describe('LoadingSpinnerComponent', () => {
 
     describe('overlay mode', () => {
         it('should default to no overlay', () => {
-            expect(component.overlay).toBeFalse();
+            expect(component.overlay()).toBeFalse();
         });
 
         it('should render overlay when enabled', () => {

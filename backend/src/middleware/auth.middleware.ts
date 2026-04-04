@@ -66,7 +66,13 @@ export const authMiddleware = async (
   }
 };
 
-// Optional auth middleware - doesn't fail if no token provided
+/**
+ * Optional auth: attaches `req.user` from a valid JWT when present, but never returns 401.
+ *
+ * Unlike {@link authMiddleware}, this does **not** load the user from the database, so a
+ * deactivated account or deleted user may still appear authenticated until the token expires.
+ * Use {@link authMiddleware} for mutations, PHI, or any route that must reflect live account status.
+ */
 export const optionalAuthMiddleware = (
   req: OptionallyAuthenticatedRequest,
   _res: Response,

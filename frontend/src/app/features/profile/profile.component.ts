@@ -6,6 +6,7 @@ import {
   OnInit,
   computed,
 } from '@angular/core';
+import { DatePipe, TitleCasePipe } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 import { UserRole } from '../../core/models';
@@ -15,7 +16,7 @@ import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-profile',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, TitleCasePipe, DatePipe],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

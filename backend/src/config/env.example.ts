@@ -8,6 +8,7 @@
  */
 import { config as dotenvConfig } from 'dotenv';
 import path from 'path';
+import { RATE_LIMIT_MAX_REQUESTS, RATE_LIMIT_WINDOW_MS } from './constants';
 
 // Load environment variables from .env file
 dotenvConfig({ path: path.resolve(__dirname, '../../.env') });
@@ -104,9 +105,9 @@ export const env: EnvConfig = {
   // Frontend
   frontendUrl: getEnvVar('FRONTEND_URL', 'http://localhost:4200'),
 
-  // Rate Limiting
-  rateLimitWindowMs: getEnvVarAsNumber('RATE_LIMIT_WINDOW_MS', 900000),
-  rateLimitMaxRequests: getEnvVarAsNumber('RATE_LIMIT_MAX_REQUESTS', 100),
+  // Rate Limiting (defaults mirror config/constants.ts)
+  rateLimitWindowMs: getEnvVarAsNumber('RATE_LIMIT_WINDOW_MS', RATE_LIMIT_WINDOW_MS),
+  rateLimitMaxRequests: getEnvVarAsNumber('RATE_LIMIT_MAX_REQUESTS', RATE_LIMIT_MAX_REQUESTS),
 
   // Email
   sendgridApiKey: getEnvVar('SENDGRID_API_KEY', ''),

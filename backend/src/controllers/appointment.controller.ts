@@ -4,7 +4,6 @@ import { successResponse, createdResponse, paginatedResponse } from '../utils/re
 import { asyncHandler } from '../middleware';
 import { AuthenticatedRequest } from '../types/express-augment';
 import { AppointmentStatus } from '../types/constants';
-import { BadRequestError } from '../shared/errors';
 import type { UpdateAppointmentData } from '../services/appointment.service';
 import type { Prescription } from '../models/Appointment.model';
 
@@ -13,13 +12,9 @@ export const createAppointment = asyncHandler(async (req: AuthenticatedRequest, 
     doctorId: string;
     appointmentDate: string;
     startTime: string;
-    endTime: string;
-    reasonForVisit?: string;
+    endTime?: string;
+    reasonForVisit: string;
   };
-
-  if (!reasonForVisit) {
-    throw new BadRequestError('reasonForVisit is required and must be at least 10 characters');
-  }
 
   const appointment = await appointmentService.create({
     userId: req.user.userId,

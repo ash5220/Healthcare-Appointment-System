@@ -91,6 +91,7 @@ export const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
 /**
  * Maximum general API requests per window.
  * Allows normal usage while preventing abuse.
+ * Default for `RATE_LIMIT_MAX_REQUESTS` in env (see env.ts).
  */
 export const RATE_LIMIT_MAX_REQUESTS = 500;
 

@@ -450,7 +450,7 @@ Use [backend/.env.example](backend/.env.example) for local development and [back
 | Variable                | Description            | Default | Required in Production |
 | ----------------------- | ---------------------- | ------- | ---------------------- |
 | RATE_LIMIT_WINDOW_MS    | Rate limit time window | 900000  | Yes                    |
-| RATE_LIMIT_MAX_REQUESTS | Max requests in window | 100     | Yes                    |
+| RATE_LIMIT_MAX_REQUESTS | Max requests in window | 500     | Yes                    |
 
 ### Email (SendGrid)
 

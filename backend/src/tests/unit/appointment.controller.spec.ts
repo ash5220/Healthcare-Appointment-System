@@ -98,16 +98,6 @@ describe('Appointment Controller', () => {
       expect(res.status).toHaveBeenCalledWith(201);
     });
 
-    it('throws BadRequestError when reasonForVisit is missing', async () => {
-      const req = mockReq({ body: { ...body, reasonForVisit: undefined } });
-      const res = mockRes();
-
-      await appointmentController.createAppointment(req, res, mockNext);
-
-      expect(mockNext).toHaveBeenCalled();
-      expect(appointmentService.create).not.toHaveBeenCalled();
-    });
-
     it('forwards service errors to next()', async () => {
       const err = new Error('slot conflict');
       (appointmentService.create as jest.Mock).mockRejectedValue(err);

@@ -1,25 +1,33 @@
 /**
  * PatientDashboardComponent
- * 
+ *
  * The main dashboard view for patient users. This component displays:
  * - Welcome message with personalized greeting
  * - Summary statistics (upcoming, completed, pending, cancelled appointments)
  * - Quick action buttons for common tasks
  * - List of upcoming appointments
- * 
+ *
  * Architecture Notes:
  * - Uses Angular signals for reactive state management
  * - Implements OnInit for initial data loading
  * - Uses the AppointmentService to fetch appointment data
  * - All magic numbers are extracted to constants for maintainability
  */
-import { ChangeDetectionStrategy, Component, inject, OnInit, computed, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  OnInit,
+  computed,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 import { AppointmentService } from '../../../core/services/appointment.service';
 import { MedicalRecordService } from '../../../core/services/medical-record.service';
+import { LoggerService } from '../../../core/services/logger.service';
 import { Appointment } from '../../../core/models';
 import { AppointmentStatusCounts } from '../../../core/models/dashboard.model';
 import { DASHBOARD_UPCOMING_APPOINTMENTS_LIMIT } from '../../../core/constants';
@@ -54,6 +62,8 @@ export class PatientDashboardComponent implements OnInit {
   /** MedicalRecordService for accessing medical records */
   protected readonly medicalRecordService = inject(MedicalRecordService);
 
+  private readonly logger = inject(LoggerService);
+
   /** Dashboard statistics signal, updated when appointments are loaded */
   protected readonly stats = signal<DashboardStats>({
     upcoming: 0,
@@ -76,19 +86,16 @@ export class PatientDashboardComponent implements OnInit {
     this.medicalRecordService.downloadMyRecordsPdf();
   }
 
-  /** 
+  /**
    * Computed signal for upcoming appointments to display.
    * Limited to a configurable number for dashboard display.
    */
   protected readonly displayedAppointments = computed(() =>
-    this.appointmentService.upcomingAppointments()
-      .slice(0, DASHBOARD_UPCOMING_APPOINTMENTS_LIMIT)
+    this.appointmentService.upcomingAppointments().slice(0, DASHBOARD_UPCOMING_APPOINTMENTS_LIMIT),
   );
 
   /** Loading state for the dashboard */
-  protected readonly isLoading = computed(() =>
-    this.appointmentService.isLoading()
-  );
+  protected readonly isLoading = computed(() => this.appointmentService.isLoading());
 
   /**
    * Quick action items for the patient dashboard.
@@ -122,13 +129,15 @@ export class PatientDashboardComponent implements OnInit {
   protected loadDashboardData(): void {
     forkJoin({
       stats: this.appointmentService.getDashboardStats(),
-      upcoming: this.appointmentService.getAppointments({ limit: DASHBOARD_UPCOMING_APPOINTMENTS_LIMIT }),
+      upcoming: this.appointmentService.getAppointments({
+        limit: DASHBOARD_UPCOMING_APPOINTMENTS_LIMIT,
+      }),
     }).subscribe({
       next: ({ stats }) => {
         this.updateStatsFromCounts(stats.data.stats);
       },
       error: (error) => {
-        console.error('Failed to load dashboard data:', error);
+        this.logger.error('Failed to load dashboard data:', error);
         // Stats remain at 0 on error, which is acceptable for display
       },
     });
@@ -150,7 +159,7 @@ export class PatientDashboardComponent implements OnInit {
 
   /**
    * Get initials from a doctor's name for avatar display.
-   * 
+   *
    * @param appointment - The appointment containing doctor info
    * @returns Two-letter initials string
    */
@@ -162,7 +171,7 @@ export class PatientDashboardComponent implements OnInit {
 
   /**
    * Get the full display name for a doctor.
-   * 
+   *
    * @param appointment - The appointment containing doctor info
    * @returns Formatted doctor name with "Dr." prefix
    */

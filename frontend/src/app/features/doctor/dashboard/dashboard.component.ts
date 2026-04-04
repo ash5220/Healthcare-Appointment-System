@@ -1,20 +1,28 @@
 /**
  * DoctorDashboardComponent
- * 
+ *
  * The main dashboard view for doctor users displaying:
  * - Personalized greeting based on time of day
  * - Today's appointment count and schedule
  * - Statistics (pending confirmations, completed this week, total patients)
  * - Quick action buttons for common tasks
  * - Today's appointment schedule table
- * 
+ *
  * This component uses signal-based state management and loads data on initialization.
  */
-import { ChangeDetectionStrategy, Component, inject, OnInit, computed, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  OnInit,
+  computed,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { AppointmentService } from '../../../core/services/appointment.service';
+import { LoggerService } from '../../../core/services/logger.service';
 import { AppointmentStatus, Appointment } from '../../../core/models';
 import {
   DASHBOARD_UPCOMING_APPOINTMENTS_LIMIT,
@@ -53,6 +61,8 @@ export class DoctorDashboardComponent implements OnInit {
   protected readonly authService = inject(AuthService);
   protected readonly appointmentService = inject(AppointmentService);
 
+  private readonly logger = inject(LoggerService);
+
   /** Dashboard statistics */
   protected readonly stats = signal<DoctorStats>({
     todayCount: 0,
@@ -72,9 +82,10 @@ export class DoctorDashboardComponent implements OnInit {
 
   /** Today's appointments limited for dashboard display */
   protected readonly todaysAppointments = computed(() =>
-    this.appointmentService.upcomingAppointments()
-      .filter(apt => apt.appointmentDate === this.today)
-      .slice(0, DASHBOARD_UPCOMING_APPOINTMENTS_LIMIT)
+    this.appointmentService
+      .upcomingAppointments()
+      .filter((apt) => apt.appointmentDate === this.today)
+      .slice(0, DASHBOARD_UPCOMING_APPOINTMENTS_LIMIT),
   );
 
   /** Quick actions for the doctor dashboard */
@@ -93,17 +104,19 @@ export class DoctorDashboardComponent implements OnInit {
    * Load all dashboard data including appointments and calculate statistics.
    */
   protected loadDashboardData(): void {
-    this.appointmentService.getAppointments({
-      limit: 100,
-      startDate: this.today,
-    }).subscribe({
-      next: (response) => {
-        this.calculateStats(response.data);
-      },
-      error: (error) => {
-        console.error('Failed to load dashboard data:', error);
-      },
-    });
+    this.appointmentService
+      .getAppointments({
+        limit: 100,
+        startDate: this.today,
+      })
+      .subscribe({
+        next: (response) => {
+          this.calculateStats(response.data);
+        },
+        error: (error) => {
+          this.logger.error('Failed to load dashboard data:', error);
+        },
+      });
   }
 
   /**
@@ -119,7 +132,7 @@ export class DoctorDashboardComponent implements OnInit {
 
     const uniquePatients = new Set<string>();
 
-    appointments.forEach(apt => {
+    appointments.forEach((apt) => {
       // Count today's appointments
       if (apt.appointmentDate === this.today) {
         stats.todayCount++;

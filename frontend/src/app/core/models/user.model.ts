@@ -52,7 +52,7 @@ export interface Patient {
   email?: string;
   phoneNumber?: string;
   dateOfBirth: Date;
-  gender: Gender;
+  gender?: Gender;
   bloodGroup?: string;
   allergies: string[];
   emergencyContactName?: string;

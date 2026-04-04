@@ -1,9 +1,9 @@
 /**
  * AppointmentListComponent
- * 
+ *
  * Displays a list of the patient's appointments with filtering, sorting,
  * and action capabilities.
- * 
+ *
  * Features:
  * - Filter by status (all, upcoming, completed, cancelled)
  * - Search by doctor name
@@ -11,12 +11,20 @@
  * - View appointment details
  * - Responsive table design
  */
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal, computed } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  OnInit,
+  signal,
+  computed,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AppointmentService } from '../../../../core/services/appointment.service';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { LoggerService } from '../../../../core/services/logger.service';
 import { AppointmentStatus, Appointment } from '../../../../core/models';
 import {
   MAX_PAGE_SIZE,
@@ -44,6 +52,7 @@ interface FilterOption {
 export class AppointmentListComponent implements OnInit {
   protected readonly appointmentService = inject(AppointmentService);
   protected readonly notificationService = inject(NotificationService);
+  private readonly logger = inject(LoggerService);
 
   /** All appointments loaded from API */
   protected readonly allAppointments = signal<Appointment[]>([]);
@@ -88,28 +97,29 @@ export class AppointmentListComponent implements OnInit {
 
     // Apply status filter
     if (filter === 'upcoming') {
-      result = result.filter(apt =>
-        apt.status === AppointmentStatus.SCHEDULED ||
-        apt.status === AppointmentStatus.CONFIRMED
+      result = result.filter(
+        (apt) =>
+          apt.status === AppointmentStatus.SCHEDULED || apt.status === AppointmentStatus.CONFIRMED,
       );
     } else if (filter === 'completed') {
-      result = result.filter(apt => apt.status === AppointmentStatus.COMPLETED);
+      result = result.filter((apt) => apt.status === AppointmentStatus.COMPLETED);
     } else if (filter === 'cancelled') {
-      result = result.filter(apt => apt.status === AppointmentStatus.CANCELLED);
+      result = result.filter((apt) => apt.status === AppointmentStatus.CANCELLED);
     }
 
     // Apply search filter
     if (search) {
-      result = result.filter(apt =>
-        apt.doctor?.user?.firstName?.toLowerCase().includes(search) ||
-        apt.doctor?.user?.lastName?.toLowerCase().includes(search) ||
-        apt.doctor?.specialization?.toLowerCase().includes(search)
+      result = result.filter(
+        (apt) =>
+          apt.doctor?.user?.firstName?.toLowerCase().includes(search) ||
+          apt.doctor?.user?.lastName?.toLowerCase().includes(search) ||
+          apt.doctor?.specialization?.toLowerCase().includes(search),
       );
     }
 
     // Sort by date (newest first)
-    return [...result].sort((a, b) =>
-      new Date(b.appointmentDate).getTime() - new Date(a.appointmentDate).getTime()
+    return [...result].sort(
+      (a, b) => new Date(b.appointmentDate).getTime() - new Date(a.appointmentDate).getTime(),
     );
   });
 
@@ -126,7 +136,8 @@ export class AppointmentListComponent implements OnInit {
         this.allAppointments.set(response.data);
       },
       error: (error) => {
-        console.error('Failed to load appointments:', error);
+        this.logger.error('Failed to load appointments:', error);
+        this.notificationService.error('Error', 'Failed to load your appointments');
       },
     });
   }
@@ -194,7 +205,8 @@ export class AppointmentListComponent implements OnInit {
         this.loadAppointments();
       },
       error: (error) => {
-        console.error('Failed to cancel appointment:', error);
+        this.logger.error('Failed to cancel appointment:', error);
+        this.notificationService.error('Error', 'Failed to cancel appointment');
       },
     });
   }
@@ -203,8 +215,10 @@ export class AppointmentListComponent implements OnInit {
    * Check if an appointment can be cancelled.
    */
   protected canCancel(appointment: Appointment): boolean {
-    return appointment.status === AppointmentStatus.SCHEDULED ||
-      appointment.status === AppointmentStatus.CONFIRMED;
+    return (
+      appointment.status === AppointmentStatus.SCHEDULED ||
+      appointment.status === AppointmentStatus.CONFIRMED
+    );
   }
 
   /**

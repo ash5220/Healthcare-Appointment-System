@@ -13,6 +13,7 @@ import {
   AuthResponse,
 } from '../models';
 import { StorageService } from './storage.service';
+import { LoggerService } from './logger.service';
 
 @Injectable({
   providedIn: 'root',
@@ -21,6 +22,7 @@ export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
   private storageService = inject(StorageService);
+  private readonly logger = inject(LoggerService);
 
   private readonly apiUrl = `${environment.apiUrl}/auth`;
 
@@ -177,10 +179,9 @@ export class AuthService {
   }
 
   verifyEmail(token: string): Observable<{ success: boolean; message?: string }> {
-    return this.http.post<{ success: boolean; message?: string }>(
-      `${this.apiUrl}/verify-email`,
-      { token },
-    );
+    return this.http.post<{ success: boolean; message?: string }>(`${this.apiUrl}/verify-email`, {
+      token,
+    });
   }
 
   resendVerificationEmail(email: string): Observable<{ success: boolean; message?: string }> {
@@ -194,7 +195,7 @@ export class AuthService {
     this.http.post(`${this.apiUrl}/logout`, {}).subscribe({
       complete: () => this.clearAuth(),
       error: (err: unknown) => {
-        console.error('[AuthService] logout error (clearing session anyway):', err);
+        this.logger.error('[AuthService] logout error (clearing session anyway):', err);
         this.clearAuth();
       },
     });
@@ -230,14 +231,12 @@ export class AuthService {
     lastName?: string;
     phoneNumber?: string | null;
   }): Observable<{ data: User; message?: string }> {
-    return this.http
-      .patch<{ data: User; message?: string }>(`${this.apiUrl}/profile`, data)
-      .pipe(
-        tap((response) => {
-          this.currentUserSignal.set(response.data);
-          this.storageService.setUser(response.data);
-        }),
-      );
+    return this.http.patch<{ data: User; message?: string }>(`${this.apiUrl}/profile`, data).pipe(
+      tap((response) => {
+        this.currentUserSignal.set(response.data);
+        this.storageService.setUser(response.data);
+      }),
+    );
   }
 
   requestEmailChange(newEmail: string): Observable<{ success: boolean; message?: string }> {
@@ -255,12 +254,18 @@ export class AuthService {
   }
 
   forgotPassword(email: string): Observable<{ success: boolean; message?: string }> {
-    return this.http.post<{ success: boolean; message?: string }>(`${this.apiUrl}/forgot-password`, {
-      email,
-    });
+    return this.http.post<{ success: boolean; message?: string }>(
+      `${this.apiUrl}/forgot-password`,
+      {
+        email,
+      },
+    );
   }
 
-  resetPassword(token: string, newPassword: string): Observable<{ success: boolean; message?: string }> {
+  resetPassword(
+    token: string,
+    newPassword: string,
+  ): Observable<{ success: boolean; message?: string }> {
     return this.http.post<{ success: boolean; message?: string }>(`${this.apiUrl}/reset-password`, {
       token,
       newPassword,

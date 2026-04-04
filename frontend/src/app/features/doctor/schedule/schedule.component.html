@@ -26,7 +26,7 @@
                 class="form-check-input"
                 type="checkbox"
                 [id]="day"
-                [(ngModel)]="schedule[day].isActive"
+                [(ngModel)]="schedule()[day].isActive"
               />
               <label class="form-check-label fw-semibold" [for]="day">
                 {{ day | titlecase }}
@@ -34,7 +34,7 @@
             </div>
           </div>
           <div class="col-md-10">
-            @if (schedule[day].isActive) {
+            @if (schedule()[day].isActive) {
               <div class="row g-3">
                 <div class="col-md-3">
                   <label class="form-label small text-muted" [for]="'start-' + day"
@@ -44,7 +44,7 @@
                     type="time"
                     [id]="'start-' + day"
                     class="form-control"
-                    [(ngModel)]="schedule[day].startTime"
+                    [(ngModel)]="schedule()[day].startTime"
                   />
                 </div>
                 <div class="col-md-3">
@@ -53,7 +53,7 @@
                     type="time"
                     [id]="'end-' + day"
                     class="form-control"
-                    [(ngModel)]="schedule[day].endTime"
+                    [(ngModel)]="schedule()[day].endTime"
                   />
                 </div>
                 <div class="col-md-3">
@@ -63,7 +63,7 @@
                   <select
                     [id]="'duration-' + day"
                     class="form-select"
-                    [(ngModel)]="schedule[day].slotDuration"
+                    [(ngModel)]="schedule()[day].slotDuration"
                   >
                     <option [value]="15">15 minutes</option>
                     <option [value]="30">30 minutes</option>
@@ -77,14 +77,14 @@
                     <input
                       type="time"
                       class="form-control"
-                      [(ngModel)]="schedule[day].breakStart"
+                      [(ngModel)]="schedule()[day].breakStart"
                       aria-label="Break start time"
                     />
                     <span class="input-group-text">to</span>
                     <input
                       type="time"
                       class="form-control"
-                      [(ngModel)]="schedule[day].breakEnd"
+                      [(ngModel)]="schedule()[day].breakEnd"
                       aria-label="Break end time"
                     />
                   </div>
@@ -223,7 +223,8 @@
               type="date"
               id="timeOffStartDate"
               class="form-control"
-              [(ngModel)]="newTimeOff.startDate"
+              [(ngModel)]="newTimeOff().startDate"
+              (ngModelChange)="newTimeOff.update(v => ({...v, startDate: $event}))"
             />
           </div>
           <div class="mb-3">
@@ -232,7 +233,8 @@
               type="date"
               id="timeOffEndDate"
               class="form-control"
-              [(ngModel)]="newTimeOff.endDate"
+              [(ngModel)]="newTimeOff().endDate"
+              (ngModelChange)="newTimeOff.update(v => ({...v, endDate: $event}))"
             />
           </div>
           <div class="mb-3">
@@ -241,7 +243,8 @@
               type="text"
               id="timeOffReason"
               class="form-control"
-              [(ngModel)]="newTimeOff.reason"
+              [(ngModel)]="newTimeOff().reason"
+              (ngModelChange)="newTimeOff.update(v => ({...v, reason: $event}))"
               placeholder="e.g., Vacation, Conference"
             />
           </div>

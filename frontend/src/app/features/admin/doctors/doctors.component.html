@@ -4,9 +4,7 @@
     <div class="col-12">
       <div class="card welcome-card text-white rounded-4 border-0">
         <div class="card-body p-4">
-          <h2 class="fw-bold mb-1">
-            <i class="bi bi-person-badge me-2"></i>Manage Doctors
-          </h2>
+          <h2 class="fw-bold mb-1"><i class="bi bi-person-badge me-2"></i>Manage Doctors</h2>
           <p class="mb-0 opacity-75">Review and approve pending doctor registrations.</p>
         </div>
       </div>
@@ -16,7 +14,12 @@
   @if (errorMessage()) {
     <div class="alert alert-danger alert-dismissible">
       {{ errorMessage() }}
-      <button type="button" class="btn-close" (click)="errorMessage.set('')"></button>
+      <button
+        type="button"
+        class="btn-close"
+        (click)="errorMessage.set('')"
+        aria-label="Close"
+      ></button>
     </div>
   }
 
@@ -28,7 +31,9 @@
     </div>
   } @else {
     <div class="card border-0 shadow-sm rounded-3">
-      <div class="card-header bg-transparent border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+      <div
+        class="card-header bg-transparent border-0 pt-4 px-4 d-flex justify-content-between align-items-center"
+      >
         <h5 class="fw-bold mb-0">Pending Approvals</h5>
         <span class="badge bg-warning-subtle text-warning fs-6">{{ total() }} pending</span>
       </div>
@@ -54,14 +59,18 @@
                   <tr>
                     <td class="px-4 py-3">
                       @if (doctor.user) {
-                        <div class="fw-semibold">Dr. {{ doctor.user.firstName }} {{ doctor.user.lastName }}</div>
+                        <div class="fw-semibold">
+                          Dr. {{ doctor.user.firstName }} {{ doctor.user.lastName }}
+                        </div>
                         <small class="text-muted">{{ doctor.user.email }}</small>
                       } @else {
                         <span class="text-muted">—</span>
                       }
                     </td>
                     <td class="py-3">{{ doctor.specialization || '—' }}</td>
-                    <td class="py-3"><code>{{ doctor.licenseNumber || '—' }}</code></td>
+                    <td class="py-3">
+                      <code>{{ doctor.licenseNumber || '—' }}</code>
+                    </td>
                     <td class="py-3 text-end pe-4">
                       <button
                         class="btn btn-success btn-sm me-2"

@@ -3,6 +3,7 @@ import { logger } from '../config/logger';
 import { NotFoundError } from '../shared/errors';
 import { userRepository, UserFilters } from '../repositories/user.repository';
 import { patientRepository } from '../repositories/patient.repository';
+import { Gender } from '../types/constants';
 
 export { UserFilters } from '../repositories/user.repository';
 
@@ -23,7 +24,7 @@ export interface SafeUserUpdateData {
  */
 export interface SafePatientUpdateData {
   dateOfBirth?: string;
-  gender?: Patient['gender'];
+  gender?: Gender;
   bloodGroup?: string;
   allergies?: string[];
   emergencyContactName?: string;

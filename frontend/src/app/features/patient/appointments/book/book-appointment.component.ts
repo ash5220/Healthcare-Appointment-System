@@ -154,8 +154,8 @@ export class BookAppointmentComponent implements OnInit {
           lastName: 'Smith',
           isActive: true,
           isEmailVerified: true,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
         },
       },
       {
@@ -177,8 +177,8 @@ export class BookAppointmentComponent implements OnInit {
           lastName: 'Johnson',
           isActive: true,
           isEmailVerified: true,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
         },
       },
     ];

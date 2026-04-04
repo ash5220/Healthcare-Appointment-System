@@ -21,8 +21,8 @@ describe('AuthService', () => {
     lastName: 'User',
     isActive: true,
     isEmailVerified: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   };
 
   const mockTokens = {
@@ -142,26 +142,26 @@ describe('AuthService', () => {
     it('should update profile and update local user signal', () => {
       const updateData = { firstName: 'Updated', lastName: 'Name', phoneNumber: '9998887777' };
       const updatedUser = { ...mockUser, ...updateData };
-      
-      service.updateProfile(updateData).subscribe(res => {
+
+      service.updateProfile(updateData).subscribe((res) => {
         expect(res.data).toEqual(updatedUser);
         expect(service.currentUser()).toEqual(updatedUser);
       });
-      
+
       const req = httpMock.expectOne(`${environment.apiUrl}/auth/profile`);
       expect(req.request.method).toBe('PATCH');
       req.flush({ data: updatedUser });
-      
+
       expect(storageServiceSpy.setUser).toHaveBeenCalledWith(updatedUser);
     });
 
     it('should request email change', () => {
       const newEmail = 'new@test.com';
-      
-      service.requestEmailChange(newEmail).subscribe(res => {
+
+      service.requestEmailChange(newEmail).subscribe((res) => {
         expect(res.success).toBeTrue();
       });
-      
+
       const req = httpMock.expectOne(`${environment.apiUrl}/auth/request-email-change`);
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual({ newEmail });
@@ -170,11 +170,11 @@ describe('AuthService', () => {
 
     it('should confirm email change', () => {
       const token = '12345';
-      
-      service.confirmEmailChange(token).subscribe(res => {
+
+      service.confirmEmailChange(token).subscribe((res) => {
         expect(res.success).toBeTrue();
       });
-      
+
       const req = httpMock.expectOne(`${environment.apiUrl}/auth/confirm-email-change`);
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual({ token });

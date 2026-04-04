@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
-import { DatePipe, NgClass, TitleCasePipe } from '@angular/common';
+import { DatePipe, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
@@ -16,7 +16,7 @@ interface AdminAppointment {
 @Component({
   selector: 'app-admin-appointments',
   standalone: true,
-  imports: [DatePipe, TitleCasePipe, NgClass, FormsModule],
+  imports: [DatePipe, TitleCasePipe, FormsModule],
   templateUrl: './appointments.component.html',
   styleUrl: './appointments.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

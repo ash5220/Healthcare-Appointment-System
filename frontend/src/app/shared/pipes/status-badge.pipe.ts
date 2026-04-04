@@ -8,8 +8,8 @@ import { Pipe, PipeTransform } from '@angular/core';
  * - `'solid'`: opaque badges used in doctor/admin-facing views
  *
  * Usage:
- *   <span class="badge" [ngClass]="status | statusBadge">
- *   <span class="badge" [ngClass]="status | statusBadge:'solid'">
+ *   <span class="badge" [class]="status | statusBadge">
+ *   <span class="badge" [class]="status | statusBadge:'solid'">
  */
 @Pipe({ name: 'statusBadge', standalone: true })
 export class StatusBadgePipe implements PipeTransform {

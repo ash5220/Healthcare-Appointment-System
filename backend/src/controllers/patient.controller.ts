@@ -1,9 +1,9 @@
 import { Response } from 'express';
 import { userService } from '../services';
+import type { SafePatientUpdateData } from '../services/user.service';
 import { successResponse } from '../utils/response.util';
 import { asyncHandler } from '../middleware';
 import { AuthenticatedRequest } from '../types/express-augment';
-import type { Patient } from '../models';
 
 export const getPatientProfile = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const patient = await userService.getPatientById(req.params['id']);
@@ -13,7 +13,7 @@ export const getPatientProfile = asyncHandler(async (req: AuthenticatedRequest, 
 
 export const updatePatientProfile = asyncHandler(
   async (req: AuthenticatedRequest, res: Response) => {
-    const updateData = req.body as Partial<Patient>;
+    const updateData = req.body as SafePatientUpdateData;
 
     const patient = await userService.updatePatientProfile(req.user.userId, updateData);
 

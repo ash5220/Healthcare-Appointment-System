@@ -1,4 +1,4 @@
-import { DatePipe, NgClass, TitleCasePipe } from '@angular/common';
+import { DatePipe, TitleCasePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { MedicalRecordService } from '../../../core/services/medical-record.service';
 import { MedicalRecord, MedicalRecordType } from '../../../core/models';
@@ -6,7 +6,7 @@ import { finalize } from 'rxjs';
 
 @Component({
     selector: 'app-medical-records',
-    imports: [TitleCasePipe, DatePipe, NgClass],
+    imports: [TitleCasePipe, DatePipe],
     templateUrl: './medical-records.component.html',
     styleUrl: './medical-records.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,

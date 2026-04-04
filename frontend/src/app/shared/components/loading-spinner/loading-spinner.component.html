@@ -15,7 +15,12 @@
 <!-- Full-screen overlay mode -->
 <div class="spinner-overlay" role="status" aria-live="polite">
     <div class="spinner-container">
-        <div class="spinner-border text-primary" [ngClass]="sizeClass" [ngStyle]="customStyles">
+        <div
+            class="spinner-border text-primary"
+            [class]="sizeClass"
+            [style.width]="size() === 'large' ? '3rem' : null"
+            [style.height]="size() === 'large' ? '3rem' : null"
+            [style.border-width]="size() === 'large' ? '0.35em' : null">
             <span class="visually-hidden">Loading...</span>
         </div>
         @if (message()) {
@@ -26,7 +31,12 @@
 } @else {
 <!-- Inline mode -->
 <div class="spinner-inline d-flex flex-column align-items-center" role="status" aria-live="polite">
-    <div class="spinner-border text-primary" [ngClass]="sizeClass" [ngStyle]="customStyles">
+    <div
+        class="spinner-border text-primary"
+        [class]="sizeClass"
+        [style.width]="size() === 'large' ? '3rem' : null"
+        [style.height]="size() === 'large' ? '3rem' : null"
+        [style.border-width]="size() === 'large' ? '0.35em' : null">
         <span class="visually-hidden">Loading...</span>
     </div>
     @if (message()) {

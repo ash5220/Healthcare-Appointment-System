@@ -30,7 +30,7 @@
                     @for (social of socialLinks; track social.name) {
                     <a [href]="social.url" class="social-link" target="_blank" rel="noopener noreferrer"
                         [attr.aria-label]="social.name">
-                        <i class="bi" [ngClass]="social.icon"></i>
+                        <i class="bi" [class]="social.icon"></i>
                     </a>
                     }
                 </div>

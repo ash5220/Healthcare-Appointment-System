@@ -110,7 +110,7 @@
                                 </span>
                             </td>
                             <td>
-                                <span class="badge" [ngClass]="apt.status | statusBadge">
+                                <span class="badge" [class]="apt.status | statusBadge">
                                     {{ apt.status | titlecase }}
                                 </span>
                             </td>
@@ -146,7 +146,9 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="cancelModalTitle">Cancel Appointment</h5>
-                <button type="button" class="btn-close" (click)="closeCancelModal()"></button>
+                <button type="button" class="btn-close" aria-label="Close cancel dialog" (click)="closeCancelModal()">
+                    <span class="visually-hidden">Close</span>
+                </button>
             </div>
             <div class="modal-body">
                 <p>You are about to cancel your appointment with:</p>
@@ -156,8 +158,8 @@
                     selectedAppointment()?.startTime }}
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Reason for cancellation</label>
-                    <textarea class="form-control" rows="3" [ngModel]="cancellationReason()"
+                    <label class="form-label" for="cancelAppointmentReason">Reason for cancellation</label>
+                    <textarea id="cancelAppointmentReason" class="form-control" rows="3" [ngModel]="cancellationReason()"
                         (ngModelChange)="cancellationReason.set($event)"
                         placeholder="Please provide a reason (minimum {{ minReasonLength }} characters)"></textarea>
                     <small class="text-muted">
@@ -187,7 +189,9 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="detailsModalTitle">Appointment Details</h5>
-                <button type="button" class="btn-close" (click)="closeDetailsModal()"></button>
+                <button type="button" class="btn-close" aria-label="Close details dialog" (click)="closeDetailsModal()">
+                    <span class="visually-hidden">Close</span>
+                </button>
             </div>
             <div class="modal-body">
                 <div class="row g-4">
@@ -228,7 +232,7 @@
                     <div class="col-md-6">
                         <h6 class="text-muted mb-2">Status</h6>
                         <div>
-                            <span class="badge" [ngClass]="viewingAppointment()!.status | statusBadge">
+                            <span class="badge" [class]="viewingAppointment()!.status | statusBadge">
                                 {{ viewingAppointment()?.status | titlecase }}
                             </span>
                         </div>

@@ -107,7 +107,7 @@
                     <div class="d-grid gap-3">
                         @for (action of quickActions; track action.route) {
                         <a [routerLink]="action.route" class="btn btn-outline-primary text-start quick-action-btn">
-                            <i class="bi me-2" [ngClass]="action.icon"></i>
+                            <i class="bi me-2" [class]="action.icon"></i>
                             {{ action.label }}
                         </a>
                         }

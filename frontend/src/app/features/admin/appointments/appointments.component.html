@@ -80,7 +80,7 @@
             <td class="py-3">{{ appt.appointmentDate | date:'MMM d, y, h:mm a' }}</td>
             <td class="py-3">{{ appt.reasonForVisit || '—' }}</td>
             <td class="py-3">
-              <span class="badge rounded-pill px-3 py-2" [ngClass]="statusClass(appt.status)">
+              <span class="badge rounded-pill px-3 py-2" [class]="statusClass(appt.status)">
                 {{ appt.status | titlecase }}
               </span>
             </td>

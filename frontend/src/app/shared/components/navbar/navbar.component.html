@@ -35,7 +35,7 @@
         <li class="nav-item">
           <a class="nav-link d-flex align-items-center gap-1" [routerLink]="item.path" routerLinkActive="active"
             [routerLinkActiveOptions]="{ exact: false }">
-            <i class="bi" [ngClass]="item.icon"></i>
+            <i class="bi" [class]="item.icon"></i>
             {{ item.label }}
             @if (item.label === 'Messages' && messageService.unreadCount() > 0) {
             <span class="msg-unread-badge">{{ messageService.unreadCount() }}</span>

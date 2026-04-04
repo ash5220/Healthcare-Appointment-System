@@ -104,13 +104,13 @@
                                         formControlName="password" placeholder="Create a strong password">
                                     <button type="button" class="btn btn-outline-secondary"
                                         (click)="togglePasswordVisibility('password')">
-                                        <i class="bi" [ngClass]="showPassword() ? 'bi-eye-slash' : 'bi-eye'"></i>
+                                        <i class="bi" [class]="showPassword() ? 'bi-eye-slash' : 'bi-eye'"></i>
                                     </button>
                                 </div>
                                 <!-- Password Strength Indicator -->
                                 @if (accountForm.get('password')?.value) {
                                 <div class="progress mt-2" style="height: 4px;">
-                                    <div class="progress-bar" [ngClass]="getPasswordStrengthClass()"
+                                    <div class="progress-bar" [class]="getPasswordStrengthClass()"
                                         [style.width.%]="getPasswordStrength()"></div>
                                 </div>
                                 <small class="text-muted">
@@ -129,7 +129,7 @@
                                         formControlName="confirmPassword" placeholder="Confirm your password">
                                     <button type="button" class="btn btn-outline-secondary"
                                         (click)="togglePasswordVisibility('confirm')">
-                                        <i class="bi" [ngClass]="showConfirmPassword() ? 'bi-eye-slash' : 'bi-eye'"></i>
+                                        <i class="bi" [class]="showConfirmPassword() ? 'bi-eye-slash' : 'bi-eye'"></i>
                                     </button>
                                 </div>
                                 @if (accountForm.hasError('passwordMismatch') &&

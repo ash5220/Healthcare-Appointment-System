@@ -74,7 +74,7 @@
                                     <button type="button" class="btn btn-outline-secondary"
                                         (click)="togglePasswordVisibility()"
                                         [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'">
-                                        <i class="bi" [ngClass]="showPassword() ? 'bi-eye-slash' : 'bi-eye'"></i>
+                                        <i class="bi" [class]="showPassword() ? 'bi-eye-slash' : 'bi-eye'"></i>
                                     </button>
                                 </div>
                                 @if (hasError('password', 'required')) {

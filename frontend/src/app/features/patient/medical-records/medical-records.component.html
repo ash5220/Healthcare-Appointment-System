@@ -52,8 +52,8 @@
                     <!-- Card Header: Type, Status, Date -->
                     <div class="d-flex justify-content-between align-items-start mb-3">
                         <div class="d-flex align-items-center gap-3">
-                            <div class="icon-box rounded-3" [ngClass]="getRecordTypeBadge(record.recordType)">
-                                <i class="bi fs-4" [ngClass]="getRecordTypeIcon(record.recordType)"></i>
+                            <div class="icon-box rounded-3" [class]="getRecordTypeBadge(record.recordType)">
+                                <i class="bi fs-4" [class]="getRecordTypeIcon(record.recordType)"></i>
                             </div>
                             <div>
                                 <h5 class="fw-bold mb-1">{{ record.recordType | titlecase }}</h5>

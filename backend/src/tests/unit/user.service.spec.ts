@@ -1,4 +1,4 @@
-﻿jest.mock('../../repositories/user.repository', () => ({
+jest.mock('../../repositories/user.repository', () => ({
   userRepository: {
     findAll: jest.fn(),
     findById: jest.fn(),
@@ -18,12 +18,11 @@ jest.mock('../../config/logger', () => ({
   logger: { info: jest.fn(), warn: jest.fn(), error: jest.fn() },
 }));
 
-import { userService, SafeUserUpdateData } from '../../services/user.service';
+import { userService, SafeUserUpdateData, type SafePatientUpdateData } from '../../services/user.service';
 import { userRepository } from '../../repositories/user.repository';
 import { patientRepository } from '../../repositories/patient.repository';
 import { NotFoundError } from '../../shared/errors';
 import { UserRole } from '../../types/constants';
-import { Patient } from '../../models';
 
 const makeUser = (overrides: Record<string, unknown> = {}) => ({
   id: 'u1',
@@ -183,9 +182,8 @@ describe('UserService', () => {
       (patientRepository.findByUserId as jest.Mock).mockResolvedValue(mockPatient);
       (patientRepository.findById as jest.Mock).mockResolvedValue(updatedPatient);
 
-      const result = await userService.updatePatientProfile('u1', {
-        bloodGroup: 'A+',
-      } as Partial<Patient>);
+      const payload: SafePatientUpdateData = { bloodGroup: 'A+' };
+      const result = await userService.updatePatientProfile('u1', payload);
 
       expect(patientRepository.update).toHaveBeenCalledWith(
         mockPatient,

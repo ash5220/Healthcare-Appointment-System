@@ -155,8 +155,8 @@ export class PatientDashboardComponent implements OnInit {
    * @returns Two-letter initials string
    */
   protected getDoctorInitials(appointment: Appointment): string {
-    const firstName = appointment.doctor?.firstName || '';
-    const lastName = appointment.doctor?.lastName || '';
+    const firstName = appointment.doctor?.user?.firstName ?? '';
+    const lastName = appointment.doctor?.user?.lastName ?? '';
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
   }
 
@@ -167,8 +167,8 @@ export class PatientDashboardComponent implements OnInit {
    * @returns Formatted doctor name with "Dr." prefix
    */
   protected getDoctorName(appointment: Appointment): string {
-    const firstName = appointment.doctor?.firstName || '';
-    const lastName = appointment.doctor?.lastName || '';
+    const firstName = appointment.doctor?.user?.firstName ?? '';
+    const lastName = appointment.doctor?.user?.lastName ?? '';
     return `Dr. ${firstName} ${lastName}`.trim();
   }
 }

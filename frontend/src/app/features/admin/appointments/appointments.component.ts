@@ -15,8 +15,8 @@ interface AdminAppointment {
   status: string;
   appointmentDate: string;
   reasonForVisit?: string;
-  patient?: { firstName?: string; lastName?: string; email?: string; user?: AdminAppointmentUser };
-  doctor?: { firstName?: string; lastName?: string; user?: AdminAppointmentUser };
+  patient?: { user?: AdminAppointmentUser };
+  doctor?: { user?: AdminAppointmentUser };
 }
 
 @Component({

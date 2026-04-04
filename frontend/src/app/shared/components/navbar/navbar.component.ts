@@ -85,6 +85,7 @@ export class NavbarComponent implements OnInit {
    */
   protected readonly adminNavItems: NavItem[] = [
     { path: '/admin/dashboard', label: 'Dashboard', icon: 'bi-house' },
+    { path: '/admin/appointments', label: 'Appointments', icon: 'bi-calendar-week' },
     { path: '/admin/users', label: 'Users', icon: 'bi-people' },
     { path: '/admin/messages', label: 'Messages', icon: 'bi-chat-dots' },
   ];

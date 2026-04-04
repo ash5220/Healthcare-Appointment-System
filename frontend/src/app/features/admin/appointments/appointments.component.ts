@@ -4,13 +4,19 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 
+interface AdminAppointmentUser {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+}
+
 interface AdminAppointment {
   id: string;
   status: string;
   appointmentDate: string;
   reasonForVisit?: string;
-  patient?: { firstName?: string; lastName?: string; email?: string };
-  doctor?: { firstName?: string; lastName?: string };
+  patient?: { firstName?: string; lastName?: string; email?: string; user?: AdminAppointmentUser };
+  doctor?: { firstName?: string; lastName?: string; user?: AdminAppointmentUser };
 }
 
 @Component({

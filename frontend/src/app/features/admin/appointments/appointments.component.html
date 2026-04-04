@@ -63,16 +63,16 @@
           @for (appt of appointments(); track appt.id) {
           <tr>
             <td class="px-4 py-3">
-              @if (appt.patient?.firstName) {
-              <div>{{ appt.patient?.firstName }} {{ appt.patient?.lastName }}</div>
-              <small class="text-muted">{{ appt.patient?.email }}</small>
+              @if (appt.patient?.user?.firstName || appt.patient?.firstName) {
+              <div>{{ appt.patient?.user?.firstName || appt.patient?.firstName }} {{ appt.patient?.user?.lastName || appt.patient?.lastName }}</div>
+              <small class="text-muted">{{ appt.patient?.user?.email || appt.patient?.email }}</small>
               } @else {
               <span class="text-muted">—</span>
               }
             </td>
             <td class="py-3">
-              @if (appt.doctor?.firstName) {
-              Dr. {{ appt.doctor?.firstName }} {{ appt.doctor?.lastName }}
+              @if (appt.doctor?.user?.firstName || appt.doctor?.firstName) {
+              Dr. {{ appt.doctor?.user?.firstName || appt.doctor?.firstName }} {{ appt.doctor?.user?.lastName || appt.doctor?.lastName }}
               } @else {
               <span class="text-muted">—</span>
               }

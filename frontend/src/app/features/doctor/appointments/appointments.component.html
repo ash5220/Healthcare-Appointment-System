@@ -100,15 +100,19 @@
                     <div class="d-flex align-items-center">
                       <div class="avatar-sm me-3">
                         <span class="avatar-text bg-primary-subtle text-primary">
-                          {{ apt.patient?.firstName?.charAt(0)
-                          }}{{ apt.patient?.lastName?.charAt(0) }}
+                          {{ (apt.patient?.firstName || apt.patient?.user?.firstName)?.charAt(0) }}{{ (apt.patient?.lastName || apt.patient?.user?.lastName)?.charAt(0) }}
                         </span>
                       </div>
                       <div>
-                        <div class="fw-semibold">
-                          {{ apt.patient?.firstName }} {{ apt.patient?.lastName }}
-                        </div>
-                        <small class="text-muted">{{ apt.patient?.email }}</small>
+                        @if (apt.patient?.firstName || apt.patient?.user?.firstName) {
+                          <div class="fw-semibold">
+                            {{ apt.patient?.firstName || apt.patient?.user?.firstName }}
+                            {{ apt.patient?.lastName || apt.patient?.user?.lastName }}
+                          </div>
+                          <small class="text-muted">{{ apt.patient?.email || apt.patient?.user?.email }}</small>
+                        } @else {
+                          <span class="text-muted">—</span>
+                        }
                       </div>
                     </div>
                   </td>

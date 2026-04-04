@@ -46,7 +46,6 @@ interface DashboardStats {
 
 @Component({
   selector: 'app-patient-dashboard',
-  standalone: true,
   imports: [CommonModule, RouterModule, StatusBadgePipe],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',

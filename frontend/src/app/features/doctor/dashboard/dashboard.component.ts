@@ -51,7 +51,6 @@ interface QuickAction {
 
 @Component({
   selector: 'app-doctor-dashboard',
-  standalone: true,
   imports: [CommonModule, RouterModule, StatusBadgePipe],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',

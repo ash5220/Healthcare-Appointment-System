@@ -7,7 +7,6 @@ import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-insurance',
-  standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './insurance.component.html',
   styleUrl: './insurance.component.scss',

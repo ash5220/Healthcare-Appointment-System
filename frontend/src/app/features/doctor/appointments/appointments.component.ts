@@ -18,7 +18,6 @@ interface PrescriptionItem {
 
 @Component({
   selector: 'app-doctor-appointments',
-  standalone: true,
   imports: [CommonModule, FormsModule, StatusBadgePipe],
   templateUrl: './appointments.component.html',
   styleUrl: './appointments.component.scss',

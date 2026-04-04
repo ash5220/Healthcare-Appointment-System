@@ -7,7 +7,6 @@ import { User, UserRole } from '../../../core/models';
 
 @Component({
   selector: 'app-users',
-  standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './users.component.html',
   styleUrl: './users.component.scss',

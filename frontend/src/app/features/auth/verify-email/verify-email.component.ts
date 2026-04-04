@@ -7,7 +7,6 @@ type VerifyState = 'loading' | 'success' | 'error' | 'no-token';
 
 @Component({
   selector: 'app-verify-email',
-  standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './verify-email.component.html',
   styleUrl: './verify-email.component.scss',

@@ -21,7 +21,6 @@ interface AdminAppointment {
 
 @Component({
   selector: 'app-admin-appointments',
-  standalone: true,
   imports: [DatePipe, TitleCasePipe, FormsModule],
   templateUrl: './appointments.component.html',
   styleUrl: './appointments.component.scss',
@@ -59,19 +58,19 @@ export class AdminAppointmentsComponent implements OnInit {
     }
 
     const query = new URLSearchParams(params).toString();
-    this.http.get<{ data: AdminAppointment[]; metadata: { total: number } }>(
-      `${this.apiUrl}?${query}`
-    ).subscribe({
-      next: (res) => {
-        this.appointments.set(res.data);
-        this.total.set(res.metadata?.total ?? res.data.length);
-        this.isLoading.set(false);
-      },
-      error: () => {
-        this.errorMessage.set('Failed to load appointments.');
-        this.isLoading.set(false);
-      },
-    });
+    this.http
+      .get<{ data: AdminAppointment[]; metadata: { total: number } }>(`${this.apiUrl}?${query}`)
+      .subscribe({
+        next: (res) => {
+          this.appointments.set(res.data);
+          this.total.set(res.metadata?.total ?? res.data.length);
+          this.isLoading.set(false);
+        },
+        error: () => {
+          this.errorMessage.set('Failed to load appointments.');
+          this.isLoading.set(false);
+        },
+      });
   }
 
   onFilterChange(): void {

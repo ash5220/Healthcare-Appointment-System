@@ -41,7 +41,6 @@ const SPECIALIZATIONS = [
 
 @Component({
   selector: 'app-book-appointment',
-  standalone: true,
   imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule],
   templateUrl: './book-appointment.component.html',
   styleUrl: './book-appointment.component.scss',
@@ -197,11 +196,11 @@ export class BookAppointmentComponent implements OnInit {
     if (this.searchTerm) {
       const term = this.searchTerm.toLowerCase();
       result = result.filter(
-          (d) =>
-            d.firstName?.toLowerCase().includes(term) ||
-            d.lastName?.toLowerCase().includes(term) ||
-            d.specialization?.toLowerCase().includes(term),
-        );
+        (d) =>
+          d.firstName?.toLowerCase().includes(term) ||
+          d.lastName?.toLowerCase().includes(term) ||
+          d.specialization?.toLowerCase().includes(term),
+      );
     }
 
     // Apply specialization filter

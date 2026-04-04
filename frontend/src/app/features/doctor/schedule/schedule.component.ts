@@ -22,7 +22,6 @@ interface TimeOffEntry {
 
 @Component({
   selector: 'app-schedule',
-  standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './schedule.component.html',
   styleUrl: './schedule.component.scss',

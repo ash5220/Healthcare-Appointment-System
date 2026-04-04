@@ -12,7 +12,6 @@ interface PendingDoctor {
 
 @Component({
   selector: 'app-admin-doctors',
-  standalone: true,
   imports: [],
   templateUrl: './doctors.component.html',
   styleUrl: './doctors.component.scss',
@@ -36,9 +35,10 @@ export class AdminDoctorsComponent implements OnInit {
     this.isLoading.set(true);
     this.errorMessage.set('');
     this.http
-      .get<{ data: PendingDoctor[]; metadata: { total: number } }>(
-        `${this.adminUrl}/doctors/pending`
-      )
+      .get<{
+        data: PendingDoctor[];
+        metadata: { total: number };
+      }>(`${this.adminUrl}/doctors/pending`)
       .subscribe({
         next: (res) => {
           this.pendingDoctors.set(res.data);

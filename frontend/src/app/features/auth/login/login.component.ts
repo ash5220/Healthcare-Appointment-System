@@ -37,7 +37,6 @@ interface DemoAccount {
 
 @Component({
   selector: 'app-login',
-  standalone: true,
   imports: [CommonModule, RouterModule, ReactiveFormsModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',

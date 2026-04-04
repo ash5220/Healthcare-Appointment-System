@@ -5,7 +5,6 @@ import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-confirm-email-change',
-  standalone: true,
   imports: [CommonModule],
   templateUrl: './confirm-email-change.component.html',
   styleUrl: './confirm-email-change.component.scss',
@@ -38,7 +37,7 @@ export class ConfirmEmailChangeComponent implements OnInit {
       error: (err) => {
         this.status.set('error');
         this.errorMessage.set(
-          err?.error?.message || 'Failed to confirm email change. The link may have expired.'
+          err?.error?.message || 'Failed to confirm email change. The link may have expired.',
         );
       },
     });

@@ -43,7 +43,6 @@ interface FilterOption {
 
 @Component({
   selector: 'app-appointment-list',
-  standalone: true,
   imports: [CommonModule, RouterModule, FormsModule, StatusBadgePipe],
   templateUrl: './appointment-list.component.html',
   styleUrl: './appointment-list.component.scss',

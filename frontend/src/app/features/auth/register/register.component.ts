@@ -1,20 +1,20 @@
 /**
  * RegisterComponent
- * 
+ *
  * Multi-step registration form that handles user signup for patients and doctors.
- * 
+ *
  * Registration Flow:
  * 1. Account Type Selection (Patient or Doctor)
  * 2. Basic Information (Email, Password)
  * 3. Profile Details (Name, Contact, etc.)
  * 4. Role-Specific Information (Medical history for patients, credentials for doctors)
- * 
+ *
  * Features:
  * - Step-by-step wizard interface
  * - Real-time validation
  * - Password strength indicator
  * - Terms of service acceptance
- * 
+ *
  * Security:
  * - Password validation enforced
  * - Email uniqueness checked on backend
@@ -23,7 +23,13 @@
 import { ChangeDetectionStrategy, Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
-import { FormBuilder, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import {
+  FormBuilder,
+  ReactiveFormsModule,
+  Validators,
+  AbstractControl,
+  ValidationErrors,
+} from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { LoggerService } from '../../../core/services/logger.service';
@@ -64,7 +70,6 @@ const SPECIALIZATIONS = [
 
 @Component({
   selector: 'app-register',
-  standalone: true,
   imports: [CommonModule, RouterModule, ReactiveFormsModule],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss',
@@ -98,31 +103,55 @@ export class RegisterComponent {
 
   /** Available user roles for registration */
   protected readonly roleOptions = [
-    { value: UserRole.PATIENT, label: 'Patient', description: 'Book appointments and manage your health' },
+    {
+      value: UserRole.PATIENT,
+      label: 'Patient',
+      description: 'Book appointments and manage your health',
+    },
     { value: UserRole.DOCTOR, label: 'Doctor', description: 'Manage patients and appointments' },
   ];
 
   /**
    * Step 1: Account type and credentials form
    */
-  protected readonly accountForm = this.fb.nonNullable.group({
-    role: [UserRole.PATIENT as UserRole, Validators.required],
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [
-      Validators.required,
-      Validators.minLength(MIN_PASSWORD_LENGTH),
-      Validators.maxLength(MAX_PASSWORD_LENGTH),
-      this.passwordStrengthValidator,
-    ]],
-    confirmPassword: ['', Validators.required],
-  }, { validators: this.passwordMatchValidator });
+  protected readonly accountForm = this.fb.nonNullable.group(
+    {
+      role: [UserRole.PATIENT as UserRole, Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      password: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(MIN_PASSWORD_LENGTH),
+          Validators.maxLength(MAX_PASSWORD_LENGTH),
+          this.passwordStrengthValidator,
+        ],
+      ],
+      confirmPassword: ['', Validators.required],
+    },
+    { validators: this.passwordMatchValidator },
+  );
 
   /**
    * Step 2: Personal information form
    */
   protected readonly personalForm = this.fb.nonNullable.group({
-    firstName: ['', [Validators.required, Validators.minLength(MIN_NAME_LENGTH), Validators.maxLength(MAX_NAME_LENGTH)]],
-    lastName: ['', [Validators.required, Validators.minLength(MIN_NAME_LENGTH), Validators.maxLength(MAX_NAME_LENGTH)]],
+    firstName: [
+      '',
+      [
+        Validators.required,
+        Validators.minLength(MIN_NAME_LENGTH),
+        Validators.maxLength(MAX_NAME_LENGTH),
+      ],
+    ],
+    lastName: [
+      '',
+      [
+        Validators.required,
+        Validators.minLength(MIN_NAME_LENGTH),
+        Validators.maxLength(MAX_NAME_LENGTH),
+      ],
+    ],
     phone: ['', [Validators.required, Validators.pattern(/^\+?[\d\s-]{10,}$/)]],
     dateOfBirth: ['', Validators.required],
     gender: ['' as Gender | '', Validators.required],
@@ -154,8 +183,8 @@ export class RegisterComponent {
   protected readonly selectedRole = computed(() => this.accountForm.get('role')?.value);
 
   /** Progress percentage for the progress bar */
-  protected readonly progressPercentage = computed(() =>
-    (this.currentStep() / this.totalSteps) * 100
+  protected readonly progressPercentage = computed(
+    () => (this.currentStep() / this.totalSteps) * 100,
   );
 
   /**
@@ -164,7 +193,7 @@ export class RegisterComponent {
    */
   protected nextStep(): void {
     if (this.validateCurrentStep()) {
-      this.currentStep.update(step => Math.min(step + 1, this.totalSteps));
+      this.currentStep.update((step) => Math.min(step + 1, this.totalSteps));
     }
   }
 
@@ -172,7 +201,7 @@ export class RegisterComponent {
    * Move to the previous registration step.
    */
   protected previousStep(): void {
-    this.currentStep.update(step => Math.max(step - 1, 1));
+    this.currentStep.update((step) => Math.max(step - 1, 1));
   }
 
   /**
@@ -221,7 +250,7 @@ export class RegisterComponent {
         this.isLoading.set(false);
         this.notificationService.success(
           'Registration Successful!',
-          'Account created successfully. Welcome!'
+          'Account created successfully. Welcome!',
         );
         this.router.navigate(['/']); // Navigate to dashboard/home instead of login since we auto-login
       },
@@ -230,10 +259,7 @@ export class RegisterComponent {
         this.logger.error('Registration failed:', error);
 
         const errorMessage = error.error?.message || 'Registration failed. Please try again.';
-        this.notificationService.error(
-          'Registration Failed',
-          errorMessage
-        );
+        this.notificationService.error('Registration Failed', errorMessage);
       },
     });
   }
@@ -264,7 +290,7 @@ export class RegisterComponent {
     const dobString = personal.dateOfBirth ? new Date(personal.dateOfBirth).toISOString() : '';
 
     const bloodGroup = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].includes(
-      roleSpecific.bloodType
+      roleSpecific.bloodType,
     )
       ? (roleSpecific.bloodType as PatientRegisterData['bloodGroup'])
       : undefined;
@@ -274,7 +300,9 @@ export class RegisterComponent {
       dateOfBirth: dobString,
       gender: personal.gender as PatientRegisterData['gender'],
       bloodGroup,
-      allergies: roleSpecific.allergies ? roleSpecific.allergies.split(',').map(a => a.trim()) : [],
+      allergies: roleSpecific.allergies
+        ? roleSpecific.allergies.split(',').map((a) => a.trim())
+        : [],
       emergencyContactName: roleSpecific.emergencyContactName,
       emergencyContactPhone: roleSpecific.emergencyContactPhone,
     };
@@ -352,7 +380,11 @@ export class RegisterComponent {
   /**
    * Check if a form control has a specific error.
    */
-  protected hasError(formName: 'account' | 'personal' | 'roleSpecific', controlName: string, errorName: string): boolean {
+  protected hasError(
+    formName: 'account' | 'personal' | 'roleSpecific',
+    controlName: string,
+    errorName: string,
+  ): boolean {
     let control;
 
     switch (formName) {
@@ -375,9 +407,9 @@ export class RegisterComponent {
    */
   protected togglePasswordVisibility(field: 'password' | 'confirm'): void {
     if (field === 'password') {
-      this.showPassword.update(show => !show);
+      this.showPassword.update((show) => !show);
     } else {
-      this.showConfirmPassword.update(show => !show);
+      this.showConfirmPassword.update((show) => !show);
     }
   }
 }

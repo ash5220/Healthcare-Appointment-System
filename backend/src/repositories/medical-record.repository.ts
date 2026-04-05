@@ -10,7 +10,7 @@ class MedicalRecordRepository {
     const safeLimit = Math.min(limit, MAX_PAGE_SIZE);
     const offset = (page - 1) * safeLimit;
 
-    const { rows: records, count: total } = await MedicalRecord.findAndCountAll({
+    const result = await MedicalRecord.findAndCountAll({
       where: { patientId },
       include: [
         {
@@ -23,6 +23,11 @@ class MedicalRecordRepository {
       limit: safeLimit,
       offset,
     });
+
+    // Sequelize's findAndCountAll with include widens `rows` to `Model[]`;
+    // cast back to the concrete type that this query always returns.
+    const records = result.rows;
+    const total: number = result.count;
 
     return { records, total };
   }

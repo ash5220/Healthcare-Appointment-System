@@ -5,6 +5,7 @@ import { AuthenticatedRequest } from '../types/express-augment';
 import { paginatedResponse } from '../utils/response.util';
 import { NotFoundError } from '../middleware/error.middleware';
 import { patientRepository } from '../repositories';
+import { MedicalRecord } from '../models';
 
 export const getMyRecords = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const userId = req.user.userId;
@@ -18,11 +19,8 @@ export const getMyRecords = asyncHandler(async (req: AuthenticatedRequest, res: 
     throw new NotFoundError('Patient profile not found');
   }
 
-  const { records, total } = await medicalRecordService.findAllByPatientId(
-    patient.id,
-    parsedPage,
-    parsedLimit
-  );
+  const { records, total }: { records: MedicalRecord[]; total: number } =
+    await medicalRecordService.findAllByPatientId(patient.id, parsedPage, parsedLimit);
   paginatedResponse(res, records, total, parsedPage, parsedLimit);
 });
 
@@ -35,8 +33,9 @@ export const exportMyRecordsCsv = asyncHandler(async (req: AuthenticatedRequest,
   }
 
   // Fetch all records for export (no pagination — intentional for full export)
-  const { records } = await medicalRecordService.findAllByPatientId(patient.id, 1, 10000);
-  const csvData = medicalRecordService.convertToCsv(records);
+  const { records: csvRecords }: { records: MedicalRecord[] } =
+    await medicalRecordService.findAllByPatientId(patient.id, 1, 10000);
+  const csvData = medicalRecordService.convertToCsv(csvRecords);
 
   res.header('Content-Type', 'text/csv');
   res.attachment(`medical_records_${patient.id}_${new Date().toISOString().split('T')[0]}.csv`);
@@ -52,7 +51,8 @@ export const exportMyRecordsPdf = asyncHandler(async (req: AuthenticatedRequest,
   }
 
   // Fetch all records for export (no pagination — intentional for full export)
-  const { records } = await medicalRecordService.findAllByPatientId(patient.id, 1, 10000);
+  const { records: pdfRecords }: { records: MedicalRecord[] } =
+    await medicalRecordService.findAllByPatientId(patient.id, 1, 10000);
 
   const patientName = patient.user
     ? `${patient.user.firstName} ${patient.user.lastName}`
@@ -64,5 +64,5 @@ export const exportMyRecordsPdf = asyncHandler(async (req: AuthenticatedRequest,
     `attachment; filename=medical_records_${patient.id}_${new Date().toISOString().split('T')[0]}.pdf`
   );
 
-  medicalRecordService.generatePdf(records, patientName, res);
+  medicalRecordService.generatePdf(pdfRecords, patientName, res);
 });

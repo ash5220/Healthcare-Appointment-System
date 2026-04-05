@@ -18,7 +18,8 @@ import { FormBuilder, ReactiveFormsModule, Validators, FormsModule } from '@angu
 import { AppointmentService } from '../../../../core/services/appointment.service';
 import { DoctorService } from '../../../../core/services/doctor.service';
 import { NotificationService } from '../../../../core/services/notification.service';
-import { Doctor, UserRole } from '../../../../core/models';
+import { LoggerService } from '../../../../core/services/logger.service';
+import { Doctor } from '../../../../core/models';
 import {
   MAX_BOOKING_DAYS_AHEAD,
   MIN_REASON_LENGTH,
@@ -52,6 +53,7 @@ export class BookAppointmentComponent implements OnInit {
   private readonly appointmentService = inject(AppointmentService);
   private readonly doctorService = inject(DoctorService);
   private readonly notificationService = inject(NotificationService);
+  private readonly logger = inject(LoggerService);
 
   /** All doctors from API */
   protected readonly doctors = signal<Doctor[]>([]);
@@ -72,6 +74,10 @@ export class BookAppointmentComponent implements OnInit {
   protected readonly isLoadingDoctors = signal(false);
   protected readonly isLoadingSlots = signal(false);
   protected readonly isSubmitting = signal(false);
+
+  /** Error states */
+  protected readonly doctorLoadError = signal(false);
+  protected readonly slotLoadError = signal(false);
 
   /** Search and filter inputs */
   protected searchTerm = '';
@@ -114,6 +120,7 @@ export class BookAppointmentComponent implements OnInit {
    */
   protected loadDoctors(): void {
     this.isLoadingDoctors.set(true);
+    this.doctorLoadError.set(false);
 
     this.doctorService.getDoctors().subscribe({
       next: (response) => {
@@ -122,68 +129,19 @@ export class BookAppointmentComponent implements OnInit {
         this.filteredDoctors.set(doctors);
         this.isLoadingDoctors.set(false);
       },
-      error: () => {
-        // Set demo doctors for development
-        this.setDemoDoctors();
+      error: (error: unknown) => {
+        this.logger.error('Failed to load doctors:', error);
+        this.doctorLoadError.set(true);
         this.isLoadingDoctors.set(false);
       },
     });
   }
 
   /**
-   * Set demo doctors for development/testing.
+   * Retry loading doctors after an error.
    */
-  private setDemoDoctors(): void {
-    const demoDoctors: Doctor[] = [
-      {
-        id: '1',
-        userId: '1',
-        specialization: 'Cardiology',
-        licenseNumber: 'L001',
-        yearsOfExperience: 10,
-        consultationFee: 100,
-        rating: 4.5,
-        totalPatients: 500,
-        qualifications: [{ degree: 'MD', institution: 'Harvard Medical School', year: 2010 }],
-        languages: ['English'],
-        user: {
-          id: '1',
-          email: 'dr.smith@example.com',
-          role: 'doctor' as UserRole,
-          firstName: 'John',
-          lastName: 'Smith',
-          isActive: true,
-          isEmailVerified: true,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-      },
-      {
-        id: '2',
-        userId: '2',
-        specialization: 'General Medicine',
-        licenseNumber: 'L002',
-        yearsOfExperience: 8,
-        consultationFee: 80,
-        rating: 4.8,
-        totalPatients: 350,
-        qualifications: [{ degree: 'MD', institution: 'Johns Hopkins', year: 2012 }],
-        languages: ['English', 'Spanish'],
-        user: {
-          id: '2',
-          email: 'dr.johnson@example.com',
-          role: UserRole.DOCTOR,
-          firstName: 'Sarah',
-          lastName: 'Johnson',
-          isActive: true,
-          isEmailVerified: true,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-      },
-    ];
-    this.doctors.set(demoDoctors);
-    this.filteredDoctors.set(demoDoctors);
+  protected retryLoadDoctors(): void {
+    this.loadDoctors();
   }
 
   /**
@@ -235,6 +193,7 @@ export class BookAppointmentComponent implements OnInit {
     if (!doctor || !date) return;
 
     this.isLoadingSlots.set(true);
+    this.slotLoadError.set(false);
 
     this.appointmentService.getAvailableSlots(doctor.id, date).subscribe({
       next: (response) => {
@@ -242,20 +201,8 @@ export class BookAppointmentComponent implements OnInit {
         this.isLoadingSlots.set(false);
       },
       error: (error: unknown) => {
-        void error;
-        // Demo slots for development
-        this.availableSlots.set([
-          '09:00',
-          '09:30',
-          '10:00',
-          '10:30',
-          '11:00',
-          '14:00',
-          '14:30',
-          '15:00',
-          '15:30',
-          '16:00',
-        ]);
+        this.logger.error('Failed to load available slots:', error);
+        this.slotLoadError.set(true);
         this.isLoadingSlots.set(false);
       },
     });

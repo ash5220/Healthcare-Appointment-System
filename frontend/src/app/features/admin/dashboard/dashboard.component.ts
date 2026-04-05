@@ -14,6 +14,8 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { AdminService } from '../../../core/services/admin.service';
+import { LoggerService } from '../../../core/services/logger.service';
+import { NotificationService } from '../../../core/services/notification.service';
 import { SystemStats, AppointmentBreakdown, UserStats, QuickAction } from '../../../core/models';
 
 @Component({
@@ -26,6 +28,8 @@ import { SystemStats, AppointmentBreakdown, UserStats, QuickAction } from '../..
 export class AdminDashboardComponent implements OnInit {
   protected readonly authService = inject(AuthService);
   private readonly adminService = inject(AdminService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly logger = inject(LoggerService);
 
   /** System-wide statistics */
   protected readonly stats = signal<SystemStats>({
@@ -54,6 +58,9 @@ export class AdminDashboardComponent implements OnInit {
   /** Loading state */
   protected readonly isLoading = signal(true);
 
+  /** Error state */
+  protected readonly hasError = signal(false);
+
   /** Quick actions for the admin dashboard */
   protected readonly quickActions: QuickAction[] = [
     { route: '/admin/users', label: 'Manage Users', icon: 'bi-people' },
@@ -69,9 +76,9 @@ export class AdminDashboardComponent implements OnInit {
 
   /**
    * Load all dashboard statistics from the API.
-   * Falls back to demo data if API is unavailable.
    */
   protected loadDashboardData(): void {
+    this.hasError.set(false);
     this.adminService.getDashboardStats().subscribe({
       next: (response) => {
         const { users, appointments } = response.data.stats;
@@ -95,38 +102,20 @@ export class AdminDashboardComponent implements OnInit {
         });
         this.isLoading.set(false);
       },
-      error: () => {
-        // Use demo data for development
-        this.setDemoData();
+      error: (error: unknown) => {
+        this.logger.error('Failed to load admin dashboard stats:', error);
+        this.notificationService.error('Error', 'Failed to load dashboard statistics');
+        this.hasError.set(true);
         this.isLoading.set(false);
       },
     });
   }
 
   /**
-   * Set demo data for development/testing.
-   * In production, this would not be needed.
+   * Retry loading dashboard data after an error.
    */
-  private setDemoData(): void {
-    this.stats.set({
-      totalUsers: 168,
-      totalDoctors: 24,
-      totalPatients: 142,
-      totalAppointments: 1250,
-    });
-
-    this.appointmentBreakdown.set({
-      scheduled: 12,
-      confirmed: 8,
-      completed: 5,
-      cancelled: 2,
-    });
-
-    this.userStats.set({
-      activeUsers: 156,
-      newThisWeek: 12,
-      pendingVerification: 3,
-      inactive: 8,
-    });
+  protected retryLoad(): void {
+    this.isLoading.set(true);
+    this.loadDashboardData();
   }
 }

@@ -42,6 +42,11 @@ Healthcare Appointment System is a production-focused web application that strea
 - Public URL: https://infinitesevens.com/
 - Status: currently deployed with HTTPS (TLS via Let's Encrypt) on AWS Lightsail.
 
+### Demo Video
+
+![hospital demo](https://github.com/user-attachments/assets/a2f121bb-7587-46a6-a089-5d5fd27bd1fa)
+
+
 ---
 
 ## Features

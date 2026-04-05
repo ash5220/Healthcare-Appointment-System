@@ -1,11 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { expand, reduce, takeWhile } from 'rxjs/operators';
-import { EMPTY } from 'rxjs';
-import { environment } from '../../../../environments/environment';
-import { Patient, Appointment, PaginatedResponse } from '../../../core/models';
-
-const PAGE_LIMIT = 100;
+import { DoctorService } from '../../../core/services/doctor.service';
+import { Patient } from '../../../core/models';
 
 @Component({
   selector: 'app-doctor-patients',
@@ -15,8 +10,7 @@ const PAGE_LIMIT = 100;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DoctorPatientsComponent implements OnInit {
-  private readonly http = inject(HttpClient);
-  private readonly apiUrl = `${environment.apiUrl}/appointments`;
+  private readonly doctorService = inject(DoctorService);
 
   public readonly searchQuery = signal('');
   public readonly isLoading = signal(true);
@@ -39,46 +33,15 @@ export class DoctorPatientsComponent implements OnInit {
 
   private loadPatients(): void {
     this.isLoading.set(true);
-
-    const firstPage$ = this.fetchPage(1);
-
-    firstPage$
-      .pipe(
-        expand((response) => {
-          const { page, totalPages } = response.metadata;
-          return page < totalPages ? this.fetchPage(page + 1) : EMPTY;
-        }),
-        takeWhile(() => true, true),
-        reduce((acc: Appointment[], response) => acc.concat(response.data), []),
-      )
-      .subscribe({
-        next: (appointments) => {
-          this.allPatients.set(this.extractUniquePatients(appointments));
-          this.isLoading.set(false);
-        },
-        error: () => {
-          this.isLoading.set(false);
-        },
-      });
-  }
-
-  private fetchPage(page: number) {
-    const params = new HttpParams()
-      .set('limit', PAGE_LIMIT.toString())
-      .set('page', page.toString());
-    return this.http.get<PaginatedResponse<Appointment>>(this.apiUrl, { params });
-  }
-
-  private extractUniquePatients(appointments: Appointment[]): Patient[] {
-    const seen = new Set<string>();
-    const result: Patient[] = [];
-    for (const apt of appointments) {
-      if (apt.patient && !seen.has(apt.patientId)) {
-        seen.add(apt.patientId);
-        result.push(apt.patient);
-      }
-    }
-    return result;
+    this.doctorService.getDoctorPatients().subscribe({
+      next: (response) => {
+        this.allPatients.set(response.data);
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.isLoading.set(false);
+      },
+    });
   }
 
   protected initials(patient: Patient): string {

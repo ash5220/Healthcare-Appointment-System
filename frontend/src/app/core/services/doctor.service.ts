@@ -1,8 +1,13 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { DayOfWeek, AvailabilityResponse, DoctorsResponse, DoctorAvailability } from '../models';
+import { DayOfWeek, AvailabilityResponse, DoctorsResponse, DoctorAvailability, Patient } from '../models';
+
+export interface DoctorPatientsResponse {
+  data: Patient[];
+  metadata: { total: number; page: number; limit: number; totalPages: number };
+}
 
 @Injectable({
     providedIn: 'root'
@@ -29,5 +34,12 @@ export class DoctorService {
 
     getDoctors(): Observable<DoctorsResponse> {
         return this.http.get<DoctorsResponse>(this.apiUrl);
+    }
+
+    getDoctorPatients(page = 1, limit = 25): Observable<DoctorPatientsResponse> {
+        const params = new HttpParams()
+            .set('page', String(page))
+            .set('limit', String(limit));
+        return this.http.get<DoctorPatientsResponse>(`${this.apiUrl}/patients`, { params });
     }
 }

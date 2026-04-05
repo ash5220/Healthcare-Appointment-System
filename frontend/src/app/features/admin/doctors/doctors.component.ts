@@ -1,14 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../../environments/environment';
-
-interface PendingDoctor {
-  id: string;
-  specialization: string;
-  licenseNumber: string;
-  isApproved: boolean;
-  user?: { firstName: string; lastName: string; email: string };
-}
+import { AdminService, PendingDoctor } from '../../../core/services/admin.service';
 
 @Component({
   selector: 'app-admin-doctors',
@@ -18,8 +9,7 @@ interface PendingDoctor {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminDoctorsComponent implements OnInit {
-  private http = inject(HttpClient);
-  private adminUrl = `${environment.apiUrl}/admin`;
+  private readonly adminService = inject(AdminService);
 
   pendingDoctors = signal<PendingDoctor[]>([]);
   total = signal(0);
@@ -34,27 +24,22 @@ export class AdminDoctorsComponent implements OnInit {
   loadPendingDoctors(): void {
     this.isLoading.set(true);
     this.errorMessage.set('');
-    this.http
-      .get<{
-        data: PendingDoctor[];
-        metadata: { total: number };
-      }>(`${this.adminUrl}/doctors/pending`)
-      .subscribe({
-        next: (res) => {
-          this.pendingDoctors.set(res.data);
-          this.total.set(res.metadata?.total ?? res.data.length);
-          this.isLoading.set(false);
-        },
-        error: () => {
-          this.errorMessage.set('Failed to load pending doctors.');
-          this.isLoading.set(false);
-        },
-      });
+    this.adminService.getPendingDoctors().subscribe({
+      next: (res) => {
+        this.pendingDoctors.set(res.data);
+        this.total.set(res.metadata?.total ?? res.data.length);
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.errorMessage.set('Failed to load pending doctors.');
+        this.isLoading.set(false);
+      },
+    });
   }
 
   approve(doctorId: string): void {
     this.actionInProgress.set(doctorId);
-    this.http.patch(`${this.adminUrl}/doctors/${doctorId}/approve`, {}).subscribe({
+    this.adminService.approveDoctor(doctorId).subscribe({
       next: () => {
         this.actionInProgress.set(null);
         this.loadPendingDoctors();
@@ -68,7 +53,7 @@ export class AdminDoctorsComponent implements OnInit {
 
   reject(doctorId: string): void {
     this.actionInProgress.set(doctorId);
-    this.http.patch(`${this.adminUrl}/doctors/${doctorId}/reject`, {}).subscribe({
+    this.adminService.rejectDoctor(doctorId).subscribe({
       next: () => {
         this.actionInProgress.set(null);
         this.loadPendingDoctors();

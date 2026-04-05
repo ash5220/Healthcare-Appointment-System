@@ -1,23 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { DatePipe, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../../environments/environment';
-
-interface AdminAppointmentUser {
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-}
-
-interface AdminAppointment {
-  id: string;
-  status: string;
-  appointmentDate: string;
-  reasonForVisit?: string;
-  patient?: { user?: AdminAppointmentUser };
-  doctor?: { user?: AdminAppointmentUser };
-}
+import { AdminService, AdminAppointment } from '../../../core/services/admin.service';
 
 @Component({
   selector: 'app-admin-appointments',
@@ -27,8 +11,7 @@ interface AdminAppointment {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminAppointmentsComponent implements OnInit {
-  private http = inject(HttpClient);
-  private apiUrl = `${environment.apiUrl}/appointments`;
+  private readonly adminService = inject(AdminService);
 
   appointments = signal<AdminAppointment[]>([]);
   total = signal(0);
@@ -49,17 +32,8 @@ export class AdminAppointmentsComponent implements OnInit {
     this.isLoading.set(true);
     this.errorMessage.set('');
 
-    const params: Record<string, string> = {
-      page: String(this.currentPage),
-      limit: String(this.pageSize),
-    };
-    if (this.statusFilter) {
-      params['status'] = this.statusFilter;
-    }
-
-    const query = new URLSearchParams(params).toString();
-    this.http
-      .get<{ data: AdminAppointment[]; metadata: { total: number } }>(`${this.apiUrl}?${query}`)
+    this.adminService
+      .getAppointments({ page: this.currentPage, limit: this.pageSize, status: this.statusFilter || undefined })
       .subscribe({
         next: (res) => {
           this.appointments.set(res.data);

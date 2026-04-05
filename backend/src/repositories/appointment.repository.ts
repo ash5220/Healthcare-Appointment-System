@@ -122,6 +122,14 @@ class AppointmentRepository {
       ],
       limit,
       offset,
+      // distinct: required so COUNT(DISTINCT id) is used instead of COUNT(*), which
+      // would overcount when JOINs produce multiple rows for one appointment.
+      // subQuery: false prevents Sequelize from wrapping the query in a
+      // "WHERE id IN (SELECT id ... LIMIT n)" subquery — MySQL does not allow LIMIT
+      // inside an IN subquery. All includes here are belongs-to (one row per
+      // appointment), so applying LIMIT directly on the JOIN is safe and correct.
+      distinct: true,
+      subQuery: false,
     });
 
     return { appointments, total };

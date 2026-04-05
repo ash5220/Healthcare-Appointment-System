@@ -3,8 +3,12 @@ import { MedicalRecord } from '../models';
 import { medicalRecordRepository } from '../repositories/medical-record.repository';
 
 class MedicalRecordService {
-  async findAllByPatientId(patientId: string): Promise<MedicalRecord[]> {
-    return medicalRecordRepository.findAllByPatientId(patientId);
+  async findAllByPatientId(
+    patientId: string,
+    page = 1,
+    limit = 10
+  ): Promise<{ records: MedicalRecord[]; total: number }> {
+    return medicalRecordRepository.findAllByPatientId(patientId, page, limit);
   }
 
   convertToCsv(records: MedicalRecord[]): string {

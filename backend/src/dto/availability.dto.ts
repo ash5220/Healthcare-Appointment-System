@@ -14,7 +14,7 @@ const timeString = z
 /** POST /api/v1/doctors/availability */
 export const createAvailabilityValidation = z.object({
   body: z
-    .object({
+    .strictObject({
       dayOfWeek: z.enum(
         Object.values(DayOfWeek) as [string, ...string[]],
         { message: 'dayOfWeek must be a valid day (monday–sunday)' }
@@ -45,7 +45,7 @@ export const updateAvailabilityValidation = z.object({
     id: z.uuid('ID must be a valid UUID'),
   }),
   body: z
-    .object({
+    .strictObject({
       dayOfWeek: z
         .enum(Object.values(DayOfWeek) as [string, ...string[]])
         .optional(),

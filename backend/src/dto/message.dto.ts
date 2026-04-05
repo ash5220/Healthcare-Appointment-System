@@ -53,7 +53,7 @@ export type GetUsersRequest = Request<Record<string, string>, unknown, unknown, 
 
 /** Validates POST / body (send a message) */
 export const sendMessageValidation = z.object({
-  body: z.object({
+  body: z.strictObject({
     receiverId: uuidParam,
     content: z
       .string()

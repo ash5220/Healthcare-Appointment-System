@@ -16,7 +16,7 @@ const dateString = z
 /** POST /api/v1/insurance */
 export const createInsuranceValidation = z.object({
   body: z
-    .object({
+    .strictObject({
       providerName: z
         .string()
         .min(1, 'Provider name is required')
@@ -59,7 +59,7 @@ export const updateInsuranceValidation = z.object({
     id: z.uuid('ID must be a valid UUID'),
   }),
   body: z
-    .object({
+    .strictObject({
       providerName: z.string().min(1).max(255).optional(),
       policyNumber: z.string().min(1).max(100).optional(),
       groupNumber: z.string().max(100).optional(),
@@ -81,7 +81,7 @@ export const verifyInsuranceValidation = z.object({
   params: z.object({
     id: z.uuid('ID must be a valid UUID'),
   }),
-  body: z.object({
+  body: z.strictObject({
     status: z.enum(
       Object.values(InsuranceStatus) as [string, ...string[]],
       { message: 'status must be a valid InsuranceStatus' }

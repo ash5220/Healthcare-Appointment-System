@@ -1,7 +1,8 @@
 import { logger } from '../config/logger';
 import { NotFoundError } from '../shared/errors';
 import { doctorRepository, DoctorFilters } from '../repositories/doctor.repository';
-import { Doctor } from '../models';
+import { appointmentRepository } from '../repositories/appointment.repository';
+import { Doctor, Patient } from '../models';
 
 export { DoctorFilters } from '../repositories/doctor.repository';
 
@@ -53,6 +54,15 @@ class DoctorService {
     await doctorRepository.update(doctor, safeData as Partial<Doctor>);
     logger.info(`Doctor profile updated for user: ${userId}`);
     return this.getDoctorById(doctor.id);
+  }
+
+  async getDoctorPatients(
+    userId: string,
+    page = 1,
+    limit = 25
+  ): Promise<{ patients: Patient[]; total: number }> {
+    const doctor = await this.getDoctorByUserId(userId);
+    return appointmentRepository.findPatientsByDoctorId(doctor.id, page, limit);
   }
 }
 

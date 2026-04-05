@@ -220,6 +220,51 @@ class AppointmentRepository {
     });
     return appt !== null;
   }
+
+  /**
+   * Return distinct patients who have an appointment with the given doctor.
+   * Uses a single paginated query instead of iterating through all appointments.
+   */
+  async findPatientsByDoctorId(
+    doctorId: string,
+    page = 1,
+    limit = 25
+  ): Promise<{ patients: Patient[]; total: number }> {
+    const offset = (page - 1) * limit;
+
+    // Fetch distinct patient IDs for this doctor in one query
+    const patientIdRows = await Appointment.findAll({
+      where: { doctorId },
+      attributes: [[sequelize.fn('DISTINCT', sequelize.col('patient_id')), 'patientId']],
+      raw: true,
+      limit,
+      offset,
+    }) as unknown as Array<{ patientId: string }>;
+
+    const patientIds = patientIdRows.map((r) => r.patientId);
+
+    const total = await Appointment.count({
+      where: { doctorId },
+      distinct: true,
+      col: 'patient_id',
+    });
+
+    if (patientIds.length === 0) return { patients: [], total };
+
+    const patients = await Patient.findAll({
+      where: { id: patientIds },
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'firstName', 'lastName', 'email', 'phoneNumber'],
+        },
+      ],
+      attributes: ['id', 'userId', 'dateOfBirth', 'gender', 'bloodGroup'],
+    });
+
+    return { patients, total };
+  }
 }
 
 /** Shape returned by the countByStatus aggregate query. */

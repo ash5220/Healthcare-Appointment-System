@@ -15,18 +15,6 @@ import {
 const router = Router();
 
 /**
- * @route   GET /api/v1/doctors
- * @desc    Get all doctors (with optional filters)
- * @access  Public
- */
-router.get(
-    '/',
-    optionalAuthMiddleware,
-    validate(getDoctorsQueryValidation),
-    doctorController.getDoctors
-);
-
-/**
  * @route   GET /api/v1/doctors/availability
  * @desc    Get logged-in doctor's availability schedule
  * @access  Private (Doctor)
@@ -124,6 +112,17 @@ router.post(
     requireDoctor,
     validate(weeklyScheduleValidation),
     doctorController.setWeeklySchedule
+);
+
+/**
+ * @route   GET /api/v1/doctors/patients
+ * @desc    Get the list of distinct patients who have had appointments with the logged-in doctor
+ * @access  Private (Doctor)
+ */
+router.get(
+    '/patients',
+    requireDoctor,
+    doctorController.getDoctorPatients
 );
 
 export default router;

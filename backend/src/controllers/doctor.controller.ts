@@ -136,3 +136,17 @@ export const setWeeklySchedule = asyncHandler(async (req: AuthenticatedRequest, 
 
   successResponse(res, { availabilities }, 'Weekly schedule set successfully');
 });
+
+export const getDoctorPatients = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const { page, limit } = req.query;
+  const parsedPage = page !== undefined ? (page as unknown as number) : 1;
+  const parsedLimit = limit !== undefined ? (limit as unknown as number) : 25;
+
+  const { patients, total } = await doctorService.getDoctorPatients(
+    req.user.userId,
+    parsedPage,
+    parsedLimit
+  );
+
+  paginatedResponse(res, patients, total, parsedPage, parsedLimit);
+});

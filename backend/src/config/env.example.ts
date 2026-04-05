@@ -139,6 +139,8 @@ export const validateProductionEnv = (): void => {
     'MFA_TOKEN_SECRET',
     'ENCRYPTION_KEY',
     'DB_PASSWORD',
+    'SENDGRID_API_KEY',
+    'EMAIL_FROM',
   ];
 
   const missing = requiredVars.filter(v => !process.env[v]);
@@ -146,8 +148,11 @@ export const validateProductionEnv = (): void => {
     throw new Error(`Missing critical environment variables for production: ${missing.join(', ')}`);
   }
 
-  // Ensure secrets are sufficiently strong (at least 32 chars)
-  const weakSecrets = requiredVars.filter(v => {
+  // Ensure cryptographic secrets are sufficiently strong (at least 32 chars).
+  // Email-style variables (EMAIL_FROM) are excluded from this check — they are
+  // validated for presence only and are not secret values.
+  const secretVars = ['JWT_SECRET', 'JWT_REFRESH_SECRET', 'MFA_TOKEN_SECRET', 'ENCRYPTION_KEY'];
+  const weakSecrets = secretVars.filter(v => {
     const val = process.env[v];
     return val !== undefined && val.length < 32;
   });

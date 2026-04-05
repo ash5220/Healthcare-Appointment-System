@@ -40,7 +40,11 @@ const baseRegisterFields = {
       /^[a-zA-Z\s'-]+$/,
       'Last name can only contain letters, spaces, hyphens, and apostrophes'
     ),
-  phoneNumber: z.string().optional(),
+  phoneNumber: z
+    .string()
+    .regex(/^\+?[1-9]\d{6,14}$/, 'Phone number must be a valid international format (7-15 digits)')
+    .max(20, 'Phone number must not exceed 20 characters')
+    .optional(),
 };
 
 // ── Validation schemas ──────────────────────────────────────────────────
@@ -106,7 +110,11 @@ export const registerPatientValidation = z.object({
         .string()
         .max(100, 'Emergency contact name must not exceed 100 characters')
         .optional(),
-      emergencyContactPhone: z.string().optional(),
+      emergencyContactPhone: z
+        .string()
+        .regex(/^\+?[1-9]\d{6,14}$/, 'Phone number must be a valid international format (7-15 digits)')
+        .max(20, 'Phone number must not exceed 20 characters')
+        .optional(),
     })
     .refine(data => data.password === data.confirmPassword, {
       message: 'Password confirmation does not match password',
@@ -220,7 +228,11 @@ export const patientProfileValidation = z.object({
       .string()
       .max(100, 'Emergency contact name must not exceed 100 characters')
       .optional(),
-    emergencyContactPhone: z.string().optional(),
+    emergencyContactPhone: z
+        .string()
+        .regex(/^\+?[1-9]\d{6,14}$/, 'Phone number must be a valid international format (7-15 digits)')
+        .max(20, 'Phone number must not exceed 20 characters')
+        .optional(),
   }),
 });
 
@@ -348,3 +360,4 @@ export const confirmEmailChangeValidation = z.object({
     token: z.string().min(1, 'Confirmation token is required'),
   }),
 });
+

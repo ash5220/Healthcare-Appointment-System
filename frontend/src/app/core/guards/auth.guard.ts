@@ -1,9 +1,12 @@
 import { inject } from '@angular/core';
-import { Router, CanActivateFn } from '@angular/router';
+import { Router, CanActivateFn, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { UserRole } from '../models';
 
-export const authGuard: CanActivateFn = () => {
+export const authGuard: CanActivateFn = (
+  _route: ActivatedRouteSnapshot,
+  state: RouterStateSnapshot
+) => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
@@ -11,8 +14,10 @@ export const authGuard: CanActivateFn = () => {
     return true;
   }
 
+  // Use the destination URL from RouterStateSnapshot, not the current active route.
+  // router.url at this point reflects the previously active route, not the blocked destination.
   router.navigate(['/auth/login'], {
-    queryParams: { returnUrl: router.url },
+    queryParams: { returnUrl: state.url },
   });
   return false;
 };
@@ -36,6 +41,10 @@ export const guestGuard: CanActivateFn = () => {
       break;
     case UserRole.ADMIN:
       router.navigate(['/admin/dashboard']);
+      break;
+    default:
+      // Authenticated user with an unknown role — fall back to login to re-authenticate.
+      router.navigate(['/auth/login']);
       break;
   }
   return false;

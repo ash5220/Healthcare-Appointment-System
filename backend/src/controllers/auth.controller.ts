@@ -139,7 +139,7 @@ export const registerDoctor = asyncHandler(async (req: Request, res: Response) =
 // ── Login / Logout ─────────────────────────────────────────────────────
 
 export const login = asyncHandler(async (req: Request, res: Response) => {
-  const { email, password } = req.body as z.infer<typeof loginValidation>['body'];
+  const { email, password, rememberMe } = req.body as z.infer<typeof loginValidation>['body'];
 
   const result = await authService.login({ email, password });
 
@@ -149,8 +149,8 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     return;
   }
 
-  // Refresh token → secure HttpOnly cookie
-  setRefreshTokenCookie(res, result.refreshToken!);
+  // Refresh token → secure HttpOnly cookie; honour rememberMe preference for TTL
+  setRefreshTokenCookie(res, result.refreshToken!, rememberMe ?? true);
 
   successResponse(res, { user: result.user, accessToken: result.accessToken }, 'Login successful');
 });

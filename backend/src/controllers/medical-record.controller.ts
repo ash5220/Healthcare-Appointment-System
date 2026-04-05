@@ -2,15 +2,15 @@ import { Response } from 'express';
 import { medicalRecordService } from '../services/medical-record.service';
 import { asyncHandler } from '../middleware';
 import { AuthenticatedRequest } from '../types/express-augment';
-import { successResponse, paginatedResponse } from '../utils/response.util';
+import { paginatedResponse } from '../utils/response.util';
 import { NotFoundError } from '../middleware/error.middleware';
 import { patientRepository } from '../repositories';
 
 export const getMyRecords = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const userId = req.user.userId;
   const { page, limit } = req.query;
-  const parsedPage = page !== undefined ? (page as unknown as number) : 1;
-  const parsedLimit = limit !== undefined ? (limit as unknown as number) : 10;
+  const parsedPage = page !== undefined ? Number(page) : 1;
+  const parsedLimit = limit !== undefined ? Number(limit) : 10;
 
   const patient = await patientRepository.findByUserId(userId);
 

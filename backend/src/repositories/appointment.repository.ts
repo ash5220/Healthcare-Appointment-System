@@ -241,15 +241,15 @@ class AppointmentRepository {
     const offset = (page - 1) * limit;
 
     // Fetch distinct patient IDs for this doctor in one query
-    const patientIdRows = await Appointment.findAll({
+    const patientIdRows = (await Appointment.findAll({
       where: { doctorId },
       attributes: [[sequelize.fn('DISTINCT', sequelize.col('patient_id')), 'patientId']],
       raw: true,
       limit,
       offset,
-    }) as unknown as Array<{ patientId: string }>;
+    })) as unknown as Array<{ patientId: string }>;
 
-    const patientIds = patientIdRows.map((r) => r.patientId);
+    const patientIds = patientIdRows.map(r => r.patientId);
 
     const total = await Appointment.count({
       where: { doctorId },

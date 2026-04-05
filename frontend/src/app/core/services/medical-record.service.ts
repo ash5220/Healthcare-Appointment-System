@@ -11,8 +11,8 @@ export class MedicalRecordService {
     private http = inject(HttpClient);
     private apiUrl = `${environment.apiUrl}/medical-records`;
 
-    getMyRecords(): Observable<{ success: boolean; data: { records: MedicalRecord[] }; message?: string }> {
-        return this.http.get<{ success: boolean; data: { records: MedicalRecord[] }; message?: string }>(`${this.apiUrl}/my-records`);
+    getMyRecords(): Observable<{ success: boolean; data: MedicalRecord[]; message?: string }> {
+        return this.http.get<{ success: boolean; data: MedicalRecord[]; message?: string }>(`${this.apiUrl}/my-records`);
     }
 
     downloadMyRecordsCsv(): void {

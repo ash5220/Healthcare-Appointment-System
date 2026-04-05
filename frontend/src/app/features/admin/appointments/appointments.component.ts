@@ -33,7 +33,11 @@ export class AdminAppointmentsComponent implements OnInit {
     this.errorMessage.set('');
 
     this.adminService
-      .getAppointments({ page: this.currentPage, limit: this.pageSize, status: this.statusFilter || undefined })
+      .getAppointments({
+        page: this.currentPage,
+        limit: this.pageSize,
+        status: this.statusFilter || undefined,
+      })
       .subscribe({
         next: (res) => {
           this.appointments.set(res.data);

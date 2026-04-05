@@ -31,10 +31,10 @@ export const createAppointment = asyncHandler(async (req: AuthenticatedRequest, 
 export const getAppointments = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const { page, limit, status, startDate, endDate, doctorId, patientId } = req.query;
 
-  // page and limit are coerced to numbers by the Zod validation middleware —
-  // reading them as numbers directly avoids re-parsing already-validated data.
-  const parsedPage = page !== undefined ? (page as unknown as number) : 1;
-  const parsedLimit = limit !== undefined ? (limit as unknown as number) : 10;
+  // Number() handles both raw strings ("50") and already-coerced numbers (50)
+  // that the Zod validate middleware may have written back via Object.assign.
+  const parsedPage = page !== undefined ? Number(page) : 1;
+  const parsedLimit = limit !== undefined ? Number(limit) : 10;
 
   const { appointments, total } = await appointmentService.getAll(
     {

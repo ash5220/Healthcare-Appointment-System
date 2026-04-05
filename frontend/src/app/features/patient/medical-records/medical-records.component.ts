@@ -29,8 +29,8 @@ export class MedicalRecordsComponent implements OnInit {
             .pipe(finalize(() => this.isLoading.set(false)))
             .subscribe({
                 next: (response) => {
-                    if (response.success && response.data?.records) {
-                        this.records.set(response.data.records);
+                    if (response.success && response.data) {
+                        this.records.set(response.data);
                     } else {
                         this.error.set('Failed to load medical records');
                     }

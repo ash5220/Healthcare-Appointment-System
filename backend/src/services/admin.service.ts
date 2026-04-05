@@ -97,7 +97,7 @@ class AdminService {
     const user = await userRepository.findById(userId);
     if (!user) throw new NotFoundError('User not found');
 
-    await sequelize.transaction(async (t) => {
+    await sequelize.transaction(async t => {
       if (data.role !== undefined) {
         await userRepository.update(user, { role: data.role }, t);
       }

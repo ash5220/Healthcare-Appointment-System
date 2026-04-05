@@ -15,10 +15,9 @@ const timeString = z
 export const createAvailabilityValidation = z.object({
   body: z
     .strictObject({
-      dayOfWeek: z.enum(
-        Object.values(DayOfWeek) as [string, ...string[]],
-        { message: 'dayOfWeek must be a valid day (monday–sunday)' }
-      ),
+      dayOfWeek: z.enum(Object.values(DayOfWeek) as [string, ...string[]], {
+        message: 'dayOfWeek must be a valid day (monday–sunday)',
+      }),
       startTime: timeString,
       endTime: timeString,
       slotDuration: z
@@ -46,17 +45,10 @@ export const updateAvailabilityValidation = z.object({
   }),
   body: z
     .strictObject({
-      dayOfWeek: z
-        .enum(Object.values(DayOfWeek) as [string, ...string[]])
-        .optional(),
+      dayOfWeek: z.enum(Object.values(DayOfWeek) as [string, ...string[]]).optional(),
       startTime: timeString.optional(),
       endTime: timeString.optional(),
-      slotDuration: z
-        .number()
-        .int()
-        .min(5)
-        .max(240)
-        .optional(),
+      slotDuration: z.number().int().min(5).max(240).optional(),
       effectiveFrom: z
         .string()
         .datetime({ message: 'effectiveFrom must be a valid ISO date' })
@@ -69,9 +61,7 @@ export const updateAvailabilityValidation = z.object({
     })
     .refine(
       data =>
-        data.startTime === undefined ||
-        data.endTime === undefined ||
-        data.startTime < data.endTime,
+        data.startTime === undefined || data.endTime === undefined || data.startTime < data.endTime,
       {
         message: 'startTime must be before endTime',
         path: ['endTime'],

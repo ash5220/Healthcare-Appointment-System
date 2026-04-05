@@ -46,7 +46,8 @@ class DoctorService {
     const safeData: SafeDoctorUpdateData = {};
     if (rawData.specialization !== undefined) safeData.specialization = rawData.specialization;
     if (rawData.licenseNumber !== undefined) safeData.licenseNumber = rawData.licenseNumber;
-    if (rawData.yearsOfExperience !== undefined) safeData.yearsOfExperience = rawData.yearsOfExperience;
+    if (rawData.yearsOfExperience !== undefined)
+      safeData.yearsOfExperience = rawData.yearsOfExperience;
     if (rawData.consultationFee !== undefined) safeData.consultationFee = rawData.consultationFee;
     if (rawData.bio !== undefined) safeData.bio = rawData.bio;
     if (rawData.languages !== undefined) safeData.languages = rawData.languages;

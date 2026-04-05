@@ -9,10 +9,7 @@ import mysql from 'mysql2';
 import { env } from '../config/env';
 import { errorResponse } from '../utils/response.util';
 import { logger } from '../config/logger';
-import {
-  RATE_LIMIT_LOGIN_MAX,
-  RATE_LIMIT_PASSWORD_RESET_MAX,
-} from '../config/constants';
+import { RATE_LIMIT_LOGIN_MAX, RATE_LIMIT_PASSWORD_RESET_MAX } from '../config/constants';
 
 const dbHost: string = env.dbHost;
 const dbPort: number = env.dbPort;

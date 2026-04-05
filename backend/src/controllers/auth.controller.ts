@@ -197,7 +197,9 @@ export const refreshToken = asyncHandler(async (req: Request, res: Response) => 
 // ── Profile / Password ─────────────────────────────────────────────────
 
 export const changePassword = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const { currentPassword, newPassword } = req.body as z.infer<typeof changePasswordValidation>['body'];
+  const { currentPassword, newPassword } = req.body as z.infer<
+    typeof changePasswordValidation
+  >['body'];
 
   await authService.changePassword(req.user.userId, currentPassword, newPassword);
 
@@ -224,17 +226,15 @@ export const updateProfile = asyncHandler(async (req: AuthenticatedRequest, res:
   successResponse(res, updated, 'Profile updated successfully');
 });
 
-export const requestEmailChange = asyncHandler(
-  async (req: AuthenticatedRequest, res: Response) => {
-    const { newEmail } = req.body as z.infer<typeof requestEmailChangeValidation>['body'];
-    await authService.requestEmailChange(req.user.userId, newEmail);
-    successResponse(
-      res,
-      null,
-      `A confirmation link has been sent to ${newEmail}. Click it to complete the change.`
-    );
-  }
-);
+export const requestEmailChange = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const { newEmail } = req.body as z.infer<typeof requestEmailChangeValidation>['body'];
+  await authService.requestEmailChange(req.user.userId, newEmail);
+  successResponse(
+    res,
+    null,
+    `A confirmation link has been sent to ${newEmail}. Click it to complete the change.`
+  );
+});
 
 export const confirmEmailChange = asyncHandler(async (req: Request, res: Response) => {
   const { token } = req.body as z.infer<typeof confirmEmailChangeValidation>['body'];
@@ -271,7 +271,11 @@ export const forgotPassword = asyncHandler(async (req: Request, res: Response) =
 export const resetPassword = asyncHandler(async (req: Request, res: Response) => {
   const { token, newPassword } = req.body as z.infer<typeof resetPasswordValidation>['body'];
   await authService.resetPassword(token, newPassword);
-  successResponse(res, null, 'Password has been reset successfully. Please log in with your new password.');
+  successResponse(
+    res,
+    null,
+    'Password has been reset successfully. Please log in with your new password.'
+  );
 });
 
 // ── Email Verification ──────────────────────────────────────────────────
@@ -286,5 +290,9 @@ export const resendVerification = asyncHandler(async (req: Request, res: Respons
   const { email } = req.body as z.infer<typeof resendVerificationValidation>['body'];
   await authService.resendVerificationEmail(email);
   // Always success — prevents email enumeration
-  successResponse(res, null, 'If that email is registered and unverified, a new verification link has been sent.');
+  successResponse(
+    res,
+    null,
+    'If that email is registered and unverified, a new verification link has been sent.'
+  );
 });

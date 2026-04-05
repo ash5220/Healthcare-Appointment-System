@@ -112,7 +112,10 @@ export const registerPatientValidation = z.object({
         .optional(),
       emergencyContactPhone: z
         .string()
-        .regex(/^\+?[1-9]\d{6,14}$/, 'Phone number must be a valid international format (7-15 digits)')
+        .regex(
+          /^\+?[1-9]\d{6,14}$/,
+          'Phone number must be a valid international format (7-15 digits)'
+        )
         .max(20, 'Phone number must not exceed 20 characters')
         .optional(),
     })
@@ -229,10 +232,13 @@ export const patientProfileValidation = z.object({
       .max(100, 'Emergency contact name must not exceed 100 characters')
       .optional(),
     emergencyContactPhone: z
-        .string()
-        .regex(/^\+?[1-9]\d{6,14}$/, 'Phone number must be a valid international format (7-15 digits)')
-        .max(20, 'Phone number must not exceed 20 characters')
-        .optional(),
+      .string()
+      .regex(
+        /^\+?[1-9]\d{6,14}$/,
+        'Phone number must be a valid international format (7-15 digits)'
+      )
+      .max(20, 'Phone number must not exceed 20 characters')
+      .optional(),
   }),
 });
 
@@ -360,4 +366,3 @@ export const confirmEmailChangeValidation = z.object({
     token: z.string().min(1, 'Confirmation token is required'),
   }),
 });
-

@@ -20,10 +20,10 @@ const router = Router();
  * @access  Public
  */
 router.get(
-    '/',
-    optionalAuthMiddleware,
-    validate(getDoctorsQueryValidation),
-    doctorController.getDoctors
+  '/',
+  optionalAuthMiddleware,
+  validate(getDoctorsQueryValidation),
+  doctorController.getDoctors
 );
 
 /**
@@ -31,11 +31,19 @@ router.get(
  * @desc    Get logged-in doctor's availability schedule
  * @access  Private (Doctor)
  */
+router.get('/availability', authMiddleware, requireDoctor, doctorController.getMyAvailability);
+
+/**
+ * @route   GET /api/v1/doctors/patients
+ * @desc    Get the list of distinct patients who have had appointments with the logged-in doctor
+ * @access  Private (Doctor)
+ */
 router.get(
-    '/availability',
+    '/patients',
     authMiddleware,
     requireDoctor,
-    doctorController.getMyAvailability
+    validate(getDoctorsQueryValidation),
+    doctorController.getDoctorPatients
 );
 
 /**
@@ -44,10 +52,10 @@ router.get(
  * @access  Public
  */
 router.get(
-    '/:id',
-    optionalAuthMiddleware,
-    validate(userIdValidation),
-    doctorController.getDoctorById
+  '/:id',
+  optionalAuthMiddleware,
+  validate(userIdValidation),
+  doctorController.getDoctorById
 );
 
 /**
@@ -55,11 +63,7 @@ router.get(
  * @desc    Get doctor's availability schedule
  * @access  Public
  */
-router.get(
-    '/:id/availability',
-    validate(userIdValidation),
-    doctorController.getDoctorAvailability
-);
+router.get('/:id/availability', validate(userIdValidation), doctorController.getDoctorAvailability);
 
 // Protected routes (require authentication)
 router.use(authMiddleware);
@@ -70,13 +74,11 @@ router.use(authMiddleware);
  * @access  Private (Doctor)
  */
 router.put(
-    '/profile',
-    requireDoctor,
-    validate(doctorProfileValidation),
-    doctorController.updateDoctorProfile
+  '/profile',
+  requireDoctor,
+  validate(doctorProfileValidation),
+  doctorController.updateDoctorProfile
 );
-
-
 
 /**
  * @route   POST /api/v1/doctors/availability
@@ -84,10 +86,10 @@ router.put(
  * @access  Private (Doctor)
  */
 router.post(
-    '/availability',
-    requireDoctor,
-    validate(createAvailabilityValidation),
-    doctorController.createAvailability
+  '/availability',
+  requireDoctor,
+  validate(createAvailabilityValidation),
+  doctorController.createAvailability
 );
 
 /**
@@ -96,10 +98,10 @@ router.post(
  * @access  Private (Doctor)
  */
 router.put(
-    '/availability/:id',
-    requireDoctor,
-    validate(updateAvailabilityValidation),
-    doctorController.updateAvailability
+  '/availability/:id',
+  requireDoctor,
+  validate(updateAvailabilityValidation),
+  doctorController.updateAvailability
 );
 
 /**
@@ -108,10 +110,10 @@ router.put(
  * @access  Private (Doctor)
  */
 router.delete(
-    '/availability/:id',
-    requireDoctor,
-    validate(deleteAvailabilityValidation),
-    doctorController.deleteAvailability
+  '/availability/:id',
+  requireDoctor,
+  validate(deleteAvailabilityValidation),
+  doctorController.deleteAvailability
 );
 
 /**
@@ -120,21 +122,10 @@ router.delete(
  * @access  Private (Doctor)
  */
 router.post(
-    '/schedule',
-    requireDoctor,
-    validate(weeklyScheduleValidation),
-    doctorController.setWeeklySchedule
-);
-
-/**
- * @route   GET /api/v1/doctors/patients
- * @desc    Get the list of distinct patients who have had appointments with the logged-in doctor
- * @access  Private (Doctor)
- */
-router.get(
-    '/patients',
-    requireDoctor,
-    doctorController.getDoctorPatients
+  '/schedule',
+  requireDoctor,
+  validate(weeklyScheduleValidation),
+  doctorController.setWeeklySchedule
 );
 
 export default router;

@@ -6,6 +6,7 @@ import { paginatedResponse } from '../utils/response.util';
 import { NotFoundError } from '../middleware/error.middleware';
 import { patientRepository } from '../repositories';
 import { MedicalRecord } from '../models';
+import { MAX_EXPORT_RECORDS } from '../config/constants';
 
 export const getMyRecords = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const userId = req.user.userId;
@@ -32,9 +33,9 @@ export const exportMyRecordsCsv = asyncHandler(async (req: AuthenticatedRequest,
     throw new NotFoundError('Patient profile not found');
   }
 
-  // Fetch all records for export (no pagination — intentional for full export)
+  // Fetch records capped to MAX_EXPORT_RECORDS to prevent memory bloat
   const { records: csvRecords }: { records: MedicalRecord[] } =
-    await medicalRecordService.findAllByPatientId(patient.id, 1, 10000);
+    await medicalRecordService.findAllByPatientId(patient.id, 1, MAX_EXPORT_RECORDS);
   const csvData = medicalRecordService.convertToCsv(csvRecords);
 
   res.header('Content-Type', 'text/csv');
@@ -50,9 +51,9 @@ export const exportMyRecordsPdf = asyncHandler(async (req: AuthenticatedRequest,
     throw new NotFoundError('Patient profile not found');
   }
 
-  // Fetch all records for export (no pagination — intentional for full export)
+  // Fetch records capped to MAX_EXPORT_RECORDS to prevent memory bloat
   const { records: pdfRecords }: { records: MedicalRecord[] } =
-    await medicalRecordService.findAllByPatientId(patient.id, 1, 10000);
+    await medicalRecordService.findAllByPatientId(patient.id, 1, MAX_EXPORT_RECORDS);
 
   const patientName = patient.user
     ? `${patient.user.firstName} ${patient.user.lastName}`

@@ -117,7 +117,8 @@ describe('Appointment Controller', () => {
     it('happy path — returns paginated appointments with 200', async () => {
       const result = { appointments: [makeAppointment()], total: 1 };
       (appointmentService.getAll as jest.Mock).mockResolvedValue(result);
-      const req = mockReq({ query: { page: '1', limit: '10' } as Record<string, string> });
+      // After validate middleware, query params are coerced to proper types
+      const req = mockReq({ query: { page: 1, limit: 10 } as unknown as Record<string, string> });
       const res = mockRes();
 
       await appointmentController.getAppointments(req, res, mockNext);

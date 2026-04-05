@@ -1,4 +1,6 @@
 import { Request } from 'express';
+import fs from 'node:fs';
+import path from 'node:path';
 import { PhiAction, PhiResourceType, AuditOutcome } from '../models/PhiAuditLog.model';
 import { phiAuditRepository } from '../repositories/phi-audit.repository';
 import { logger } from '../config/logger';
@@ -47,6 +49,14 @@ const resolveUserAgent = (req: Request): string | null => req.headers['user-agen
 
 const PHI_AUDIT_MAX_ATTEMPTS = 3;
 const PHI_AUDIT_RETRY_DELAY_MS = 100;
+
+/**
+ * Dead-letter file for PHI audit entries that cannot be persisted to the
+ * database after all retries.  HIPAA §164.312(b) requires that audit
+ * records are never silently lost.  This file guarantees recoverability
+ * even when the primary store is down.
+ */
+const PHI_DEAD_LETTER_PATH = path.join(process.cwd(), 'logs', 'phi-audit-dead-letter.jsonl');
 
 const wait = async (ms: number): Promise<void> => {
   await new Promise(resolve => setTimeout(resolve, ms));
@@ -127,6 +137,29 @@ class PhiAuditService {
           alert: true,
           error: errorMessage,
         });
+
+        // Dead-letter: append the failed audit entry as JSONL so it can be
+        // replayed into the database once the store recovers.  This ensures
+        // HIPAA-required audit records are never silently lost.
+        try {
+          const deadLetterEntry = JSON.stringify({
+            ...payload,
+            failedAt: new Date().toISOString(),
+            error: errorMessage,
+          });
+          fs.appendFileSync(PHI_DEAD_LETTER_PATH, deadLetterEntry + '\n');
+          logger.warn('PHI audit entry written to dead-letter file', {
+            path: PHI_DEAD_LETTER_PATH,
+          });
+        } catch (dlError: unknown) {
+          // Last resort — if even the dead-letter file fails, log the full
+          // payload so it still appears in the structured log output.
+          logger.error('PHI audit dead-letter write ALSO failed — dumping payload', {
+            payload,
+            dlError: dlError instanceof Error ? dlError.message : String(dlError),
+            alert: true,
+          });
+        }
       }
     }
   }

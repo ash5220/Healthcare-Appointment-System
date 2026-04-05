@@ -69,7 +69,8 @@ describe('Admin Controller', () => {
       const result = { doctors: [{ id: 'd1' }], total: 1 };
       (adminService.getPendingDoctors as jest.Mock).mockResolvedValue(result);
 
-      const req = mockReq({ query: { page: '1', limit: '10' } as Record<string, string> });
+      // After validate middleware, query params are coerced to numbers
+      const req = mockReq({ query: { page: 1, limit: 10 } as unknown as Record<string, string> });
       const res = mockRes();
 
       await getPendingDoctors(req, res, mockNext);

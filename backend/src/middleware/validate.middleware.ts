@@ -17,8 +17,16 @@ export const validate = (schema: ZodTypeAny): RequestHandler => {
         if ('body' in data) {
           req.body = data['body'];
         }
+        // Express 5 exposes req.query as a getter-only that re-parses the URL
+        // on every access. Object.assign writes to a throwaway copy. Shadow the
+        // prototype getter with an own-property so downstream handlers see the
+        // Zod-coerced values (numbers, defaults, etc.).
         if ('query' in data && typeof data['query'] === 'object' && data['query'] !== null) {
-          Object.assign(req.query, data['query']);
+          Object.defineProperty(req, 'query', {
+            value: data['query'],
+            writable: true,
+            configurable: true,
+          });
         }
         if ('params' in data && typeof data['params'] === 'object' && data['params'] !== null) {
           Object.assign(req.params, data['params']);

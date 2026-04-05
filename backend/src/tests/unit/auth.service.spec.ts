@@ -286,6 +286,7 @@ describe('AuthService', () => {
     it('throws BadRequestError for common password', async () => {
       (isCommonPassword as jest.Mock).mockReturnValueOnce(true);
       (userRepository.findByEmail as jest.Mock).mockResolvedValue(null);
+      (doctorRepository.findByLicenseNumber as jest.Mock).mockResolvedValue(null);
       await expect(authService.registerDoctor(payload)).rejects.toThrow(BadRequestError);
     });
   });

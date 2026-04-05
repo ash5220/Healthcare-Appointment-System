@@ -8,6 +8,7 @@ import { isCommonPassword, hashPassword } from '../utils/password.util';
 import { MAX_LOGIN_ATTEMPTS, LOCKOUT_DURATION_MINUTES } from '../config/constants';
 import { LoginCredentials, AuthResponse, hashToken } from './auth.types';
 import { emailService } from './email.service';
+import { sendEmailWithRetry } from '../utils/email-retry.util';
 import { UserRole } from '../types/constants';
 
 // Password-reset tokens expire after 1 hour
@@ -275,9 +276,11 @@ class SessionService {
       emailVerificationExpiresAt: expiresAt,
     });
 
-    emailService
-      .sendEmailVerificationEmail(user.email, user.firstName, rawToken)
-      .catch(err => logger.error('Failed to resend verification email:', err));
+    // Retry with backoff — don't silently swallow email failures
+    sendEmailWithRetry(
+      () => emailService.sendEmailVerificationEmail(user.email, user.firstName, rawToken),
+      `resend-verification userId=${user.id}`
+    );
 
     logger.info(`Verification email resent: userId=${user.id}`);
   }

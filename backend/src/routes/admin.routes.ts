@@ -4,6 +4,12 @@ import { authMiddleware } from '../middleware/auth.middleware';
 import { requireAdmin } from '../middleware/role.middleware';
 import { validate } from '../middleware/validate.middleware';
 import { userIdValidation } from '../dto/user.dto';
+import {
+  adminUsersQueryValidation,
+  adminUserPatchValidation,
+  adminCreateUserValidation,
+  adminPendingDoctorsQueryValidation,
+} from '../dto/admin.dto';
 
 const router = Router();
 
@@ -23,21 +29,21 @@ router.get('/stats', adminController.getStats);
  * @desc    Get paginated users with optional filters
  * @access  Private (Admin)
  */
-router.get('/users', adminController.getUsers);
+router.get('/users', validate(adminUsersQueryValidation), adminController.getUsers);
 
 /**
  * @route   POST /api/v1/admin/users
  * @desc    Create a new user
  * @access  Private (Admin)
  */
-router.post('/users', adminController.createUser);
+router.post('/users', validate(adminCreateUserValidation), adminController.createUser);
 
 /**
  * @route   PATCH /api/v1/admin/users/:id
  * @desc    Update user active status and/or role
  * @access  Private (Admin)
  */
-router.patch('/users/:id', validate(userIdValidation), adminController.updateUser);
+router.patch('/users/:id', validate(adminUserPatchValidation), adminController.updateUser);
 
 /**
  * @route   DELETE /api/v1/admin/users/:id
@@ -51,7 +57,11 @@ router.delete('/users/:id', validate(userIdValidation), adminController.deleteUs
  * @desc    Get doctors awaiting approval
  * @access  Private (Admin)
  */
-router.get('/doctors/pending', adminController.getPendingDoctors);
+router.get(
+  '/doctors/pending',
+  validate(adminPendingDoctorsQueryValidation),
+  adminController.getPendingDoctors
+);
 
 /**
  * @route   PATCH /api/v1/admin/doctors/:id/approve

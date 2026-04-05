@@ -65,13 +65,14 @@ class AppointmentService {
   async create(data: CreateAppointmentData): Promise<Appointment> {
     const { userId, doctorId, appointmentDate, startTime, reasonForVisit } = data;
 
-    // Resolve patient from userId
-    const patient = await patientRepository.findByUserId(userId, { withUser: true });
+    // Parallelize independent lookups — patient and doctor don't depend on each other
+    const [patient, doctor] = await Promise.all([
+      patientRepository.findByUserId(userId, { withUser: true }),
+      doctorRepository.findById(doctorId, { withUser: true }),
+    ]);
     if (!patient) throw new NotFoundError('Patient profile not found');
-    const patientId = patient.id;
-
-    const doctor = await doctorRepository.findById(doctorId, { withUser: true });
     if (!doctor) throw new NotFoundError('Doctor not found');
+    const patientId = patient.id;
 
     // Check doctor availability for the requested day
     const appointmentDateObj = new Date(appointmentDate);

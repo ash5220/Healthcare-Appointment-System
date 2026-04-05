@@ -1,30 +1,38 @@
 import { Request, Response } from 'express';
+import { z } from 'zod';
 import { doctorService, availabilityService } from '../services';
 import { successResponse, paginatedResponse } from '../utils/response.util';
 import { asyncHandler, ForbiddenError } from '../middleware';
 import { AuthenticatedRequest } from '../types/express-augment';
-import type { UpdateAvailabilityData } from '../services/availability.service';
+import { getDoctorsQueryValidation } from '../dto/user.dto';
+import {
+  createAvailabilityValidation,
+  updateAvailabilityValidation,
+  weeklyScheduleValidation,
+} from '../dto/availability.dto';
 import type { DayOfWeek } from '../types/constants';
-import type { Doctor } from '../models';
+
+type DoctorsQuery = z.infer<typeof getDoctorsQueryValidation>['query'];
+type CreateAvailabilityBody = z.infer<typeof createAvailabilityValidation>['body'];
+type UpdateAvailabilityBody = z.infer<typeof updateAvailabilityValidation>['body'];
+type WeeklyScheduleBody = z.infer<typeof weeklyScheduleValidation>['body'];
 
 export const getDoctors = asyncHandler(async (req: Request, res: Response) => {
-  const { page, limit, specialization, search, minRating } = req.query;
+  // After validate(getDoctorsQueryValidation), query values are coerced to proper types
+  const { page, limit, specialization, search, minRating } = req.query as unknown as DoctorsQuery;
+
+  const resolvedPage = page ?? 1;
+  const resolvedLimit = limit ?? 10;
 
   const { doctors, total } = await doctorService.getDoctors({
-    page: page ? parseInt(page as string) : undefined,
-    limit: limit ? parseInt(limit as string) : undefined,
-    specialization: specialization as string,
-    search: search as string,
-    minRating: minRating ? parseFloat(minRating as string) : undefined,
+    page: resolvedPage,
+    limit: resolvedLimit,
+    specialization,
+    search,
+    minRating,
   });
 
-  paginatedResponse(
-    res,
-    doctors,
-    total,
-    page ? parseInt(page as string) : 1,
-    limit ? parseInt(limit as string) : 10
-  );
+  paginatedResponse(res, doctors, total, resolvedPage, resolvedLimit);
 });
 
 export const getDoctorById = asyncHandler(async (req: Request, res: Response) => {
@@ -37,7 +45,10 @@ export const getDoctorById = asyncHandler(async (req: Request, res: Response) =>
 
 export const updateDoctorProfile = asyncHandler(
   async (req: AuthenticatedRequest, res: Response) => {
-    const updateData = req.body as Partial<Doctor>;
+    // Body validated by validate(doctorProfileValidation) middleware
+    const updateData = req.body as z.infer<
+      typeof import('../dto/auth.dto').doctorProfileValidation
+    >['body'];
 
     const doctor = await doctorService.updateDoctorProfile(req.user.userId, updateData);
 
@@ -63,21 +74,17 @@ export const getMyAvailability = asyncHandler(async (req: AuthenticatedRequest, 
 });
 
 export const createAvailability = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const { dayOfWeek, startTime, endTime, slotDuration, effectiveFrom, effectiveTo } = req.body as {
-    dayOfWeek: DayOfWeek;
-    startTime: string;
-    endTime: string;
-    slotDuration?: number;
-    effectiveFrom?: string;
-    effectiveTo?: string;
-  };
+  // Body validated by validate(createAvailabilityValidation) middleware
+  const { dayOfWeek, startTime, endTime, slotDuration, effectiveFrom, effectiveTo } =
+    req.body as CreateAvailabilityBody;
 
   // Get doctor ID from authenticated user
   const doctor = await doctorService.getDoctorByUserId(req.user.userId);
 
   const availability = await availabilityService.create({
     doctorId: doctor.id,
-    dayOfWeek,
+    // Zod validates dayOfWeek against DayOfWeek values — safe to narrow
+    dayOfWeek: dayOfWeek as DayOfWeek,
     startTime,
     endTime,
     slotDuration,
@@ -90,7 +97,8 @@ export const createAvailability = asyncHandler(async (req: AuthenticatedRequest,
 
 export const updateAvailability = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const { id } = req.params;
-  const updateData = req.body as UpdateAvailabilityData;
+  // Body validated by validate(updateAvailabilityValidation) middleware
+  const updateData = req.body as UpdateAvailabilityBody;
 
   // Ownership check: verify the availability belongs to the authenticated doctor
   const doctor = await doctorService.getDoctorByUserId(req.user.userId);
@@ -120,17 +128,24 @@ export const deleteAvailability = asyncHandler(async (req: AuthenticatedRequest,
 });
 
 export const setWeeklySchedule = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const { schedule, effectiveFrom } = req.body as {
-    schedule: { dayOfWeek: DayOfWeek; startTime: string; endTime: string; slotDuration?: number }[];
-    effectiveFrom: string;
-  };
+  // Body validated by validate(weeklyScheduleValidation) middleware
+  const { schedule } = req.body as WeeklyScheduleBody;
 
   // Get doctor ID from authenticated user
   const doctor = await doctorService.getDoctorByUserId(req.user.userId);
 
+  // All schedule items share the same effectiveFrom from the first entry
+  const effectiveFrom = schedule[0].effectiveFrom;
+
   const availabilities = await availabilityService.setWeeklySchedule(
     doctor.id,
-    schedule,
+    // Zod validates dayOfWeek against DayOfWeek values — safe to narrow
+    schedule as Array<{
+      dayOfWeek: DayOfWeek;
+      startTime: string;
+      endTime: string;
+      slotDuration?: number;
+    }>,
     effectiveFrom
   );
 
@@ -138,15 +153,16 @@ export const setWeeklySchedule = asyncHandler(async (req: AuthenticatedRequest, 
 });
 
 export const getDoctorPatients = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const { page, limit } = req.query;
-  const parsedPage = page !== undefined ? Number(page) : 1;
-  const parsedLimit = limit !== undefined ? Number(limit) : 25;
+  // Query validated by validate(getDoctorsQueryValidation) middleware
+  const { page, limit } = req.query as unknown as DoctorsQuery;
+  const resolvedPage = page ?? 1;
+  const resolvedLimit = limit ?? 25;
 
   const { patients, total } = await doctorService.getDoctorPatients(
     req.user.userId,
-    parsedPage,
-    parsedLimit
+    resolvedPage,
+    resolvedLimit
   );
 
-  paginatedResponse(res, patients, total, parsedPage, parsedLimit);
+  paginatedResponse(res, patients, total, resolvedPage, resolvedLimit);
 });

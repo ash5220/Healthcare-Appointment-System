@@ -154,6 +154,12 @@ export const MAX_SLOT_DURATION_MINUTES = 120;
 export const MAX_BOOKING_DAYS_AHEAD = 90;
 
 /**
+ * Maximum number of records returned in a single export (CSV/PDF).
+ * Prevents unbounded memory usage when patients have very large histories.
+ */
+export const MAX_EXPORT_RECORDS = 5_000;
+
+/**
  * Minimum hours before appointment that cancellation is allowed.
  * Gives doctors time to fill cancelled slots.
  */

@@ -1,6 +1,6 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { Observable, tap, finalize } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
     Appointment,
@@ -59,12 +59,12 @@ export class AppointmentService {
             }
         });
 
-        return this.http.get<PaginatedResponse<Appointment>>(this.apiUrl, { params }).pipe(
+    return this.http.get<PaginatedResponse<Appointment>>(this.apiUrl, { params }).pipe(
             tap((response) => {
                 this.appointmentsSignal.set(response.data);
                 this.totalSignal.set(response.metadata.total);
-                this.isLoadingSignal.set(false);
-            })
+            }),
+            finalize(() => this.isLoadingSignal.set(false))
         );
     }
 
@@ -91,8 +91,8 @@ export class AppointmentService {
             tap((response) => {
                 const currentAppointments = this.appointmentsSignal();
                 this.appointmentsSignal.set([response.data.appointment, ...currentAppointments]);
-                this.isLoadingSignal.set(false);
-            })
+            }),
+            finalize(() => this.isLoadingSignal.set(false))
         );
     }
 

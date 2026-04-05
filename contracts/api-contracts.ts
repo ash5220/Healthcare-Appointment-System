@@ -166,6 +166,7 @@ export interface CreateAppointmentRequestContract {
   doctorId: string;
   appointmentDate: string;
   startTime: string;
+  endTime?: string;
   reasonForVisit: string;
 }
 

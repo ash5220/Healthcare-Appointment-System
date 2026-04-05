@@ -7,43 +7,31 @@
 // Primitive / shared types
 // ─────────────────────────────────────────────────────────────────────────────
 
-export type ContractUserRole = "patient" | "doctor" | "admin";
-export type ContractGender = "male" | "female" | "other";
-export type ContractBloodGroup =
-  | "A+"
-  | "A-"
-  | "B+"
-  | "B-"
-  | "AB+"
-  | "AB-"
-  | "O+"
-  | "O-";
+export type ContractUserRole = 'patient' | 'doctor' | 'admin';
+export type ContractGender = 'male' | 'female' | 'other';
+export type ContractBloodGroup = 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
 export type ContractAppointmentStatus =
-  | "scheduled"
-  | "confirmed"
-  | "cancelled"
-  | "completed"
-  | "no_show";
+  | 'scheduled'
+  | 'confirmed'
+  | 'cancelled'
+  | 'completed'
+  | 'no_show';
 export type ContractDayOfWeek =
-  | "monday"
-  | "tuesday"
-  | "wednesday"
-  | "thursday"
-  | "friday"
-  | "saturday"
-  | "sunday";
+  | 'monday'
+  | 'tuesday'
+  | 'wednesday'
+  | 'thursday'
+  | 'friday'
+  | 'saturday'
+  | 'sunday';
 export type ContractMedicalRecordType =
-  | "CONSULTATION"
-  | "LAB_RESULT"
-  | "PRESCRIPTION"
-  | "SURGERY"
-  | "VACCINATION"
-  | "OTHER";
-export type ContractInsuranceStatus =
-  | "pending"
-  | "verified"
-  | "rejected"
-  | "expired";
+  | 'CONSULTATION'
+  | 'LAB_RESULT'
+  | 'PRESCRIPTION'
+  | 'SURGERY'
+  | 'VACCINATION'
+  | 'OTHER';
+export type ContractInsuranceStatus = 'pending' | 'verified' | 'rejected' | 'expired';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Generic response wrapper — all endpoints follow this shape
@@ -171,6 +159,7 @@ export interface CreateAppointmentRequestContract {
   doctorId: string;
   appointmentDate: string;
   startTime: string;
+  endTime?: string;
   reasonForVisit: string;
 }
 
@@ -217,10 +206,7 @@ export interface ApiDoctorSummaryContract {
   rating: number;
   totalPatients: number;
   isApproved: boolean;
-  user?: Pick<
-    ApiUserContract,
-    "id" | "firstName" | "lastName" | "email" | "phoneNumber"
-  >;
+  user?: Pick<ApiUserContract, 'id' | 'firstName' | 'lastName' | 'email' | 'phoneNumber'>;
 }
 
 export interface ApiPatientSummaryContract {
@@ -232,10 +218,7 @@ export interface ApiPatientSummaryContract {
   allergies: string[];
   emergencyContactName?: string;
   emergencyContactPhone?: string;
-  user?: Pick<
-    ApiUserContract,
-    "id" | "firstName" | "lastName" | "email" | "phoneNumber"
-  >;
+  user?: Pick<ApiUserContract, 'id' | 'firstName' | 'lastName' | 'email' | 'phoneNumber'>;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

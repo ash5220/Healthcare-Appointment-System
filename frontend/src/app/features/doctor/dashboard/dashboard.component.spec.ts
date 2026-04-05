@@ -57,7 +57,11 @@ describe('DoctorDashboardComponent', () => {
                 { provide: AuthService, useValue: mockAuthService },
                 { provide: AppointmentService, useValue: mockAppointmentService },
             ],
-        }).compileComponents();
+        })
+            .overrideComponent(DoctorDashboardComponent, {
+                set: { providers: [{ provide: AppointmentService, useValue: mockAppointmentService }] },
+            })
+            .compileComponents();
 
         fixture = TestBed.createComponent(DoctorDashboardComponent);
         component = fixture.componentInstance;

@@ -49,7 +49,7 @@ describe('MedicalRecordService', () => {
       (medicalRecordRepository.findAllByPatientId as jest.Mock).mockResolvedValue([makeRecord()]);
       const result = await medicalRecordService.findAllByPatientId('p1');
       expect(result).toHaveLength(1);
-      expect(medicalRecordRepository.findAllByPatientId).toHaveBeenCalledWith('p1');
+      expect(medicalRecordRepository.findAllByPatientId).toHaveBeenCalledWith('p1', 1, 10);
     });
 
     it('returns empty array when patient has no records', async () => {

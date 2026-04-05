@@ -36,7 +36,7 @@ describe('MedicalRecordsComponent', () => {
   function buildWith(
     response: ReturnType<typeof mockMedicalRecordService.getMyRecords> = of({
       success: true,
-      data: { records: [] },
+      data: [],
     }),
   ) {
     mockMedicalRecordService.getMyRecords.and.returnValue(response);
@@ -59,19 +59,19 @@ describe('MedicalRecordsComponent', () => {
         makeRecord('r1', MedicalRecordType.CONSULTATION),
         makeRecord('r2', MedicalRecordType.LAB_RESULT),
       ];
-      buildWith(of({ success: true, data: { records } }));
+      buildWith(of({ success: true, data: records }));
       tick();
       expect(component.records().length).toBe(2);
     }));
 
     it('MedicalRecordsComponent — service returns records — sets isLoading to false', fakeAsync(() => {
-      buildWith(of({ success: true, data: { records: [] } }));
+      buildWith(of({ success: true, data: [] }));
       tick();
       expect(component.isLoading()).toBeFalse();
     }));
 
     it('MedicalRecordsComponent — service returns empty list — records signal is empty', fakeAsync(() => {
-      buildWith(of({ success: true, data: { records: [] } }));
+      buildWith(of({ success: true, data: [] }));
       tick();
       expect(component.records()).toEqual([]);
       expect(component.error()).toBeNull();
@@ -96,7 +96,7 @@ describe('MedicalRecordsComponent', () => {
     }));
 
     it('MedicalRecordsComponent — success:false response — sets error message', fakeAsync(() => {
-      buildWith(of({ success: false, data: { records: [] } }));
+      buildWith(of({ success: false, data: [] }));
       tick();
       expect(component.error()).toBe('Failed to load medical records');
     }));
@@ -180,7 +180,7 @@ describe('MedicalRecordsComponent', () => {
       expect(component.error()).toBeTruthy();
 
       mockMedicalRecordService.getMyRecords.and.returnValue(
-        of({ success: true, data: { records: [] } }),
+        of({ success: true, data: [] }),
       );
       component.fetchRecords();
       tick();

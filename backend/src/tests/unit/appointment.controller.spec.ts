@@ -154,7 +154,7 @@ describe('Appointment Controller', () => {
       await appointmentController.getAppointments(req, res, mockNext);
 
       expect(appointmentService.getAll).toHaveBeenCalledWith(
-        expect.objectContaining({ page: undefined, limit: undefined }),
+        expect.objectContaining({ page: 1, limit: 10 }),
         'patient-uuid',
         UserRole.PATIENT
       );

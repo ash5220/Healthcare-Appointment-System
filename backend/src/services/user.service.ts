@@ -69,14 +69,18 @@ class UserService {
   async deactivateUser(id: string, transaction?: Transaction): Promise<void> {
     const user = await userRepository.findById(id);
     if (!user) throw new NotFoundError('User not found');
-    await userRepository.update(user, { isActive: false, refreshToken: null }, transaction);
+    await (transaction
+      ? userRepository.update(user, { isActive: false, refreshToken: null }, transaction)
+      : userRepository.update(user, { isActive: false, refreshToken: null }));
     logger.info(`User deactivated: ${user.id}`);
   }
 
   async activateUser(id: string, transaction?: Transaction): Promise<void> {
     const user = await userRepository.findById(id);
     if (!user) throw new NotFoundError('User not found');
-    await userRepository.update(user, { isActive: true }, transaction);
+    await (transaction
+      ? userRepository.update(user, { isActive: true }, transaction)
+      : userRepository.update(user, { isActive: true }));
     logger.info(`User activated: ${user.id}`);
   }
 

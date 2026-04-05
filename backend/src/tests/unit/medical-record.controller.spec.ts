@@ -86,7 +86,7 @@ describe('MedicalRecord Controller', () => {
       const records = [{ id: 'rec-1', diagnosis: 'Flu' }];
 
       (patientRepository.findByUserId as jest.Mock).mockResolvedValue(patient);
-      (medicalRecordService.findAllByPatientId as jest.Mock).mockResolvedValue(records);
+      (medicalRecordService.findAllByPatientId as jest.Mock).mockResolvedValue({ records, total: records.length });
 
       const req = mockReq();
       const res = mockRes();
@@ -94,7 +94,7 @@ describe('MedicalRecord Controller', () => {
       await getMyRecords(req, res, mockNext);
 
       expect(patientRepository.findByUserId).toHaveBeenCalledWith('user-1');
-      expect(medicalRecordService.findAllByPatientId).toHaveBeenCalledWith('patient-1');
+      expect(medicalRecordService.findAllByPatientId).toHaveBeenCalledWith('patient-1', 1, 10);
       expect(res.status).toHaveBeenCalledWith(200);
     });
 
@@ -119,7 +119,7 @@ describe('MedicalRecord Controller', () => {
       const csvData = 'id,diagnosis\nrec-1,Flu';
 
       (patientRepository.findByUserId as jest.Mock).mockResolvedValue(patient);
-      (medicalRecordService.findAllByPatientId as jest.Mock).mockResolvedValue(records);
+      (medicalRecordService.findAllByPatientId as jest.Mock).mockResolvedValue({ records, total: records.length });
       (medicalRecordService.convertToCsv as jest.Mock).mockReturnValue(csvData);
 
       const req = mockReq();
@@ -141,7 +141,7 @@ describe('MedicalRecord Controller', () => {
       const records = [{ id: 'rec-1' }];
 
       (patientRepository.findByUserId as jest.Mock).mockResolvedValue(patient);
-      (medicalRecordService.findAllByPatientId as jest.Mock).mockResolvedValue(records);
+      (medicalRecordService.findAllByPatientId as jest.Mock).mockResolvedValue({ records, total: records.length });
       (medicalRecordService.generatePdf as jest.Mock).mockImplementation(() => {});
 
       const req = mockReq();
@@ -162,7 +162,7 @@ describe('MedicalRecord Controller', () => {
       const records: unknown[] = [];
 
       (patientRepository.findByUserId as jest.Mock).mockResolvedValue(patient);
-      (medicalRecordService.findAllByPatientId as jest.Mock).mockResolvedValue(records);
+      (medicalRecordService.findAllByPatientId as jest.Mock).mockResolvedValue({ records, total: records.length });
       (medicalRecordService.generatePdf as jest.Mock).mockImplementation(() => {});
 
       const req = mockReq();

@@ -187,7 +187,7 @@ describe('Auth Controller', () => {
 
       await authController.login(req, res, mockNext);
 
-      expect(setRefreshTokenCookie).toHaveBeenCalledWith(res, TOKENS.refreshToken);
+      expect(setRefreshTokenCookie).toHaveBeenCalledWith(res, TOKENS.refreshToken, true);
       expect(res.status).toHaveBeenCalledWith(200);
     });
 

@@ -114,6 +114,7 @@ export class ProfileComponent implements OnInit {
       error: (err: unknown) => {
         this.isLoading.set(false);
         this.logger.error('Profile load error', err);
+        this.notificationService.error('Error', 'Failed to load user profile');
       },
     });
   }
@@ -154,8 +155,12 @@ export class ProfileComponent implements OnInit {
           this.isEditMode.set(false);
           this.notificationService.success('Saved', 'Profile updated successfully');
         },
-        error: () => {
+        error: (err: { error?: { message?: string } }) => {
           this.isSaving.set(false);
+          this.notificationService.error(
+            'Error',
+            err?.error?.message ?? 'Failed to update profile',
+          );
         },
       });
   }
@@ -187,8 +192,12 @@ export class ProfileComponent implements OnInit {
         this.isRequestingEmailChange.set(false);
         this.emailChangeSent.set(true);
       },
-      error: () => {
+      error: (err: { error?: { message?: string } }) => {
         this.isRequestingEmailChange.set(false);
+        this.notificationService.error(
+          'Error',
+          err?.error?.message ?? 'Failed to request email change',
+        );
       },
     });
   }

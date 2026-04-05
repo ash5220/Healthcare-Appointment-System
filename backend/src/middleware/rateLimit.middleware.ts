@@ -9,6 +9,10 @@ import mysql from 'mysql2';
 import { env } from '../config/env';
 import { errorResponse } from '../utils/response.util';
 import { logger } from '../config/logger';
+import {
+  RATE_LIMIT_LOGIN_MAX,
+  RATE_LIMIT_PASSWORD_RESET_MAX,
+} from '../config/constants';
 
 const dbHost: string = env.dbHost;
 const dbPort: number = env.dbPort;
@@ -28,6 +32,9 @@ const pool = isTestEnv
       user: dbUser,
       password: dbPassword,
       database: dbName,
+      ...(env.nodeEnv === 'production' && {
+        ssl: { rejectUnauthorized: true },
+      }),
     });
 
 const createLimiter = (
@@ -65,7 +72,7 @@ const apiLimiter = createLimiter(
 // Stricter rate limiter for login attempts (by IP)
 const loginIpLimiter = createLimiter(
   'rate_limits_login_ip',
-  20, // 20 attempts
+  RATE_LIMIT_LOGIN_MAX, // 10 attempts per NIST SP 800-63B guidance
   15 * 60, // Per 15 minutes
   5 * 60 // Block for 5 minutes
 );
@@ -73,7 +80,7 @@ const loginIpLimiter = createLimiter(
 // Stricter rate limiter for login attempts (by Email)
 const loginEmailLimiter = createLimiter(
   'rate_limits_login_email',
-  20, // 20 attempts
+  RATE_LIMIT_LOGIN_MAX, // 10 attempts per NIST SP 800-63B guidance
   15 * 60, // Per 15 minutes
   5 * 60 // Block for 5 minutes
 );
@@ -81,7 +88,7 @@ const loginEmailLimiter = createLimiter(
 // Stricter rate limiter for password reset
 const passwordResetLimiter = createLimiter(
   'rate_limits_password_reset',
-  3, // 3 attempts
+  RATE_LIMIT_PASSWORD_RESET_MAX, // 5 attempts per hour
   60 * 60, // Per hour
   60 * 60 // Block for 1 hour
 );

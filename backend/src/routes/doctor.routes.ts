@@ -15,6 +15,18 @@ import {
 const router = Router();
 
 /**
+ * @route   GET /api/v1/doctors
+ * @desc    Get paginated list of approved doctors
+ * @access  Public
+ */
+router.get(
+    '/',
+    optionalAuthMiddleware,
+    validate(getDoctorsQueryValidation),
+    doctorController.getDoctors
+);
+
+/**
  * @route   GET /api/v1/doctors/availability
  * @desc    Get logged-in doctor's availability schedule
  * @access  Private (Doctor)

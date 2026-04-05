@@ -1,3 +1,4 @@
+import { Transaction } from 'sequelize';
 import { User, Patient } from '../models';
 import { logger } from '../config/logger';
 import { NotFoundError } from '../shared/errors';
@@ -65,17 +66,17 @@ class UserService {
     return this.updateUser(id, rawData);
   }
 
-  async deactivateUser(id: string): Promise<void> {
+  async deactivateUser(id: string, transaction?: Transaction): Promise<void> {
     const user = await userRepository.findById(id);
     if (!user) throw new NotFoundError('User not found');
-    await userRepository.update(user, { isActive: false, refreshToken: null });
+    await userRepository.update(user, { isActive: false, refreshToken: null }, transaction);
     logger.info(`User deactivated: ${user.id}`);
   }
 
-  async activateUser(id: string): Promise<void> {
+  async activateUser(id: string, transaction?: Transaction): Promise<void> {
     const user = await userRepository.findById(id);
     if (!user) throw new NotFoundError('User not found');
-    await userRepository.update(user, { isActive: true });
+    await userRepository.update(user, { isActive: true }, transaction);
     logger.info(`User activated: ${user.id}`);
   }
 

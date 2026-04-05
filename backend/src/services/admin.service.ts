@@ -4,7 +4,9 @@ import { appointmentRepository } from '../repositories/appointment.repository';
 import { doctorRepository } from '../repositories/doctor.repository';
 import { userService } from './user.service';
 import { NotFoundError, ConflictError, BadRequestError } from '../shared/errors';
+import { isCommonPassword } from '../utils/password.util';
 import { logger } from '../config/logger';
+import { sequelize } from '../config/database';
 import { Doctor, User } from '../models';
 
 interface AdminUserFilters {
@@ -95,17 +97,19 @@ class AdminService {
     const user = await userRepository.findById(userId);
     if (!user) throw new NotFoundError('User not found');
 
-    if (data.role !== undefined) {
-      await userRepository.update(user, { role: data.role });
-    }
-
-    if (data.isActive !== undefined) {
-      if (data.isActive) {
-        await userService.activateUser(userId);
-      } else {
-        await userService.deactivateUser(userId);
+    await sequelize.transaction(async (t) => {
+      if (data.role !== undefined) {
+        await userRepository.update(user, { role: data.role }, t);
       }
-    }
+
+      if (data.isActive !== undefined) {
+        if (data.isActive) {
+          await userService.activateUser(userId, t);
+        } else {
+          await userService.deactivateUser(userId, t);
+        }
+      }
+    });
   }
 
   async createUser(data: {
@@ -117,6 +121,12 @@ class AdminService {
   }): Promise<User> {
     const existing = await userRepository.findByEmail(data.email);
     if (existing) throw new ConflictError('A user with this email already exists');
+
+    if (isCommonPassword(data.password)) {
+      throw new BadRequestError(
+        'This password is too common. Please choose a more unique password.'
+      );
+    }
 
     return userRepository.create({
       firstName: data.firstName,

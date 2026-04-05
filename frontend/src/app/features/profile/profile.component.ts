@@ -7,7 +7,13 @@ import {
   computed,
 } from '@angular/core';
 import { DatePipe, TitleCasePipe } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
+import {
+  ReactiveFormsModule,
+  NonNullableFormBuilder,
+  FormGroup,
+  FormControl,
+  Validators,
+} from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 import { UserRole } from '../../core/models';
 import { NotificationService } from '../../core/services/notification.service';
@@ -25,7 +31,7 @@ export class ProfileComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly notificationService = inject(NotificationService);
   private readonly router = inject(Router);
-  private readonly fb = inject(FormBuilder);
+  private readonly fb = inject(NonNullableFormBuilder);
 
   private readonly logger = inject(LoggerService);
 
@@ -53,13 +59,13 @@ export class ProfileComponent implements OnInit {
   // ── Forms ──────────────────────────────────────────────────────────────
 
   protected profileForm!: FormGroup<{
-    firstName: FormControl<string | null>;
-    lastName: FormControl<string | null>;
-    phoneNumber: FormControl<string | null>;
+    firstName: FormControl<string>;
+    lastName: FormControl<string>;
+    phoneNumber: FormControl<string>;
   }>;
 
   protected emailChangeForm!: FormGroup<{
-    newEmail: FormControl<string | null>;
+    newEmail: FormControl<string>;
   }>;
 
   ngOnInit(): void {
@@ -107,7 +113,6 @@ export class ProfileComponent implements OnInit {
       },
       error: (err: unknown) => {
         this.isLoading.set(false);
-        this.notificationService.error('Error', 'Failed to load user profile');
         this.logger.error('Profile load error', err);
       },
     });
@@ -140,11 +145,7 @@ export class ProfileComponent implements OnInit {
       return;
     }
     this.isSaving.set(true);
-    const { firstName, lastName, phoneNumber } = this.profileForm.value as {
-      firstName: string;
-      lastName: string;
-      phoneNumber: string;
-    };
+    const { firstName, lastName, phoneNumber } = this.profileForm.getRawValue();
     this.authService
       .updateProfile({ firstName, lastName, phoneNumber: phoneNumber || null })
       .subscribe({
@@ -153,12 +154,8 @@ export class ProfileComponent implements OnInit {
           this.isEditMode.set(false);
           this.notificationService.success('Saved', 'Profile updated successfully');
         },
-        error: (err: unknown) => {
+        error: () => {
           this.isSaving.set(false);
-          const msg =
-            (err as { error?: { message?: string } })?.error?.message ??
-            'Failed to update profile';
-          this.notificationService.error('Error', msg);
         },
       });
   }
@@ -184,18 +181,14 @@ export class ProfileComponent implements OnInit {
       return;
     }
     this.isRequestingEmailChange.set(true);
-    const { newEmail } = this.emailChangeForm.value as { newEmail: string };
+    const { newEmail } = this.emailChangeForm.getRawValue();
     this.authService.requestEmailChange(newEmail).subscribe({
       next: () => {
         this.isRequestingEmailChange.set(false);
         this.emailChangeSent.set(true);
       },
-      error: (err: unknown) => {
+      error: () => {
         this.isRequestingEmailChange.set(false);
-        const msg =
-          (err as { error?: { message?: string } })?.error?.message ??
-          'Failed to request email change';
-        this.notificationService.error('Error', msg);
       },
     });
   }

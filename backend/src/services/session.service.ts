@@ -101,7 +101,7 @@ class SessionService {
     try {
       const { userId } = verifyRefreshToken(refreshToken);
 
-      const user = await userRepository.findById(userId);
+      const user = await userRepository.findById(userId, { withSensitive: true });
       if (!user) throw new UnauthorizedError('User not found');
 
       const incomingHash = hashToken(refreshToken);
@@ -145,7 +145,7 @@ class SessionService {
     currentPassword: string,
     newPassword: string
   ): Promise<void> {
-    const user = await userRepository.findById(userId);
+    const user = await userRepository.findById(userId, { withSensitive: true });
     if (!user) throw new NotFoundError('User not found');
 
     const isValidPassword = await user.comparePassword(currentPassword);
@@ -165,10 +165,7 @@ class SessionService {
   }
 
   async getUserById(userId: string): Promise<User> {
-    const user = await userRepository.findById(userId, {
-      withProfiles: true,
-      excludeSensitive: true,
-    });
+    const user = await userRepository.findById(userId, { withProfiles: true });
     if (!user) throw new NotFoundError('User not found');
     return user;
   }

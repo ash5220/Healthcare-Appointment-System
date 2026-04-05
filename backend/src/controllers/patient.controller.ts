@@ -10,7 +10,7 @@ type PatientProfileUpdateBody = z.infer<typeof patientProfileValidation>['body']
 
 export const getPatientProfile = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   // After validate middleware, params are validated by userIdValidation schema
-  const patientId = req.params['id'] as unknown as string;
+  const patientId = req.params['id'];
   const patient = await userService.getPatientById(patientId);
 
   successResponse(res, { patient });

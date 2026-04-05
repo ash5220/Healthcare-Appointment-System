@@ -1,4 +1,12 @@
-import { Op, WhereOptions, CreationAttributes, InferAttributes, Transaction, fn, col } from 'sequelize';
+import {
+  Op,
+  WhereOptions,
+  CreationAttributes,
+  InferAttributes,
+  Transaction,
+  fn,
+  col,
+} from 'sequelize';
 import { User, Doctor, Patient } from '../models';
 import { UserRole } from '../types/constants';
 
@@ -55,7 +63,7 @@ export type UserUpdateData = {
 class UserRepository {
   async findById(
     id: string,
-    options: { withProfiles?: boolean; excludeSensitive?: boolean } = {}
+    options: { withProfiles?: boolean; withSensitive?: boolean } = {}
   ): Promise<User | null> {
     const include = options.withProfiles
       ? [
@@ -64,15 +72,17 @@ class UserRepository {
         ]
       : [];
 
-    const attributes = options.excludeSensitive
-      ? { exclude: ['password', 'refreshToken', 'mfaSecret'] }
-      : undefined;
-
-    return User.findByPk(id, { include, attributes });
+    // Use unscoped() only when sensitive fields (password, refreshToken, mfaSecret, etc.)
+    // are explicitly needed. By default the User model's defaultScope excludes them.
+    if (options.withSensitive) {
+      return User.unscoped().findByPk(id, { include });
+    }
+    return User.findByPk(id, { include });
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    return User.findOne({ where: { email } });
+    // Always bypass defaultScope here: callers (login, password flows) need the password hash.
+    return User.unscoped().findOne({ where: { email } });
   }
 
   async findByPasswordResetTokenHash(hash: string): Promise<User | null> {
@@ -115,7 +125,6 @@ class UserRepository {
     const offset = (page - 1) * limit;
     const { rows: users, count: total } = await User.findAndCountAll({
       where,
-      attributes: { exclude: ['password', 'refreshToken'] },
       order: [['createdAt', 'DESC']],
       limit,
       offset,
@@ -153,7 +162,7 @@ class UserRepository {
   }
 
   async groupBy<K extends keyof InferAttributes<User>>(
-    field: K,
+    field: K
   ): Promise<Array<{ [P in K]: InferAttributes<User>[P] } & { count: number }>> {
     const rows = await User.findAll({
       attributes: [field as string, [fn('COUNT', col('id')), 'count']],

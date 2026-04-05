@@ -37,7 +37,7 @@ class UserService {
   }
 
   async getUserById(id: string): Promise<User> {
-    const user = await userRepository.findById(id, { withProfiles: true, excludeSensitive: true });
+    const user = await userRepository.findById(id, { withProfiles: true });
     if (!user) throw new NotFoundError('User not found');
     return user;
   }
@@ -95,8 +95,10 @@ class UserService {
     if (rawData.gender !== undefined) safeData.gender = rawData.gender;
     if (rawData.bloodGroup !== undefined) safeData.bloodGroup = rawData.bloodGroup;
     if (rawData.allergies !== undefined) safeData.allergies = rawData.allergies;
-    if (rawData.emergencyContactName !== undefined) safeData.emergencyContactName = rawData.emergencyContactName;
-    if (rawData.emergencyContactPhone !== undefined) safeData.emergencyContactPhone = rawData.emergencyContactPhone;
+    if (rawData.emergencyContactName !== undefined)
+      safeData.emergencyContactName = rawData.emergencyContactName;
+    if (rawData.emergencyContactPhone !== undefined)
+      safeData.emergencyContactPhone = rawData.emergencyContactPhone;
 
     await patientRepository.update(patient, safeData);
     logger.info(`Patient profile updated: userId=${userId}`);

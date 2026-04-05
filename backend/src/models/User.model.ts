@@ -202,6 +202,19 @@ User.init(
     timestamps: true,
     underscored: true,
     indexes: [{ fields: ['role'] }, { fields: ['is_active'] }],
+    defaultScope: {
+      attributes: {
+        exclude: [
+          'password',
+          'refreshToken',
+          'mfaSecret',
+          'mfaTempTokenHash',
+          'passwordResetTokenHash',
+          'emailVerificationTokenHash',
+          'emailChangeTokenHash',
+        ],
+      },
+    },
     hooks: {
       beforeCreate: async (user: User) => {
         if (user.password) {

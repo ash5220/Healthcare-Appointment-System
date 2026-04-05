@@ -34,7 +34,7 @@ class MfaService {
   }
 
   async verifySetupMfa(userId: string, token: string): Promise<void> {
-    const user = await userRepository.findById(userId);
+    const user = await userRepository.findById(userId, { withSensitive: true });
     if (!user || !user.mfaSecret) throw new BadRequestError('MFA setup not initiated');
 
     const decryptedSecret = isEncrypted(user.mfaSecret) ? decrypt(user.mfaSecret) : user.mfaSecret;
@@ -55,7 +55,7 @@ class MfaService {
       throw new UnauthorizedError('Invalid or expired MFA session');
     }
 
-    const user = await userRepository.findById(decoded.userId);
+    const user = await userRepository.findById(decoded.userId, { withSensitive: true });
     if (!user || !user.mfaEnabled || !user.mfaSecret) {
       throw new UnauthorizedError('MFA is not enabled for this user');
     }
@@ -65,10 +65,7 @@ class MfaService {
     const storedHash = user.mfaTempTokenHash ?? '';
     const isKnownToken =
       incomingHash.length === storedHash.length &&
-      timingSafeEqual(
-        Buffer.from(incomingHash),
-        Buffer.from(storedHash)
-      );
+      timingSafeEqual(Buffer.from(incomingHash), Buffer.from(storedHash));
     if (!isKnownToken) {
       throw new UnauthorizedError('Invalid or already-used MFA session');
     }

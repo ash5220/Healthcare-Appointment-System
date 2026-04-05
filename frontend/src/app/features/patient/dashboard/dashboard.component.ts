@@ -50,6 +50,8 @@ interface DashboardStats {
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  // Component-level provider isolates appointmentsSignal from other components.
+  providers: [AppointmentService],
 })
 export class PatientDashboardComponent implements OnInit {
   /** AuthService for accessing current user information */

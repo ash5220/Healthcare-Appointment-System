@@ -55,6 +55,10 @@ interface QuickAction {
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  // Component-level provider creates an isolated AppointmentService instance
+  // so that getAppointments() calls here do not overwrite the shared global
+  // appointmentsSignal consumed by other dashboard components (patient, list).
+  providers: [AppointmentService],
 })
 export class DoctorDashboardComponent implements OnInit {
   protected readonly authService = inject(AuthService);

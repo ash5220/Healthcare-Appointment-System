@@ -1,13 +1,13 @@
 /**
  * FooterComponent
- * 
+ *
  * The application footer that appears at the bottom of all pages.
  * Contains:
  * - Quick navigation links
  * - Contact information
  * - Social media links
  * - Copyright notice
- * 
+ *
  * The footer is responsive and collapses to a single column on mobile devices.
  */
 import { ChangeDetectionStrategy, Component } from '@angular/core';

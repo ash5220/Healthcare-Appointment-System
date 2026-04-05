@@ -39,11 +39,11 @@ router.get('/availability', authMiddleware, requireDoctor, doctorController.getM
  * @access  Private (Doctor)
  */
 router.get(
-    '/patients',
-    authMiddleware,
-    requireDoctor,
-    validate(getDoctorsQueryValidation),
-    doctorController.getDoctorPatients
+  '/patients',
+  authMiddleware,
+  requireDoctor,
+  validate(getDoctorsQueryValidation),
+  doctorController.getDoctorPatients
 );
 
 /**

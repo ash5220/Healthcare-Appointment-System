@@ -7,7 +7,7 @@ import {
   RegisterPatientData,
   RegisterDoctorData,
   LoginCredentials,
-  AuthResponse
+  AuthResponse,
 } from './auth.types';
 
 class AuthService {

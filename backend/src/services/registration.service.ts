@@ -11,7 +11,7 @@ import {
   RegisterPatientData,
   RegisterDoctorData,
   AuthResponse,
-  hashToken
+  hashToken,
 } from './auth.types';
 import { emailService } from './email.service';
 

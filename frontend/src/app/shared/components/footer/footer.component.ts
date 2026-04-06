@@ -52,7 +52,7 @@ export class FooterComponent {
   /**
    * Application name displayed in footer.
    */
-  protected readonly appName = 'HealthCare';
+  protected readonly appName = 'Curato';
 
   /**
    * Footer navigation link groups.
@@ -98,7 +98,7 @@ export class FooterComponent {
    * Contact information for display.
    */
   protected readonly contactInfo = {
-    email: 'support@healthcare.com',
+    email: 'support@curato.app',
     phone: '+1 (555) 123-4567',
     address: '123 Medical Center Dr, Health City, HC 12345',
   };

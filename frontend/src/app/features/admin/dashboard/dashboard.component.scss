@@ -1,16 +1,12 @@
-/**
- * Admin Dashboard Component Styles
- */
-
-// Welcome card with admin purple theme
+// Welcome card with admin Curato theme
 .welcome-card {
-    background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+    background: var(--primary-gradient);
 
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 
     &:hover {
         transform: translateY(-2px);
-        box-shadow: 0 12px 40px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 12px 40px rgba(79, 70, 229, 0.3);
     }
 }
 

@@ -1,7 +1,7 @@
 // ── Page wrapper ────────────────────────────────────────────────────────
 .profile-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #ecfdf5 0%, #f8fafc 50%, #effff6 100%);
+  background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 50%, #ede9fe 100%);
 }
 
 // ── Card ─────────────────────────────────────────────────────────────────
@@ -19,7 +19,7 @@
 
 // ── Header ───────────────────────────────────────────────────────────────
 .profile-header {
-  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  background: var(--primary-gradient);
   padding: 2.5rem 2rem 2rem;
   text-align: center;
   position: relative;
@@ -48,7 +48,7 @@
   width: 88px;
   height: 88px;
   background: #ffffff;
-  color: #11998e;
+  color: var(--curato-primary);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -131,7 +131,7 @@
 
   i {
     margin-right: 0.35rem;
-    color: #11998e;
+    color: var(--curato-primary);
   }
 
   &.danger i {
@@ -240,13 +240,13 @@
 }
 
 .btn-primary-action {
-  background: linear-gradient(135deg, #11998e, #10b981);
+  background: var(--primary-gradient);
   color: #ffffff;
-  box-shadow: 0 4px 14px rgba(17, 153, 142, 0.3);
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);
 
   &:hover:not(:disabled) {
     transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(17, 153, 142, 0.4);
+    box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
   }
 
   &:active:not(:disabled) {
@@ -255,12 +255,12 @@
 }
 
 .btn-secondary-action {
-  background: #f0fdf4;
-  color: #11998e;
-  border: 1.5px solid #a7f3d0;
+  background: var(--curato-primary-light);
+  color: var(--curato-primary);
+  border: 1.5px solid rgba(79, 70, 229, 0.25);
 
   &:hover:not(:disabled) {
-    background: #d1fae5;
+    background: rgba(79, 70, 229, 0.12);
     transform: translateY(-1px);
   }
 }
@@ -302,7 +302,7 @@
 
   i {
     margin-right: 0.4rem;
-    color: #11998e;
+    color: var(--curato-primary);
   }
 }
 
@@ -365,9 +365,9 @@
   }
 
   &:focus {
-    border-color: #11998e;
+    border-color: var(--curato-primary);
     background: #ffffff;
-    box-shadow: 0 0 0 3px rgba(17, 153, 142, 0.12);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
   }
 
   &.is-invalid {
@@ -407,7 +407,7 @@
   width: 44px;
   height: 44px;
   border: 3px solid #e2e8f0;
-  border-top-color: #11998e;
+  border-top-color: var(--curato-primary);
   border-radius: 50%;
   animation: spin 0.75s linear infinite;
 }

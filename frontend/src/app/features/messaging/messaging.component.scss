@@ -45,13 +45,13 @@
     color: #0f172a;
 
     i {
-        color: #10b981;
+        color: var(--curato-primary);
         font-size: 1.2rem;
     }
 }
 
 .unread-badge {
-    background: #10b981;
+    background: var(--curato-primary);
     color: white;
     border-radius: 99px;
     font-size: 0.7rem;
@@ -80,7 +80,7 @@
 
     &:hover {
         background: #e2e8f0;
-        color: #10b981;
+        color: var(--curato-primary);
     }
 }
 
@@ -116,9 +116,9 @@
     outline: none;
 
     &:focus {
-        border-color: #10b981;
+        border-color: var(--curato-primary);
         background: #fff;
-        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
     }
 
     &::placeholder {
@@ -190,8 +190,8 @@
     }
 
     &.active {
-        background: #f0fdf4;
-        border-left-color: #10b981;
+        background: var(--curato-primary-light);
+        border-left-color: var(--curato-primary);
     }
 
     &.unread {
@@ -228,7 +228,7 @@
 }
 
 .btn-start {
-    background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+    background: var(--primary-gradient);
     color: white;
     border: none;
     border-radius: 8px;
@@ -243,7 +243,7 @@
 
     &:hover {
         transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
     }
 }
 
@@ -254,7 +254,7 @@
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+    background: var(--primary-gradient);
     color: white;
     display: flex;
     align-items: center;
@@ -318,7 +318,7 @@
 }
 
 .unread-dot {
-    background: #10b981;
+    background: var(--curato-primary);
     color: white;
     border-radius: 99px;
     font-size: 0.65rem;
@@ -438,14 +438,14 @@
     width: 72px;
     height: 72px;
     border-radius: 50%;
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(4, 120, 87, 0.08) 100%);
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.12) 0%, rgba(124, 58, 237, 0.08) 100%);
     display: flex;
     align-items: center;
     justify-content: center;
 
     i {
         font-size: 2rem;
-        color: #10b981;
+        color: var(--curato-primary);
     }
 }
 
@@ -494,7 +494,7 @@
     white-space: pre-wrap;
 
     .own-message & {
-        background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+        background: var(--primary-gradient);
         color: white;
         border-bottom-right-radius: 4px;
     }
@@ -525,7 +525,7 @@
         font-size: 0.9rem;
 
         &.read {
-            color: #10b981;
+            color: var(--curato-primary);
         }
     }
 }
@@ -548,8 +548,8 @@
     transition: border-color 0.2s, box-shadow 0.2s;
 
     &:focus-within {
-        border-color: #10b981;
-        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+        border-color: var(--curato-primary);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
         background: #fff;
     }
 }
@@ -576,7 +576,7 @@
     width: 40px;
     height: 40px;
     border-radius: 12px;
-    background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+    background: var(--primary-gradient);
     color: white;
     border: none;
     display: flex;
@@ -589,7 +589,7 @@
 
     &:hover:not(:disabled) {
         transform: scale(1.05);
-        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
     }
 
     &:disabled {
@@ -648,7 +648,7 @@
     width: 96px;
     height: 96px;
     border-radius: 50%;
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(4, 120, 87, 0.08) 100%);
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.12) 0%, rgba(124, 58, 237, 0.08) 100%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -656,12 +656,12 @@
 
     i {
         font-size: 3rem;
-        color: #10b981;
+        color: var(--curato-primary);
     }
 }
 
 .btn-primary-action {
-    background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+    background: var(--primary-gradient);
     color: white;
     border: none;
     border-radius: 10px;
@@ -676,7 +676,7 @@
 
     &:hover {
         transform: translateY(-1px);
-        box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
+        box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35);
     }
 }
 

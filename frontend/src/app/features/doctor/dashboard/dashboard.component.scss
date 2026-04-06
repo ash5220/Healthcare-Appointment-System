@@ -2,15 +2,15 @@
  * Doctor Dashboard Component Styles
  */
 
-// Welcome card with green medical theme gradient
+// Welcome card with Curato indigo theme gradient
 .welcome-card {
-    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    background: var(--primary-gradient);
 
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 
     &:hover {
         transform: translateY(-2px);
-        box-shadow: 0 12px 40px rgba(17, 153, 142, 0.3);
+        box-shadow: 0 12px 40px rgba(79, 70, 229, 0.3);
     }
 }
 

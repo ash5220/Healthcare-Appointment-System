@@ -14,14 +14,14 @@
  * Uses a purple-blue gradient that matches the brand identity.
  */
 .welcome-card {
-    background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+    background: var(--primary-gradient);
 
     // Smooth hover effect for interactivity feedback
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 
     &:hover {
         transform: translateY(-2px);
-        box-shadow: 0 12px 40px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 12px 40px rgba(79, 70, 229, 0.3);
     }
 }
 

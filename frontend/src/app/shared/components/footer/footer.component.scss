@@ -29,7 +29,7 @@
 
     i {
         font-size: 1.5rem;
-        background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+        background: var(--primary-gradient);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -58,7 +58,7 @@
         left: 0;
         width: 40px;
         height: 2px;
-        background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+        background: var(--primary-gradient);
         border-radius: 2px;
     }
 }
@@ -104,7 +104,7 @@
     transition: all 0.2s ease;
 
     &:hover {
-        background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+        background: var(--primary-gradient);
         transform: translateY(-2px);
         color: #fff;
     }

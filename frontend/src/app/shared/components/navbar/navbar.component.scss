@@ -74,7 +74,7 @@
  * Unread message badge in nav link.
  */
 .msg-unread-badge {
-    background: #10b981;
+    background: var(--curato-primary);
     color: white;
     border-radius: 99px;
     font-size: 0.65rem;

@@ -166,5 +166,123 @@ describe('RegisterComponent', () => {
             expect(component['isLoading']()).toBeFalse();
             expect(mockNotificationService.error).toHaveBeenCalledWith('Registration Failed', 'Email taken');
         });
+
+        it('RegisterComponent — patient with allergies and invalid blood type — correctly branches', () => {
+            mockAuthService.registerPatient.and.returnValue(of(mockSuccessResponse));
+            fillValidForm(UserRole.PATIENT);
+            component['roleSpecificForm'].patchValue({
+                allergies: 'penicillin, aspirin',
+                bloodType: 'INVALID_TYPE',
+            });
+            component['onSubmit']();
+            expect(mockAuthService.registerPatient).toHaveBeenCalledWith(
+                jasmine.objectContaining({
+                    allergies: ['penicillin', 'aspirin'],
+                    bloodGroup: undefined,
+                }),
+            );
+        });
+
+        it('RegisterComponent — patient with empty dateOfBirth — sets empty string for dateOfBirth', () => {
+            mockAuthService.registerPatient.and.returnValue(of(mockSuccessResponse));
+            fillValidForm(UserRole.PATIENT);
+            // Override the personal form dateOfBirth to empty (skip validation by patching directly)
+            component['personalForm'].patchValue({ dateOfBirth: '' });
+            component['onSubmit']();
+            expect(mockAuthService.registerPatient).toHaveBeenCalledWith(
+                jasmine.objectContaining({ dateOfBirth: '' }),
+            );
+        });
+    });
+
+    describe('goToStep', () => {
+        it('RegisterComponent — goToStep before current — navigates back', () => {
+            component['currentStep'].set(3);
+            component['goToStep'](2);
+            expect(component['currentStep']()).toBe(2);
+        });
+
+        it('RegisterComponent — goToStep same or forward — does not change step', () => {
+            component['currentStep'].set(2);
+            component['goToStep'](3);
+            expect(component['currentStep']()).toBe(2);
+        });
+
+        it('RegisterComponent — goToStep same step — does not change step', () => {
+            component['currentStep'].set(2);
+            component['goToStep'](2);
+            expect(component['currentStep']()).toBe(2);
+        });
+    });
+
+    describe('getPasswordStrengthClass', () => {
+        it('RegisterComponent — strength 25 — returns bg-danger', () => {
+            component['accountForm'].get('password')?.setValue('A');
+            expect(component['getPasswordStrengthClass']()).toBe('bg-danger');
+        });
+
+        it('RegisterComponent — strength 50 — returns bg-warning', () => {
+            // length (>=8) + uppercase = 50
+            component['accountForm'].get('password')?.setValue('Abcdefgh');
+            expect(component['getPasswordStrengthClass']()).toBe('bg-warning');
+        });
+
+        it('RegisterComponent — strength 75 — returns bg-info', () => {
+            // length (>=8) + uppercase + number = 75
+            component['accountForm'].get('password')?.setValue('Abcdefg1');
+            expect(component['getPasswordStrengthClass']()).toBe('bg-info');
+        });
+
+        it('RegisterComponent — strength 100 — returns bg-success', () => {
+            // length (>=8) + uppercase + number + special = 100
+            component['accountForm'].get('password')?.setValue('Abcdefg1!');
+            expect(component['getPasswordStrengthClass']()).toBe('bg-success');
+        });
+    });
+
+    describe('hasError', () => {
+        it('RegisterComponent — account form touched with error — returns true', () => {
+            const ctrl = component['accountForm'].get('email');
+            ctrl?.setValue('');
+            ctrl?.markAsTouched();
+            expect(component['hasError']('account', 'email', 'required')).toBeTrue();
+        });
+
+        it('RegisterComponent — personal form touched with error — returns true', () => {
+            const ctrl = component['personalForm'].get('firstName');
+            ctrl?.setValue('');
+            ctrl?.markAsTouched();
+            expect(component['hasError']('personal', 'firstName', 'required')).toBeTrue();
+        });
+
+        it('RegisterComponent — roleSpecific form control not touched — returns false', () => {
+            expect(component['hasError']('roleSpecific', 'acceptTerms', 'required')).toBeFalse();
+        });
+
+        it('RegisterComponent — roleSpecific control touched with error — returns true', () => {
+            const ctrl = component['roleSpecificForm'].get('acceptTerms');
+            ctrl?.markAsTouched();
+            expect(component['hasError']('roleSpecific', 'acceptTerms', 'required')).toBeTrue();
+        });
+
+        it('RegisterComponent — account form control not touched — returns false', () => {
+            expect(component['hasError']('account', 'email', 'required')).toBeFalse();
+        });
+    });
+
+    describe('togglePasswordVisibility', () => {
+        it('RegisterComponent — toggle confirm — flips showConfirmPassword', () => {
+            expect(component['showConfirmPassword']()).toBeFalse();
+            component['togglePasswordVisibility']('confirm');
+            expect(component['showConfirmPassword']()).toBeTrue();
+            component['togglePasswordVisibility']('confirm');
+            expect(component['showConfirmPassword']()).toBeFalse();
+        });
+
+        it('RegisterComponent — toggle password — flips showPassword', () => {
+            expect(component['showPassword']()).toBeFalse();
+            component['togglePasswordVisibility']('password');
+            expect(component['showPassword']()).toBeTrue();
+        });
     });
 });

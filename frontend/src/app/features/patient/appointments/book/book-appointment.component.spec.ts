@@ -6,7 +6,7 @@ import { BookAppointmentComponent } from './book-appointment.component';
 import { AppointmentService } from '../../../../core/services/appointment.service';
 import { DoctorService } from '../../../../core/services/doctor.service';
 import { NotificationService } from '../../../../core/services/notification.service';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { provideRouter, Router } from '@angular/router';
 import { Appointment, Doctor, UserRole } from '../../../../core/models';
 
@@ -21,6 +21,8 @@ describe('BookAppointmentComponent', () => {
   const mockDoctor: Doctor = {
     id: 'd1',
     userId: 'u1',
+    firstName: 'John',
+    lastName: 'Doe',
     specialization: 'Cardiology',
     licenseNumber: 'L123',
     yearsOfExperience: 10,
@@ -99,18 +101,146 @@ describe('BookAppointmentComponent', () => {
     expect(component['doctors']()).toBeDefined();
   });
 
+  it('BookAppointmentComponent — loadDoctors — success — populates doctors and filteredDoctors', () => {
+    expect(component['doctors']().length).toBe(1);
+    expect(component['filteredDoctors']().length).toBe(1);
+    expect(component['isLoadingDoctors']()).toBe(false);
+  });
+
+  it('BookAppointmentComponent — loadDoctors — error — sets doctorLoadError', () => {
+    mockDoctorService.getDoctors.and.returnValue(throwError(() => new Error('Network')));
+    component['loadDoctors']();
+    expect(component['doctorLoadError']()).toBe(true);
+    expect(component['isLoadingDoctors']()).toBe(false);
+  });
+
+  it('BookAppointmentComponent — retryLoadDoctors — calls loadDoctors again', () => {
+    spyOn<BookAppointmentComponent>(component as BookAppointmentComponent, 'loadDoctors' as never);
+    component['retryLoadDoctors']();
+    expect(component['loadDoctors']).toHaveBeenCalled();
+  });
+
   it('should filter doctors by search term', () => {
-    component['searchTerm'] = 'Smith';
+    component['searchTerm'] = 'Doe';
     component['filterDoctors']();
-    // Filtered doctors should be updated
-    expect(component['filteredDoctors']).toBeDefined();
+    expect(component['filteredDoctors']().length).toBe(1);
+  });
+
+  it('BookAppointmentComponent — filterDoctors — no match — returns empty', () => {
+    component['searchTerm'] = 'Zzznomatch';
+    component['filterDoctors']();
+    expect(component['filteredDoctors']().length).toBe(0);
+  });
+
+  it('BookAppointmentComponent — filterDoctors — by specialization — filters correctly', () => {
+    component['searchTerm'] = '';
+    component['selectedSpecialization'] = 'Neurology';
+    component['filterDoctors']();
+    expect(component['filteredDoctors']().length).toBe(0);
+  });
+
+  it('BookAppointmentComponent — filterDoctors — matching specialization — returns match', () => {
+    component['searchTerm'] = '';
+    component['selectedSpecialization'] = 'Cardiology';
+    component['filterDoctors']();
+    expect(component['filteredDoctors']().length).toBe(1);
   });
 
   it('should select a doctor', () => {
-    const mockDoctor = component['doctors']()[0];
-    if (mockDoctor) {
-      component['selectDoctor'](mockDoctor);
-      expect(component['selectedDoctor']()).toBe(mockDoctor);
+    const doc = component['doctors']()[0];
+    if (doc) {
+      component['selectDoctor'](doc);
+      expect(component['selectedDoctor']()).toBe(doc);
+      expect(component['selectedSlot']()).toBeNull();
     }
+  });
+
+  it('BookAppointmentComponent — selectDoctor — with date already set — loads slots', () => {
+    const doc = component['doctors']()[0];
+    component['bookingForm'].get('appointmentDate')?.setValue('2025-12-01');
+    component['selectDoctor'](doc!);
+    expect(mockAppointmentService.getAvailableSlots).toHaveBeenCalled();
+  });
+
+  it('BookAppointmentComponent — loadAvailableSlots — no doctor — does nothing', () => {
+    component['selectedDoctor'].set(null);
+    component['bookingForm'].get('appointmentDate')?.setValue('2025-12-01');
+    mockAppointmentService.getAvailableSlots.calls.reset();
+    component['loadAvailableSlots']();
+    expect(mockAppointmentService.getAvailableSlots).not.toHaveBeenCalled();
+  });
+
+  it('BookAppointmentComponent — loadAvailableSlots — no date — does nothing', () => {
+    component['selectedDoctor'].set(mockDoctor);
+    component['bookingForm'].get('appointmentDate')?.setValue('');
+    mockAppointmentService.getAvailableSlots.calls.reset();
+    component['loadAvailableSlots']();
+    expect(mockAppointmentService.getAvailableSlots).not.toHaveBeenCalled();
+  });
+
+  it('BookAppointmentComponent — loadAvailableSlots — success — populates slots', () => {
+    component['selectedDoctor'].set(mockDoctor);
+    component['bookingForm'].get('appointmentDate')?.setValue('2025-12-01');
+    component['loadAvailableSlots']();
+    expect(component['availableSlots']()).toEqual(['09:00', '10:00']);
+    expect(component['isLoadingSlots']()).toBe(false);
+  });
+
+  it('BookAppointmentComponent — loadAvailableSlots — error — sets slotLoadError', () => {
+    mockAppointmentService.getAvailableSlots.and.returnValue(throwError(() => new Error('Server')));
+    component['selectedDoctor'].set(mockDoctor);
+    component['bookingForm'].get('appointmentDate')?.setValue('2025-12-01');
+    component['loadAvailableSlots']();
+    expect(component['slotLoadError']()).toBe(true);
+  });
+
+  it('BookAppointmentComponent — selectSlot — sets selectedSlot', () => {
+    component['selectSlot']('10:00');
+    expect(component['selectedSlot']()).toBe('10:00');
+  });
+
+  it('BookAppointmentComponent — onSubmit — invalid form — does nothing', () => {
+    component['onSubmit']();
+    expect(mockAppointmentService.createAppointment).not.toHaveBeenCalled();
+  });
+
+  it('BookAppointmentComponent — onSubmit — valid form — creates appointment and navigates', () => {
+    component['selectedDoctor'].set(mockDoctor);
+    component['selectedSlot'].set('09:00');
+    component['bookingForm'].patchValue({ appointmentDate: '2025-12-01', reasonForVisit: 'Routine checkup for health' });
+    component['onSubmit']();
+    expect(mockAppointmentService.createAppointment).toHaveBeenCalled();
+    expect(mockNotificationService.success).toHaveBeenCalledWith('Success', 'Appointment booked successfully!');
+    expect(router.navigate).toHaveBeenCalledWith(['/patient/appointments']);
+  });
+
+  it('BookAppointmentComponent — onSubmit — API error — resets isSubmitting', () => {
+    mockAppointmentService.createAppointment.and.returnValue(throwError(() => new Error('Server')));
+    component['selectedDoctor'].set(mockDoctor);
+    component['selectedSlot'].set('09:00');
+    component['bookingForm'].patchValue({ appointmentDate: '2025-12-01', reasonForVisit: 'Routine checkup for health' });
+    component['onSubmit']();
+    expect(component['isSubmitting']()).toBe(false);
+  });
+
+  it('BookAppointmentComponent — getDoctorInitials — returns initials', () => {
+    const doc: Doctor = { ...mockDoctor, firstName: 'Jane', lastName: 'Doe' };
+    expect(component['getDoctorInitials'](doc)).toBe('JD');
+  });
+
+  it('BookAppointmentComponent — getDoctorName — returns formatted name', () => {
+    const doc: Doctor = { ...mockDoctor, firstName: 'Jane', lastName: 'Doe' };
+    expect(component['getDoctorName'](doc)).toContain('Jane');
+  });
+
+  it('BookAppointmentComponent — hasError — returns false for untouched control', () => {
+    expect(component['hasError']('reasonForVisit', 'required')).toBe(false);
+  });
+
+  it('BookAppointmentComponent — hasError — returns true for touched invalid control', () => {
+    const control = component['bookingForm'].get('reasonForVisit')!;
+    control.markAsTouched();
+    control.setValue('');
+    expect(component['hasError']('reasonForVisit', 'required')).toBe(true);
   });
 });

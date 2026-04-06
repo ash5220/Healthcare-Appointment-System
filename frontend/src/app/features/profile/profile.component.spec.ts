@@ -139,6 +139,19 @@ describe('ProfileComponent', () => {
       expect(notificationServiceSpy.success).toHaveBeenCalledWith('Saved', 'Profile updated successfully');
       expect(h.isEditMode()).toBeFalse();
     });
+
+    it('should pass null when phoneNumber is empty', () => {
+      const h = profileHarness(component);
+      h.enterEditMode();
+      h.profileForm.patchValue({ firstName: 'Jane', lastName: 'Doe', phoneNumber: '' });
+      authServiceSpy.updateProfile.and.returnValue(of({ data: mockUser }));
+
+      h.saveProfile();
+
+      expect(authServiceSpy.updateProfile).toHaveBeenCalledWith(
+        jasmine.objectContaining({ phoneNumber: null }),
+      );
+    });
   });
 
   describe('Profile Update — edge cases', () => {
@@ -219,10 +232,117 @@ describe('ProfileComponent', () => {
       expect(routerSpy.navigate).toHaveBeenCalledWith(['/patient/dashboard']);
     });
 
+    it('should navigate back to doctor dashboard for doctor role', () => {
+      Object.assign(authServiceSpy, { userRole: () => UserRole.DOCTOR });
+      profileHarness(component).goBack();
+      expect(routerSpy.navigate).toHaveBeenCalledWith(['/doctor/dashboard']);
+    });
+
+    it('should navigate back to admin dashboard for admin role', () => {
+      Object.assign(authServiceSpy, { userRole: () => UserRole.ADMIN });
+      profileHarness(component).goBack();
+      expect(routerSpy.navigate).toHaveBeenCalledWith(['/admin/dashboard']);
+    });
+
+    it('should navigate to patient dashboard for unknown role', () => {
+      Object.assign(authServiceSpy, { userRole: () => null });
+      profileHarness(component).goBack();
+      expect(routerSpy.navigate).toHaveBeenCalledWith(['/patient/dashboard']);
+    });
+
     it('should navigate to MFA setup', () => {
       profileHarness(component).goToMfa();
 
       expect(routerSpy.navigate).toHaveBeenCalledWith(['/profile/mfa-setup']);
+    });
+  });
+
+  // ── Cancel Operations ──
+
+  describe('Cancel Operations', () => {
+    it('should exit edit mode on cancelEditMode', () => {
+      const h = profileHarness(component);
+      h.enterEditMode();
+      expect(h.isEditMode()).toBeTrue();
+      (component as unknown as { cancelEditMode: () => void }).cancelEditMode();
+      expect(h.isEditMode()).toBeFalse();
+    });
+
+    it('should reset email change state on cancelEmailChange', () => {
+      const h = profileHarness(component);
+      h.enterEmailChangeMode();
+      (component as unknown as { cancelEmailChange: () => void }).cancelEmailChange();
+      expect((component as unknown as { isEmailChangeMode: () => boolean }).isEmailChangeMode()).toBeFalse();
+      expect(h.emailChangeSent()).toBeFalse();
+    });
+  });
+
+  // ── getFieldError ──
+
+  describe('getFieldError', () => {
+    let h: ProfileTestHarness;
+
+    beforeEach(() => {
+      h = profileHarness(component);
+      h.enterEditMode();
+    });
+
+    it('should return null when control does not exist', () => {
+      const result = (component as unknown as { getFieldError: (f: FormGroup, field: string) => string | null })
+        .getFieldError(h.profileForm, 'nonExistentField');
+      expect(result).toBeNull();
+    });
+
+    it('should return null when control is not touched', () => {
+      const result = (component as unknown as { getFieldError: (f: FormGroup, field: string) => string | null })
+        .getFieldError(h.profileForm, 'firstName');
+      expect(result).toBeNull();
+    });
+
+    it('should return null when control is touched but has no errors', () => {
+      const ctrl = h.profileForm.get('phoneNumber');
+      ctrl?.setValue('1234567890');
+      ctrl?.markAsTouched();
+      const result = (component as unknown as { getFieldError: (f: FormGroup, field: string) => string | null })
+        .getFieldError(h.profileForm, 'phoneNumber');
+      expect(result).toBeNull();
+    });
+
+    it('should return "This field is required" for required error', () => {
+      const ctrl = h.profileForm.get('firstName');
+      ctrl?.setValue('');
+      ctrl?.markAsTouched();
+      const result = (component as unknown as { getFieldError: (f: FormGroup, field: string) => string | null })
+        .getFieldError(h.profileForm, 'firstName');
+      expect(result).toBe('This field is required');
+    });
+
+    it('should return "Too long" for maxlength error', () => {
+      const ctrl = h.profileForm.get('phoneNumber');
+      ctrl?.setValue('1'.repeat(25)); // exceeds maxLength(20)
+      ctrl?.markAsTouched();
+      const result = (component as unknown as { getFieldError: (f: FormGroup, field: string) => string | null })
+        .getFieldError(h.profileForm, 'phoneNumber');
+      expect(result).toBe('Too long');
+    });
+
+    it('should return "Invalid characters" for pattern error', () => {
+      const ctrl = h.profileForm.get('firstName');
+      ctrl?.setValue('John123'); // contains digits, fails pattern
+      ctrl?.markAsTouched();
+      const result = (component as unknown as { getFieldError: (f: FormGroup, field: string) => string | null })
+        .getFieldError(h.profileForm, 'firstName');
+      expect(result).toBe('Invalid characters');
+    });
+
+    it('should return "Enter a valid email address" for email error', () => {
+      const emailForm = (component as unknown as { emailChangeForm: FormGroup }).emailChangeForm;
+      const ctrl = emailForm.get('newEmail');
+      ctrl?.setValue('not-an-email');
+      ctrl?.markAsTouched();
+      const result = (component as unknown as { getFieldError: (f: FormGroup, field: string) => string | null })
+        .getFieldError(emailForm, 'newEmail');
+      expect(result).toBe('Enter a valid email address');
     });
   });
 });

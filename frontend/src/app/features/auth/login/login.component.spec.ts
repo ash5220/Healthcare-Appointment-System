@@ -195,4 +195,98 @@ describe('LoginComponent', () => {
       expect(component['showPassword']()).toBeTrue();
     });
   });
+
+  describe('onSubmit edge cases', () => {
+    it('LoginComponent — onSubmit — invalid form — marks all touched', () => {
+      component['loginForm'].reset();
+      component['onSubmit']();
+      expect(component['loginForm'].touched).toBeTrue();
+    });
+
+    it('LoginComponent — onSubmit — MFA required — sets mfaPending true', fakeAsync(() => {
+      mockAuthService.login.and.returnValue(of({
+        success: true,
+        data: { mfaRequired: true, tempToken: 'tmp-tok' },
+        message: 'MFA required',
+      }));
+      component['loginForm'].patchValue({ email: 'test@example.com', password: 'ValidPass1' });
+      component['onSubmit']();
+      tick();
+      expect(component['mfaPending']()).toBeTrue();
+      expect(component['tempMfaToken']()).toBe('tmp-tok');
+      expect(mockNotificationService.info).toHaveBeenCalledWith('MFA Required', jasmine.any(String));
+    }));
+
+    it('LoginComponent — onSubmit — success but null user — navigates to root', fakeAsync(() => {
+      mockAuthService.login.and.returnValue(of({
+        success: true,
+        data: { mfaRequired: false as const, user: null as never, accessToken: 'tok' },
+        message: 'Success',
+      }));
+      // currentUser stays null
+      const routerSpy = spyOn(component['router'], 'navigate');
+      component['loginForm'].patchValue({ email: 'test@example.com', password: 'ValidPass1' });
+      component['onSubmit']();
+      tick();
+      expect(routerSpy).toHaveBeenCalledWith(['/']);
+    }));
+  });
+
+  describe('onVerifyMfa', () => {
+    it('LoginComponent — onVerifyMfa — invalid form — marks all touched', () => {
+      component['mfaForm'].reset();
+      component['onVerifyMfa']();
+      expect(component['mfaForm'].touched).toBeTrue();
+    });
+
+    it('LoginComponent — onVerifyMfa — success — navigates with user role', fakeAsync(() => {
+      // Stub verifyMfaLogin on the spy
+      (mockAuthService as unknown as { verifyMfaLogin: jasmine.Spy }).verifyMfaLogin =
+        jasmine.createSpy('verifyMfaLogin').and.callFake(() => {
+          currentUserSignal.set({ role: UserRole.PATIENT });
+          return of({ success: true, data: {}, message: 'ok' });
+        });
+      const routerSpy = spyOn(component['router'], 'navigate');
+      component['tempMfaToken'].set('tmp-tok');
+      component['mfaForm'].patchValue({ code: '123456' });
+      component['onVerifyMfa']();
+      tick();
+      expect(routerSpy).toHaveBeenCalled();
+    }));
+
+    it('LoginComponent — onVerifyMfa — success null user — navigates to root', fakeAsync(() => {
+      (mockAuthService as unknown as { verifyMfaLogin: jasmine.Spy }).verifyMfaLogin =
+        jasmine.createSpy('verifyMfaLogin').and.returnValue(of({ success: true, data: {}, message: 'ok' }));
+      const routerSpy = spyOn(component['router'], 'navigate');
+      // currentUser stays null
+      component['tempMfaToken'].set('tmp-tok');
+      component['mfaForm'].patchValue({ code: '123456' });
+      component['onVerifyMfa']();
+      tick();
+      expect(routerSpy).toHaveBeenCalledWith(['/']);
+    }));
+
+    it('LoginComponent — onVerifyMfa — error — resets isLoading', fakeAsync(() => {
+      (mockAuthService as unknown as { verifyMfaLogin: jasmine.Spy }).verifyMfaLogin =
+        jasmine.createSpy('verifyMfaLogin').and.returnValue(throwError(() => new Error('Bad')));
+      component['tempMfaToken'].set('tmp-tok');
+      component['mfaForm'].patchValue({ code: '123456' });
+      component['onVerifyMfa']();
+      tick();
+      expect(component['isLoading']()).toBeFalse();
+    }));
+  });
+
+  describe('hasError', () => {
+    it('LoginComponent — hasError mfa form — touched invalid code — returns true', () => {
+      const codeCtrl = component['mfaForm'].get('code')!;
+      codeCtrl.markAsTouched();
+      codeCtrl.setValue('');
+      expect(component['hasError']('code', 'required', 'mfa')).toBeTrue();
+    });
+
+    it('LoginComponent — hasError login form — untouched — returns false', () => {
+      expect(component['hasError']('email', 'required', 'login')).toBeFalse();
+    });
+  });
 });

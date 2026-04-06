@@ -8,7 +8,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { AppointmentService } from '../../../core/services/appointment.service';
 import { signal } from '@angular/core';
 import { of } from 'rxjs';
-import { UserRole } from '../../../core/models';
+import { UserRole, AppointmentStatus } from '../../../core/models';
 
 describe('DoctorDashboardComponent', () => {
   let component: DoctorDashboardComponent;
@@ -109,6 +109,142 @@ describe('DoctorDashboardComponent', () => {
       expect(component['getGreeting']()).toBe('evening');
 
       jasmine.clock().uninstall();
+    });
+  });
+
+  describe('calculateStats (via loadDashboardData)', () => {
+    const today = new Date().toISOString().split('T')[0];
+
+    const makeAppt = (id: string, status: AppointmentStatus, patientId: string, date = today) => ({
+      id,
+      patientId,
+      doctorId: 'dr-1',
+      appointmentDate: date,
+      startTime: '09:00',
+      endTime: '09:30',
+      status,
+      reasonForVisit: 'Test',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    it('DoctorDashboardComponent — calculateStats — counts today appointments', () => {
+      mockAppointmentService.getAppointments.and.returnValue(
+        of({
+          success: true,
+          data: [makeAppt('a1', AppointmentStatus.SCHEDULED, 'pt-1'), makeAppt('a2', AppointmentStatus.CONFIRMED, 'pt-2')],
+          metadata: { total: 2, page: 1, limit: 100, totalPages: 1 },
+          message: 'OK',
+        }),
+      );
+      component['loadDashboardData']();
+      expect(component['stats']().todayCount).toBe(2);
+    });
+
+    it('DoctorDashboardComponent — calculateStats — counts pending confirmations', () => {
+      mockAppointmentService.getAppointments.and.returnValue(
+        of({
+          success: true,
+          data: [makeAppt('a1', AppointmentStatus.SCHEDULED, 'pt-1'), makeAppt('a2', AppointmentStatus.CONFIRMED, 'pt-2')],
+          metadata: { total: 2, page: 1, limit: 100, totalPages: 1 },
+          message: 'OK',
+        }),
+      );
+      component['loadDashboardData']();
+      expect(component['stats']().pendingConfirmation).toBe(1);
+    });
+
+    it('DoctorDashboardComponent — calculateStats — counts completed this week', () => {
+      mockAppointmentService.getAppointments.and.returnValue(
+        of({
+          success: true,
+          data: [makeAppt('a1', AppointmentStatus.COMPLETED, 'pt-1'), makeAppt('a2', AppointmentStatus.COMPLETED, 'pt-2')],
+          metadata: { total: 2, page: 1, limit: 100, totalPages: 1 },
+          message: 'OK',
+        }),
+      );
+      component['loadDashboardData']();
+      expect(component['stats']().completedThisWeek).toBe(2);
+    });
+
+    it('DoctorDashboardComponent — calculateStats — counts unique patients', () => {
+      mockAppointmentService.getAppointments.and.returnValue(
+        of({
+          success: true,
+          data: [makeAppt('a1', AppointmentStatus.SCHEDULED, 'pt-1'), makeAppt('a2', AppointmentStatus.COMPLETED, 'pt-1')],
+          metadata: { total: 2, page: 1, limit: 100, totalPages: 1 },
+          message: 'OK',
+        }),
+      );
+      component['loadDashboardData']();
+      expect(component['stats']().totalPatients).toBe(1);
+    });
+
+    it('DoctorDashboardComponent — calculateStats — appt without patientId — not counted', () => {
+      const appt = { ...makeAppt('a1', AppointmentStatus.SCHEDULED, 'pt-1'), patientId: '' };
+      mockAppointmentService.getAppointments.and.returnValue(
+        of({
+          success: true,
+          data: [appt],
+          metadata: { total: 1, page: 1, limit: 100, totalPages: 1 },
+          message: 'OK',
+        }),
+      );
+      component['loadDashboardData']();
+      expect(component['stats']().totalPatients).toBe(0);
+    });
+
+    it('DoctorDashboardComponent — calculateStats — appointment not today — not counted', () => {
+      mockAppointmentService.getAppointments.and.returnValue(
+        of({
+          success: true,
+          data: [makeAppt('a1', AppointmentStatus.SCHEDULED, 'pt-1', '2020-01-01')],
+          metadata: { total: 1, page: 1, limit: 100, totalPages: 1 },
+          message: 'OK',
+        }),
+      );
+      component['loadDashboardData']();
+      expect(component['stats']().todayCount).toBe(0);
+    });
+  });
+
+  describe('getPatientInitials and getPatientName', () => {
+    const makeAppt = (firstName: string, lastName: string) => ({
+      id: 'a1',
+      patientId: 'pt-1',
+      doctorId: 'dr-1',
+      appointmentDate: new Date().toISOString().split('T')[0],
+      startTime: '09:00',
+      endTime: '09:30',
+      status: 'scheduled' as const,
+      reasonForVisit: 'Test',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      patient: {
+        id: 'pt-1',
+        userId: 'u-pt',
+        dateOfBirth: new Date('1990-01-01'),
+        allergies: [],
+        user: { id: 'u-pt', firstName, lastName, email: 't@t.com', role: 'patient', isActive: true, isEmailVerified: true, createdAt: '', updatedAt: '' },
+      },
+    });
+
+    it('DoctorDashboardComponent — getPatientInitials — returns initials', () => {
+      expect(component['getPatientInitials'](makeAppt('John', 'Doe') as never)).toBe('JD');
+    });
+
+    it('DoctorDashboardComponent — getPatientInitials — no patient — returns empty string', () => {
+      const appt = { id: 'a1', patientId: 'pt-1', doctorId: 'dr-1', appointmentDate: '', startTime: '', endTime: '', status: 'scheduled' as const, reasonForVisit: '', createdAt: new Date(), updatedAt: new Date() };
+      expect(component['getPatientInitials'](appt)).toBe('');
+    });
+
+    it('DoctorDashboardComponent — getPatientName — returns full name', () => {
+      expect(component['getPatientName'](makeAppt('Jane', 'Smith') as never)).toBe('Jane Smith');
+    });
+
+    it('DoctorDashboardComponent — getPatientName — no patient — returns empty', () => {
+      const appt = { id: 'a1', patientId: 'pt-1', doctorId: 'dr-1', appointmentDate: '', startTime: '', endTime: '', status: 'scheduled' as const, reasonForVisit: '', createdAt: new Date(), updatedAt: new Date() };
+      expect(component['getPatientName'](appt)).toBe('');
     });
   });
 });

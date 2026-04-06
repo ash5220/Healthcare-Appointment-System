@@ -52,7 +52,11 @@ jest.mock('../../middleware/error.middleware', () => {
 
 import { Response } from 'express';
 import { AuthenticatedRequest } from '../../types/express-augment';
-import { getMyRecords, exportMyRecordsCsv, exportMyRecordsPdf } from '../../controllers/medical-record.controller';
+import {
+  getMyRecords,
+  exportMyRecordsCsv,
+  exportMyRecordsPdf,
+} from '../../controllers/medical-record.controller';
 import { medicalRecordService } from '../../services/medical-record.service';
 import { patientRepository } from '../../repositories';
 import { UserRole } from '../../types/constants';
@@ -86,7 +90,10 @@ describe('MedicalRecord Controller', () => {
       const records = [{ id: 'rec-1', diagnosis: 'Flu' }];
 
       (patientRepository.findByUserId as jest.Mock).mockResolvedValue(patient);
-      (medicalRecordService.findAllByPatientId as jest.Mock).mockResolvedValue({ records, total: records.length });
+      (medicalRecordService.findAllByPatientId as jest.Mock).mockResolvedValue({
+        records,
+        total: records.length,
+      });
 
       const req = mockReq();
       const res = mockRes();
@@ -119,7 +126,10 @@ describe('MedicalRecord Controller', () => {
       const csvData = 'id,diagnosis\nrec-1,Flu';
 
       (patientRepository.findByUserId as jest.Mock).mockResolvedValue(patient);
-      (medicalRecordService.findAllByPatientId as jest.Mock).mockResolvedValue({ records, total: records.length });
+      (medicalRecordService.findAllByPatientId as jest.Mock).mockResolvedValue({
+        records,
+        total: records.length,
+      });
       (medicalRecordService.convertToCsv as jest.Mock).mockReturnValue(csvData);
 
       const req = mockReq();
@@ -141,7 +151,10 @@ describe('MedicalRecord Controller', () => {
       const records = [{ id: 'rec-1' }];
 
       (patientRepository.findByUserId as jest.Mock).mockResolvedValue(patient);
-      (medicalRecordService.findAllByPatientId as jest.Mock).mockResolvedValue({ records, total: records.length });
+      (medicalRecordService.findAllByPatientId as jest.Mock).mockResolvedValue({
+        records,
+        total: records.length,
+      });
       (medicalRecordService.generatePdf as jest.Mock).mockImplementation(() => {});
 
       const req = mockReq();
@@ -150,11 +163,7 @@ describe('MedicalRecord Controller', () => {
       await exportMyRecordsPdf(req, res, mockNext);
 
       expect(patientRepository.findByUserId).toHaveBeenCalledWith('user-1', { withUser: true });
-      expect(medicalRecordService.generatePdf).toHaveBeenCalledWith(
-        records,
-        'John Doe',
-        res
-      );
+      expect(medicalRecordService.generatePdf).toHaveBeenCalledWith(records, 'John Doe', res);
     });
 
     it('uses "Unknown" when patient has no user association', async () => {
@@ -162,7 +171,10 @@ describe('MedicalRecord Controller', () => {
       const records: unknown[] = [];
 
       (patientRepository.findByUserId as jest.Mock).mockResolvedValue(patient);
-      (medicalRecordService.findAllByPatientId as jest.Mock).mockResolvedValue({ records, total: records.length });
+      (medicalRecordService.findAllByPatientId as jest.Mock).mockResolvedValue({
+        records,
+        total: records.length,
+      });
       (medicalRecordService.generatePdf as jest.Mock).mockImplementation(() => {});
 
       const req = mockReq();
@@ -170,11 +182,7 @@ describe('MedicalRecord Controller', () => {
 
       await exportMyRecordsPdf(req, res, mockNext);
 
-      expect(medicalRecordService.generatePdf).toHaveBeenCalledWith(
-        records,
-        'Unknown',
-        res
-      );
+      expect(medicalRecordService.generatePdf).toHaveBeenCalledWith(records, 'Unknown', res);
     });
   });
 });

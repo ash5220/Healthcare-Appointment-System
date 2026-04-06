@@ -312,4 +312,188 @@ describe('MessagingComponent', () => {
       expect(mockMessageService.clearActiveConversation).toHaveBeenCalled();
     });
   });
+
+  // ---------------------------------------------------------------------------
+  // openConversation
+  // ---------------------------------------------------------------------------
+  describe('MessagingComponent — openConversation', () => {
+    it('MessagingComponent — valid userId — calls getConversation and clears searchQuery', fakeAsync(() => {
+      component['searchQuery'].set('alice');
+      component['openConversation']('u1');
+      tick();
+      expect(mockMessageService.getConversation).toHaveBeenCalledWith('u1');
+      expect(component['searchQuery']()).toBe('');
+    }));
+  });
+
+  // ---------------------------------------------------------------------------
+  // activePartnerInfo
+  // ---------------------------------------------------------------------------
+  describe('MessagingComponent — activePartnerInfo', () => {
+    it('MessagingComponent — no active partner — returns null', () => {
+      activePartnerSignal.set(null);
+      expect(component['activePartnerInfo']()).toBeNull();
+    });
+
+    it('MessagingComponent — active partner in conversations — returns conversation', () => {
+      conversationsSignal.set([makeConversation('u1')]);
+      activePartnerSignal.set('u1');
+      expect(component['activePartnerInfo']()?.userId).toBe('u1');
+    });
+
+    it('MessagingComponent — active partner not in conversations — returns null', () => {
+      conversationsSignal.set([makeConversation('u1')]);
+      activePartnerSignal.set('unknown-id');
+      expect(component['activePartnerInfo']()).toBeNull();
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // startNewConversation
+  // ---------------------------------------------------------------------------
+  describe('MessagingComponent — startNewConversation', () => {
+    it('MessagingComponent — conversation exists — opens existing conversation', fakeAsync(() => {
+      conversationsSignal.set([makeConversation('u1')]);
+      component['startNewConversation'](makeUser('u1'));
+      tick();
+      expect(mockMessageService.getConversation).toHaveBeenCalledWith('u1');
+    }));
+
+    it('MessagingComponent — no existing conversation — fetches new conversation', fakeAsync(() => {
+      conversationsSignal.set([]);
+      const user = makeUser('new-user');
+      component['startNewConversation'](user);
+      tick();
+      expect(mockMessageService.getConversation).toHaveBeenCalledWith('new-user');
+    }));
+  });
+
+  // ---------------------------------------------------------------------------
+  // filteredUsers — role and email matching
+  // ---------------------------------------------------------------------------
+  describe('MessagingComponent — filteredUsers — role and email branches', () => {
+    beforeEach(() => {
+      usersSignal.set([
+        makeUser('u1'),
+        { ...makeUser('u2'), firstName: 'Carol', lastName: 'White', role: UserRole.PATIENT, email: 'carol@test.com' },
+      ]);
+    });
+
+    it('MessagingComponent — query matching role — filters correctly', () => {
+      component['searchQuery'].set('patient');
+      expect(component['filteredUsers']().length).toBe(1);
+      expect(component['filteredUsers']()[0].id).toBe('u2');
+    });
+
+    it('MessagingComponent — query matching email — filters correctly', () => {
+      component['searchQuery'].set('carol@test');
+      expect(component['filteredUsers']().length).toBe(1);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // formatTime
+  // ---------------------------------------------------------------------------
+  describe('MessagingComponent — formatTime', () => {
+    beforeEach(() => { jasmine.clock().install(); });
+    afterEach(() => { jasmine.clock().uninstall(); });
+
+    it('MessagingComponent — within 1 minute — returns "Just now"', () => {
+      jasmine.clock().mockDate(new Date('2024-06-01T12:00:00'));
+      expect(component['formatTime'](new Date('2024-06-01T11:59:40'))).toBe('Just now');
+    });
+
+    it('MessagingComponent — within 60 minutes — returns minutes ago', () => {
+      jasmine.clock().mockDate(new Date('2024-06-01T12:00:00'));
+      expect(component['formatTime'](new Date('2024-06-01T11:55:00'))).toBe('5m ago');
+    });
+
+    it('MessagingComponent — within 24 hours — returns time string', () => {
+      jasmine.clock().mockDate(new Date('2024-06-01T14:00:00'));
+      const result = component['formatTime'](new Date('2024-06-01T12:00:00'));
+      expect(result).toMatch(/\d{1,2}:\d{2}/);
+    });
+
+    it('MessagingComponent — within 7 days — returns weekday + time', () => {
+      jasmine.clock().mockDate(new Date('2024-06-05T12:00:00'));
+      const result = component['formatTime'](new Date('2024-06-03T10:00:00'));
+      expect(result).toBeTruthy();
+    });
+
+    it('MessagingComponent — older than 7 days — returns month/day', () => {
+      jasmine.clock().mockDate(new Date('2024-06-20T12:00:00'));
+      const result = component['formatTime'](new Date('2024-06-01T10:00:00'));
+      expect(result).toBeTruthy();
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // getRoleLabel
+  // ---------------------------------------------------------------------------
+  describe('MessagingComponent — getRoleLabel', () => {
+    it('MessagingComponent — known role doctor — returns "Doctor"', () => {
+      expect(component['getRoleLabel']('doctor')).toBe('Doctor');
+    });
+
+    it('MessagingComponent — known role patient — returns "Patient"', () => {
+      expect(component['getRoleLabel']('patient')).toBe('Patient');
+    });
+
+    it('MessagingComponent — known role admin — returns "Admin"', () => {
+      expect(component['getRoleLabel']('admin')).toBe('Admin');
+    });
+
+    it('MessagingComponent — unknown role — returns original role string', () => {
+      expect(component['getRoleLabel']('unknown-role')).toBe('unknown-role');
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // getRoleBadgeClass
+  // ---------------------------------------------------------------------------
+  describe('MessagingComponent — getRoleBadgeClass', () => {
+    it('MessagingComponent — doctor role — returns badge-doctor', () => {
+      expect(component['getRoleBadgeClass']('doctor')).toBe('badge-doctor');
+    });
+
+    it('MessagingComponent — patient role — returns badge-patient', () => {
+      expect(component['getRoleBadgeClass']('patient')).toBe('badge-patient');
+    });
+
+    it('MessagingComponent — admin role — returns badge-admin', () => {
+      expect(component['getRoleBadgeClass']('admin')).toBe('badge-admin');
+    });
+
+    it('MessagingComponent — unknown role — returns empty string', () => {
+      expect(component['getRoleBadgeClass']('unknown')).toBe('');
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // getInitials
+  // ---------------------------------------------------------------------------
+  describe('MessagingComponent — getInitials', () => {
+    it('MessagingComponent — valid names — returns uppercase initials', () => {
+      expect(component['getInitials']('John', 'Doe')).toBe('JD');
+    });
+
+    it('MessagingComponent — empty names — returns empty string', () => {
+      expect(component['getInitials']('', '')).toBe('');
+    });
+
+    it('MessagingComponent — null names — returns empty string via nullish coalescing', () => {
+      // Exercises the ?. and ?? null-path branches in getInitials
+      expect(component['getInitials'](null as unknown as string, null as unknown as string)).toBe('');
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // isOwnMessage — null current user
+  // ---------------------------------------------------------------------------
+  describe('MessagingComponent — isOwnMessage — null user', () => {
+    it('MessagingComponent — null current user — returns false for any message', () => {
+      currentUserSignal.set(null as unknown as { id: string; firstName: string; lastName: string });
+      expect(component['isOwnMessage'](makeMessage('m1', 'u1'))).toBeFalse();
+    });
+  });
 });

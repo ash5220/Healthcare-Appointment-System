@@ -180,5 +180,228 @@ describe('AuthService', () => {
       expect(req.request.body).toEqual({ token });
       req.flush({ success: true });
     });
+
+    it('should fetch and store profile', () => {
+      service.getProfile().subscribe((res) => {
+        expect(res.data).toEqual(mockUser);
+        expect(service.currentUser()).toEqual(mockUser);
+      });
+
+      const req = httpMock.expectOne(`${environment.apiUrl}/auth/profile`);
+      expect(req.request.method).toBe('GET');
+      req.flush({ data: mockUser });
+
+      expect(storageServiceSpy.setUser).toHaveBeenCalledWith(mockUser);
+    });
+  });
+
+  describe('Registration', () => {
+    it('AuthService — register — success without MFA — stores user and token', () => {
+      const registerData = {
+        email: 'new@test.com',
+        password: 'Password1!',
+        confirmPassword: 'Password1!',
+        firstName: 'New',
+        lastName: 'User',
+        role: UserRole.PATIENT,
+      };
+
+      service.register(registerData).subscribe((res) => {
+        expect(res.success).toBeTrue();
+      });
+
+      const req = httpMock.expectOne(`${environment.apiUrl}/auth/register`);
+      expect(req.request.method).toBe('POST');
+      req.flush({
+        success: true,
+        data: { user: mockUser, accessToken: 'tok', mfaRequired: false },
+      });
+
+      expect(storageServiceSpy.setTokens).toHaveBeenCalledWith('tok');
+    });
+
+    it('AuthService — register — MFA required — does not call handleAuthSuccess', () => {
+      service.register({ email: 'a@b.com', password: 'P', confirmPassword: 'P', firstName: 'A', lastName: 'B', role: UserRole.PATIENT }).subscribe();
+
+      const req = httpMock.expectOne(`${environment.apiUrl}/auth/register`);
+      req.flush({ success: true, data: { mfaRequired: true, tempToken: 'tmp' } });
+
+      expect(storageServiceSpy.setTokens).not.toHaveBeenCalled();
+    });
+
+    it('AuthService — registerPatient — success — stores user', () => {
+      const patientData = {
+        email: 'pt@test.com',
+        password: 'Password1!',
+        confirmPassword: 'Password1!',
+        firstName: 'Pat',
+        lastName: 'Ient',
+        dateOfBirth: '1990-01-01',
+        gender: 'male' as const,
+      };
+
+      service.registerPatient(patientData).subscribe();
+
+      const req = httpMock.expectOne(`${environment.apiUrl}/auth/register/patient`);
+      expect(req.request.method).toBe('POST');
+      req.flush({ success: true, data: { user: mockUser, accessToken: 'tok', mfaRequired: false } });
+
+      expect(storageServiceSpy.setUser).toHaveBeenCalled();
+    });
+
+    it('AuthService — registerDoctor — success — stores user', () => {
+      const doctorData = {
+        email: 'dr@test.com',
+        password: 'Password1!',
+        confirmPassword: 'Password1!',
+        firstName: 'Doc',
+        lastName: 'Tor',
+        specialization: 'Cardiology',
+        licenseNumber: 'LIC123',
+        yearsOfExperience: 5,
+        consultationFee: 100,
+      };
+
+      service.registerDoctor(doctorData).subscribe();
+
+      const req = httpMock.expectOne(`${environment.apiUrl}/auth/register/doctor`);
+      expect(req.request.method).toBe('POST');
+      req.flush({ success: true, data: { user: mockUser, accessToken: 'tok', mfaRequired: false } });
+
+      expect(storageServiceSpy.setUser).toHaveBeenCalled();
+    });
+  });
+
+  describe('MFA', () => {
+    it('AuthService — verifyMfaLogin — success — stores user', () => {
+      service.verifyMfaLogin('tmp-token', '123456').subscribe();
+
+      const req = httpMock.expectOne(`${environment.apiUrl}/auth/verify-mfa`);
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual({ tempToken: 'tmp-token', token: '123456' });
+      req.flush({ success: true, data: { user: mockUser, accessToken: 'tok', mfaRequired: false } });
+
+      expect(storageServiceSpy.setUser).toHaveBeenCalled();
+    });
+
+    it('AuthService — setupMfa — returns QR code URL and secret', () => {
+      service.setupMfa().subscribe((res) => {
+        expect(res.data.qrCodeUrl).toBe('otpauth://...');
+        expect(res.data.secret).toBe('ABCDEF');
+      });
+
+      const req = httpMock.expectOne(`${environment.apiUrl}/auth/setup-mfa`);
+      expect(req.request.method).toBe('POST');
+      req.flush({ success: true, data: { qrCodeUrl: 'otpauth://...', secret: 'ABCDEF' } });
+    });
+
+    it('AuthService — verifySetupMfa — success — returns success response', () => {
+      service.verifySetupMfa('654321').subscribe((res) => {
+        expect(res.success).toBeTrue();
+      });
+
+      const req = httpMock.expectOne(`${environment.apiUrl}/auth/verify-setup-mfa`);
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual({ token: '654321' });
+      req.flush({ success: true });
+    });
+  });
+
+  describe('Email Verification', () => {
+    it('AuthService — verifyEmail — sends token in POST body', () => {
+      service.verifyEmail('verify-token').subscribe((res) => {
+        expect(res.success).toBeTrue();
+      });
+
+      const req = httpMock.expectOne(`${environment.apiUrl}/auth/verify-email`);
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual({ token: 'verify-token' });
+      req.flush({ success: true });
+    });
+
+    it('AuthService — resendVerificationEmail — sends email in body', () => {
+      service.resendVerificationEmail('user@test.com').subscribe((res) => {
+        expect(res.success).toBeTrue();
+      });
+
+      const req = httpMock.expectOne(`${environment.apiUrl}/auth/resend-verification`);
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual({ email: 'user@test.com' });
+      req.flush({ success: true });
+    });
+  });
+
+  describe('Password Reset', () => {
+    it('AuthService — forgotPassword — sends email in body', () => {
+      service.forgotPassword('user@test.com').subscribe((res) => {
+        expect(res.success).toBeTrue();
+      });
+
+      const req = httpMock.expectOne(`${environment.apiUrl}/auth/forgot-password`);
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual({ email: 'user@test.com' });
+      req.flush({ success: true });
+    });
+
+    it('AuthService — resetPassword — sends token and newPassword', () => {
+      service.resetPassword('reset-tok', 'NewPass1!').subscribe((res) => {
+        expect(res.success).toBeTrue();
+      });
+
+      const req = httpMock.expectOne(`${environment.apiUrl}/auth/reset-password`);
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual({ token: 'reset-tok', newPassword: 'NewPass1!' });
+      req.flush({ success: true });
+    });
+  });
+
+  describe('Token Refresh', () => {
+    it('AuthService — refreshToken — success — stores new access token', () => {
+      service.refreshToken().subscribe((res) => {
+        expect(res.data.accessToken).toBe('new-token');
+      });
+
+      const req = httpMock.expectOne(`${environment.apiUrl}/auth/refresh-token`);
+      expect(req.request.method).toBe('POST');
+      expect(req.request.withCredentials).toBeTrue();
+      req.flush({ data: { accessToken: 'new-token' } });
+
+      expect(storageServiceSpy.setTokens).toHaveBeenCalledWith('new-token');
+    });
+
+    it('AuthService — refreshToken — failure — clears auth and propagates error', () => {
+      service.refreshToken().subscribe({
+        error: () => {
+          expect(storageServiceSpy.clearAuth).toHaveBeenCalled();
+        },
+      });
+
+      const req = httpMock.expectOne(`${environment.apiUrl}/auth/refresh-token`);
+      req.flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
+    });
+  });
+
+  describe('hasRole — array overload', () => {
+    it('AuthService — hasRole with array — user role is in array — returns true', () => {
+      (service as unknown as { currentUserSignal: { set: (v: User | null) => void } }).currentUserSignal.set(mockUser);
+      expect(service.hasRole([UserRole.PATIENT, UserRole.DOCTOR])).toBeTrue();
+    });
+
+    it('AuthService — hasRole with array — user role not in array — returns false', () => {
+      (service as unknown as { currentUserSignal: { set: (v: User | null) => void } }).currentUserSignal.set(mockUser);
+      expect(service.hasRole([UserRole.DOCTOR, UserRole.ADMIN])).toBeFalse();
+    });
+  });
+
+  describe('Logout — error path', () => {
+    it('AuthService — logout — HTTP error — still clears auth', () => {
+      service.logout();
+
+      const req = httpMock.expectOne(`${environment.apiUrl}/auth/logout`);
+      req.flush('Server error', { status: 500, statusText: 'Internal Server Error' });
+
+      expect(storageServiceSpy.clearAuth).toHaveBeenCalled();
+      expect(routerSpy.navigate).toHaveBeenCalledWith(['/auth/login']);
+    });
   });
 });

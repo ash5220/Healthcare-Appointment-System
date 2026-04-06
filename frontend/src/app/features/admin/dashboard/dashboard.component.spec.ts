@@ -1,14 +1,15 @@
 /**
  * AdminDashboardComponent Unit Tests
  */
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { AdminDashboardComponent } from './dashboard.component';
 import { AuthService } from '../../../core/services/auth.service';
 import { AdminService } from '../../../core/services/admin.service';
+import { NotificationService } from '../../../core/services/notification.service';
 import { signal } from '@angular/core';
 import { UserRole } from '../../../core/models';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
 describe('AdminDashboardComponent', () => {
     let component: AdminDashboardComponent;
@@ -54,12 +55,15 @@ describe('AdminDashboardComponent', () => {
             },
         }));
 
+        const mockNotificationService = jasmine.createSpyObj('NotificationService', ['success', 'error', 'info']);
+
         await TestBed.configureTestingModule({
             imports: [AdminDashboardComponent],
             providers: [
                 provideRouter([]),
                 { provide: AuthService, useValue: mockAuthService },
                 { provide: AdminService, useValue: mockAdminService },
+                { provide: NotificationService, useValue: mockNotificationService },
             ],
         }).compileComponents();
 
@@ -92,5 +96,41 @@ describe('AdminDashboardComponent', () => {
         expect(compiled.textContent).toContain('Doctors');
         expect(compiled.textContent).toContain('Patients');
         expect(compiled.textContent).toContain('Appointments');
+    });
+
+    describe('loadDashboardData — error case', () => {
+        it('AdminDashboardComponent — API error — sets hasError to true and isLoading to false', fakeAsync(() => {
+            mockAdminService.getDashboardStats.and.returnValue(throwError(() => new Error('Server error')));
+            component['loadDashboardData']();
+            tick();
+            expect(component['hasError']()).toBeTrue();
+            expect(component['isLoading']()).toBeFalse();
+        }));
+    });
+
+    describe('retryLoad', () => {
+        it('AdminDashboardComponent — retryLoad — sets isLoading and calls loadDashboardData again', fakeAsync(() => {
+            component['retryLoad']();
+            tick();
+            // getDashboardStats called once on init + once on retry = 2 total
+            expect(mockAdminService.getDashboardStats).toHaveBeenCalledTimes(2);
+        }));
+    });
+
+    describe('loadDashboardData — missing byRole keys', () => {
+        it('AdminDashboardComponent — missing doctor key — defaults to 0', fakeAsync(() => {
+            mockAdminService.getDashboardStats.and.returnValue(of({
+                data: {
+                    stats: {
+                        users: { total: 5, byRole: {}, active: 4, inactive: 1, verified: 4, unverified: 1 },
+                        appointments: { total: 10, byStatus: {} },
+                    },
+                },
+            }));
+            component['loadDashboardData']();
+            tick();
+            expect(component['stats']().totalDoctors).toBe(0);
+            expect(component['stats']().totalPatients).toBe(0);
+        }));
     });
 });

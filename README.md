@@ -46,7 +46,6 @@ Healthcare Appointment System is a production-focused web application that strea
 
 ![hospital demo](https://github.com/user-attachments/assets/a2f121bb-7587-46a6-a089-5d5fd27bd1fa)
 
-
 ---
 
 ## Features
@@ -459,10 +458,10 @@ Use [backend/.env.example](backend/.env.example) for local development and [back
 
 ### Email (SendGrid)
 
-| Variable         | Description                          | Default | Required in Production |
-| ---------------- | ------------------------------------ | ------- | ---------------------- |
-| SENDGRID_API_KEY | SendGrid Web API key (`SG.xxx`)      | empty   | Yes                    |
-| EMAIL_FROM       | Verified sender email address        | empty   | Yes                    |
+| Variable         | Description                     | Default | Required in Production |
+| ---------------- | ------------------------------- | ------- | ---------------------- |
+| SENDGRID_API_KEY | SendGrid Web API key (`SG.xxx`) | empty   | Yes                    |
+| EMAIL_FROM       | Verified sender email address   | empty   | Yes                    |
 
 Email is sent via the SendGrid Web API (`@sendgrid/mail`). No SMTP credentials are required. The sender address set in `EMAIL_FROM` must be verified in the SendGrid dashboard under Settings → Sender Authentication before emails will be delivered.
 

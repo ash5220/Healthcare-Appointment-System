@@ -39,7 +39,12 @@ router.post('/:id/deactivate', requirePatient, validate(idParamValidation), deac
 router.delete('/:id', requirePatient, validate(idParamValidation), deleteInsurance);
 
 // Admin/Doctor routes
-router.post('/:id/verify', requireDoctorOrAdmin, validate(verifyInsuranceValidation), verifyInsurance);
+router.post(
+  '/:id/verify',
+  requireDoctorOrAdmin,
+  validate(verifyInsuranceValidation),
+  verifyInsurance
+);
 router.get('/patient/:patientId', requireDoctorOrAdmin, getPatientInsurance);
 
 export default router;

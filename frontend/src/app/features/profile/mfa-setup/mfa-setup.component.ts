@@ -25,7 +25,7 @@ export class MfaSetupComponent {
   protected readonly secret = signal('');
 
   protected readonly mfaForm = this.fb.nonNullable.group({
-    code: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(6)]]
+    code: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(6)]],
   });
 
   protected initializeSetup(): void {
@@ -42,7 +42,7 @@ export class MfaSetupComponent {
         this.isLoading.set(false);
         this.notificationService.error('Error', 'Failed to initialize MFA setup.');
         this.logger.error('MFA setup error', error);
-      }
+      },
     });
   }
 
@@ -62,7 +62,7 @@ export class MfaSetupComponent {
         this.isVerifying.set(false);
         this.notificationService.error('Error', 'Invalid or expired code. Please try again.');
         this.logger.error('MFA verification error', error);
-      }
+      },
     });
   }
 

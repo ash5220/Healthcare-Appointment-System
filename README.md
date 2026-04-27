@@ -223,7 +223,7 @@ Local URLs:
 ### 1. Clone
 
 ```bash
-git clone https://github.com/<your-username>/curato.git
+git clone https://github.com/ash5220/curato.git
 cd curato
 ```
 
